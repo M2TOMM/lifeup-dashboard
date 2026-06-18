@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.spec
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 临时/测试文件
+check_*.py
+test_*.py
+analyze_db*.py
+temp/
+*.tmp
+
+# 环境
+venv/
+.env
+
+# 配置文件（含个人路径）
+.lifeup_dashboard_config.json
