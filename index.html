@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>诸天万界 · LifeUp 存档管理器</title>
 <style>
+/* ========== Theme Variables ========== */
 :root {
   --bg: #0a0e17; --bg2: #111827; --bg3: #1a2332; --border: #1e3a5f;
   --text: #c9d1d9; --text2: #8b949e; --gold: #d4a843; --gold2: #f0c060;
@@ -12,49 +13,72 @@
   --purple: #a78bfa; --purple2: #c4b5fd; --orange: #e09040;
   --radius: 8px; --shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
+body.light-mode {
+  --bg: #f0f2f5; --bg2: #fff; --bg3: #fafafa; --border: #d0d5dd;
+  --text: #1a1a2e; --text2: #6b7280; --gold: #b8860b; --gold2: #d4a843;
+  --cyan: #0891b2; --cyan2: #06b6d4; --red: #dc2626; --green: #16a34a;
+  --purple: #7c3aed; --purple2: #8b5cf6; --orange: #ea580c;
+  --shadow: 0 4px 24px rgba(0,0,0,0.1);
+}
+
+/* ========== Reset & Base ========== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
   background: var(--bg); color: var(--text);
   height: 100vh; display: flex; overflow: hidden;
 }
+
+/* ========== Sidebar ========== */
 .sidebar {
   width: 220px; background: var(--bg2); border-right: 1px solid var(--border);
-  display: flex; flex-direction: column; padding: 16px 0; flex-shrink: 0;
+  display: flex; flex-direction: column; padding: 6px 0; flex-shrink: 0; overflow-y: auto;
 }
 .sidebar-title {
-  padding: 0 20px 20px; font-size: 18px; font-weight: 700;
+  padding: 6px 20px 14px; font-size: 18px; font-weight: 700;
   background: linear-gradient(135deg, var(--gold), var(--orange));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px;
 }
 .nav-item {
-  padding: 10px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px;
-  font-size: 14px; color: var(--text2); transition: all 0.2s; border-left: 3px solid transparent;
+  padding: 9px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--text2); transition: all 0.15s; border-left: 3px solid transparent;
 }
 .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
 .nav-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(212,168,67,0.08); }
-.nav-icon { font-size: 18px; width: 24px; text-align: center; }
+.nav-icon { font-size: 16px; width: 22px; text-align: center; }
+
+/* ========== Main Layout ========== */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .header {
-  padding: 12px 24px; background: var(--bg2); border-bottom: 1px solid var(--border);
-  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  padding: 10px 24px; background: var(--bg2); border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; flex-wrap: wrap; gap: 8px;
 }
-.header h2 { font-size: 16px; font-weight: 600; color: var(--cyan); }
-.conn-status { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.header h2 { font-size: 16px; font-weight: 600; color: var(--cyan); white-space: nowrap; }
+.conn-status { display: flex; align-items: center; gap: 8px; font-size: 12px; flex-wrap: wrap; }
 .conn-dot { width: 8px; height: 8px; border-radius: 50%; }
 .conn-dot.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
 .conn-dot.offline { background: var(--red); }
 .file-path {
   background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
-  padding: 4px 10px; border-radius: 4px; font-size: 11px; max-width: 300px;
+  padding: 4px 10px; border-radius: 4px; font-size: 11px; max-width: 260px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace;
 }
-.content { flex: 1; overflow-y: auto; padding: 24px; }
+.theme-toggle {
+  background: transparent; border: 1px solid var(--border); color: var(--text2);
+  padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 16px; line-height: 1;
+}
+.theme-toggle:hover { color: var(--gold); border-color: var(--gold); }
+
+/* ========== Content ========== */
+.content { flex: 1; overflow-y: auto; padding: 24px; padding-bottom: 60px; }
+
+/* ========== Stats Grid ========== */
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .stat-card {
   background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px; text-align: center;
+  padding: 16px; text-align: center; transition: transform 0.15s;
 }
+.stat-card:hover { transform: translateY(-2px); }
 .stat-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
 .stat-value { font-size: 28px; font-weight: 700; }
 .stat-value.gold { color: var(--gold); }
@@ -62,17 +86,22 @@ body {
 .stat-value.purple { color: var(--purple); }
 .stat-value.green { color: var(--green); }
 .stat-value.red { color: var(--red); }
+
+/* ========== Tables ========== */
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table th {
   background: var(--bg2); padding: 10px 12px; text-align: left; font-weight: 600;
   color: var(--cyan); border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 1;
 }
-.data-table td { padding: 8px 12px; border-bottom: 1px solid rgba(30,58,95,0.3); }
+.data-table td { padding: 8px 12px; border-bottom: 1px solid rgba(30,58,95,0.3); vertical-align: middle; }
 .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+.data-table input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; accent-color: var(--cyan); }
+
+/* ========== Buttons ========== */
 .btn {
   padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer;
   font-size: 12px; font-weight: 600; transition: all 0.2s;
-  display: inline-flex; align-items: center; gap: 4px;
+  display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
 }
 .btn-primary { background: var(--gold); color: #000; }
 .btn-primary:hover { background: var(--gold2); }
@@ -80,10 +109,15 @@ body {
 .btn-cyan:hover { background: var(--cyan2); }
 .btn-danger { background: transparent; border: 1px solid var(--red); color: var(--red); }
 .btn-danger:hover { background: var(--red); color: #fff; }
-.btn-green { background: var(--green); color: #000; }
+.btn-green { background: var(--green); color: #fff; }
 .btn-green:hover { filter: brightness(1.2); }
+.btn-purple { background: var(--purple); color: #000; }
+.btn-purple:hover { background: var(--purple2); }
 .btn-sm { padding: 4px 10px; font-size: 11px; }
+.btn-xs { padding: 2px 8px; font-size: 10px; }
 .btn-group { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+
+/* ========== Modal ========== */
 .modal-overlay {
   display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center;
@@ -91,9 +125,12 @@ body {
 .modal-overlay.show { display: flex; }
 .modal {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
-  padding: 24px; width: 520px; max-height: 80vh; overflow-y: auto; box-shadow: var(--shadow);
+  padding: 24px; width: 560px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow);
 }
 .modal h3 { color: var(--gold); margin-bottom: 16px; font-size: 16px; }
+.modal.wide { width: 720px; }
+
+/* ========== Forms ========== */
 .form-group { margin-bottom: 12px; }
 .form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
 .form-group input, .form-group select, .form-group textarea {
@@ -103,25 +140,36 @@ body {
 .form-group textarea { resize: vertical; min-height: 60px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
-.tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+
+/* ========== Tabs ========== */
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
 .tab {
   padding: 6px 16px; background: var(--bg3); border: 1px solid var(--border);
   border-radius: 4px; cursor: pointer; font-size: 12px; color: var(--text2); transition: all 0.2s;
 }
 .tab.active { background: var(--gold); color: #000; border-color: var(--gold); }
-.progress-bar { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; margin-top: 4px; }
-.progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
-.progress-fill.gold { background: var(--gold); }
-.progress-fill.cyan { background: var(--cyan); }
-.progress-fill.purple { background: var(--purple); }
-.loading { text-align: center; padding: 40px; color: var(--text2); }
-.spinner {
-  display: inline-block; width: 24px; height: 24px; border: 3px solid var(--border);
-  border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite;
+.tab:hover:not(.active) { color: var(--text); border-color: var(--cyan); }
+
+/* ========== Search ========== */
+.search-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.search-input {
+  padding: 7px 12px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text); font-size: 13px; width: 260px; outline: none;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-.empty { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
-.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.search-input:focus { border-color: var(--cyan); }
+.search-input::placeholder { color: var(--text2); }
+.search-clear { color: var(--text2); cursor: pointer; font-size: 14px; padding: 2px 6px; }
+
+/* ========== Filter Tags ========== */
+.filter-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.filter-tag {
+  padding: 3px 10px; border-radius: 12px; font-size: 11px; cursor: pointer; transition: all 0.2s;
+  background: var(--bg3); color: var(--text2); border: 1px solid var(--border);
+}
+.filter-tag.active { background: var(--cyan); color: #000; border-color: var(--cyan); }
+.filter-tag:hover:not(.active) { border-color: var(--gold); color: var(--text); }
+
+/* ========== Badges ========== */
 .badge {
   display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;
 }
@@ -130,11 +178,18 @@ body {
 .badge-purple { background: rgba(167,139,250,0.2); color: var(--purple); }
 .badge-red { background: rgba(224,85,106,0.2); color: var(--red); }
 .badge-green { background: rgba(76,175,80,0.2); color: var(--green); }
-.filter-tag {
-  padding: 3px 10px; border-radius: 12px; font-size: 11px; cursor: pointer; transition: all 0.2s;
-  background: var(--bg3); color: var(--text2); border: 1px solid var(--border);
-}
-.filter-tag.active { background: var(--cyan); color: #000; border-color: var(--cyan); }
+.badge-orange { background: rgba(224,144,64,0.2); color: var(--orange); }
+
+/* ========== Progress Bars ========== */
+.progress-bar { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+.progress-bar.h8 { height: 8px; }
+.progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+.progress-fill.gold { background: var(--gold); }
+.progress-fill.cyan { background: var(--cyan); }
+.progress-fill.purple { background: var(--purple); }
+.progress-fill.green { background: var(--green); }
+
+/* ========== Toast ========== */
 .toast {
   position: fixed; bottom: 20px; right: 20px; background: var(--bg2); border: 1px solid var(--border);
   padding: 12px 20px; border-radius: 8px; font-size: 13px; z-index: 200;
@@ -143,14 +198,133 @@ body {
 .toast.show { transform: translateY(0); opacity: 1; }
 .toast.success { border-color: var(--green); }
 .toast.error { border-color: var(--red); }
+
+/* ========== Batch Bar ========== */
+.batch-bar {
+  position: fixed; bottom: 0; left: 220px; right: 0; background: var(--bg2);
+  border-top: 1px solid var(--cyan); padding: 8px 24px;
+  display: none; align-items: center; gap: 10px; z-index: 90; flex-wrap: wrap;
+}
+.batch-bar.show { display: flex; }
+.batch-count { font-size: 12px; color: var(--cyan); font-weight: 600; }
+
+/* ========== Empty/Loading ========== */
+.loading { text-align: center; padding: 40px; color: var(--text2); }
+.spinner {
+  display: inline-block; width: 24px; height: 24px; border: 3px solid var(--border);
+  border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 40px; color: var(--text2); font-size: 14px; }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+/* ========== Inventory Card Grid ========== */
+.inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.inv-card {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; text-align: center; position: relative; transition: transform 0.15s, box-shadow 0.15s;
+  cursor: default;
+}
+.inv-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--cyan); }
+.inv-card .card-icon { width: 48px; height: 48px; object-fit: contain; margin-bottom: 8px; border-radius: 6px; }
+.inv-card .card-icon-placeholder { font-size: 40px; margin-bottom: 8px; opacity: 0.6; }
+.inv-card .inv-card-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; word-break: break-all; line-height: 1.3; max-height: 2.6em; overflow: hidden; }
+.inv-card .inv-card-meta { display: flex; justify-content: center; gap: 10px; font-size: 11px; color: var(--text2); }
+.inv-card .inv-card-star { position: absolute; top: 6px; right: 8px; font-size: 14px; }
+
+/* ========== Synthesis Calculator ========== */
+.synth-card.can-synth { border-left: 3px solid var(--green); }
+.synth-card.miss-one { border-left: 3px solid var(--orange); }
+.synth-card.miss-more { border-left: 3px solid var(--red); opacity: 0.75; }
+.synth-card.no-match { border-left: 3px solid var(--border); opacity: 0.5; }
+.calc-badge { font-size: 10px; padding: 2px 8px; border-radius: 3px; font-weight: 600; }
+.calc-badge.can { background: rgba(76,175,80,0.15); color: var(--green); }
+.calc-badge.miss1 { background: rgba(224,144,64,0.15); color: var(--orange); }
+.calc-badge.miss2 { background: rgba(224,85,106,0.12); color: var(--red); }
+.calc-summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.calc-summary-item { padding: 8px 16px; border-radius: var(--radius); font-size: 13px; cursor: pointer; }
+.calc-summary-item.s-can { background: rgba(76,175,80,0.1); border: 1px solid var(--green); color: var(--green); }
+.calc-summary-item.s-miss1 { background: rgba(224,144,64,0.1); border: 1px solid var(--orange); color: var(--orange); }
+.calc-summary-item.s-miss2 { background: rgba(224,85,106,0.08); border: 1px solid var(--red); color: var(--red); }
+.calc-summary-item.s-active { box-shadow: 0 0 0 2px currentColor; }
+
+/* ========== Card Grid ========== */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.card-item {
+  background: var(--bg3); border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 12px; text-align: center; transition: all 0.2s;
+}
+.card-item:hover { border-color: var(--cyan); transform: translateY(-2px); }
+.card-item.owned { border-color: var(--gold); box-shadow: 0 0 12px rgba(212,168,67,0.15); }
+.card-item .card-icon { font-size: 36px; margin-bottom: 6px; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+.card-item .card-name { font-size: 11px; color: var(--text); line-height: 1.3; word-break: break-all; }
+.card-item .card-rarity { font-size: 10px; margin-top: 4px; }
+
+/* ========== Timeline ========== */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
+  width: 2px; background: var(--border);
+}
+.timeline-item { position: relative; padding: 8px 0; margin-bottom: 8px; }
+.timeline-item::before {
+  content: ''; position: absolute; left: -24px; top: 14px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--cyan); border: 2px solid var(--bg2);
+}
+.timeline-time { font-size: 11px; color: var(--text2); }
+.timeline-body { font-size: 13px; color: var(--text); margin-top: 2px; }
+
+/* ========== Chart Bars ========== */
+.chart-row { display: flex; align-items: flex-end; gap: 4px; height: 200px; padding: 8px 0; }
+.chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.chart-bar {
+  width: 100%; max-width: 40px; border-radius: 4px 4px 0 0; min-height: 2px;
+  transition: height 0.3s; cursor: pointer;
+}
+.chart-bar.coin { background: var(--gold); }
+.chart-bar.exp { background: var(--purple); }
+.chart-label { font-size: 10px; color: var(--text2); transform: rotate(-45deg); white-space: nowrap; margin-top: 4px; }
+.chart-value { font-size: 9px; color: var(--text2); }
+
+/* ========== Scrollbar ========== */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 8px; flex-shrink: 0; height: auto; }
+  .sidebar-title { display: none; }
+  .nav-item { border-left: none; border-bottom: 2px solid transparent; padding: 8px 10px; font-size: 11px; gap: 4px; }
+  .nav-item.active { border-left-color: transparent; border-bottom-color: var(--gold); }
+  .batch-bar { left: 0; }
+  .search-input { width: 180px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ========== Section Header ========== */
+.section-title { font-size: 15px; color: var(--purple2); margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+/* ========== LVL Buttons ========== */
+.lvl-group { display:flex; gap:6px; }
+.lvl-btn { padding:6px 12px; border-radius:4px; border:1px solid var(--border); cursor:pointer; font-size:13px; text-align:center; background:var(--bg); color:var(--text2); transition:all 0.15s; user-select:none; }
+.lvl-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.lvl-btn.active { background: var(--cyan); color: #fff; border-color: var(--cyan); font-weight:700; }
+.lvl-group .lvl-btn:nth-child(1).active { background: var(--green); border-color: var(--green); }
+.lvl-group .lvl-btn:nth-child(2).active { background: var(--cyan); border-color: var(--cyan); }
+.lvl-group .lvl-btn:nth-child(3).active { background: var(--purple); border-color: var(--purple); }
+.lvl-group .lvl-btn:nth-child(4).active { background: var(--red); border-color: var(--red); }
+.attr-check input { accent-color: inherit; }
+.attr-check:hover { background: rgba(255,255,255,0.05); }
 </style>
 </head>
 <body>
 
-<aside class="sidebar">
+<!-- ========== Sidebar ========== -->
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-title">☯ 诸天万界</div>
   <nav>
     <div class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span> 修行总览</div>
@@ -159,26 +333,38 @@ body {
     <div class="nav-item" data-page="achievements"><span class="nav-icon">🏆</span> 成就管理</div>
     <div class="nav-item" data-page="skills"><span class="nav-icon">⚔️</span> 属性面板</div>
     <div class="nav-item" data-page="inventory"><span class="nav-icon">🎒</span> 背包物品</div>
+    <div class="nav-item" data-page="synthesis"><span class="nav-icon">🔮</span> 合成配方</div>
+    <div class="nav-item" data-page="history"><span class="nav-icon">📜</span> 活动记录</div>
+    <div class="nav-item" data-page="pools"><span class="nav-icon">🎰</span> 卡池管理</div>
+    <div class="nav-item" data-page="achprogress"><span class="nav-icon">📈</span> 成就进度</div>
+    <div class="nav-item" data-page="collection"><span class="nav-icon">🃏</span> 卡牌图鉴</div>
+    <div class="nav-item" data-page="economy"><span class="nav-icon">📊</span> 经济看板</div>
+    <div class="nav-item" data-page="snapshots"><span class="nav-icon">📸</span> 快照管理</div>
+    <div class="nav-item" data-page="realms"><span class="nav-icon">🌌</span> 位面切换</div>
   </nav>
 </aside>
 
+<!-- ========== Main Area ========== -->
 <div class="main">
   <header class="header">
     <h2 id="pageTitle">📊 修行总览</h2>
     <div class="conn-status">
       <span class="file-path" id="filePath" title="">未加载存档</span>
       <div class="conn-dot offline" id="connDot"></div>
-      <span id="connText">未加载</span>
+      <span id="connText" style="font-size:11px;color:var(--text2)">未加载</span>
       <button class="btn btn-cyan btn-sm" onclick="showOpenDialog()">📂 打开存档</button>
       <button class="btn btn-green btn-sm" id="saveBtn" onclick="saveBackup()" disabled>💾 保存</button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="切换主题" id="themeBtn">🌙</button>
     </div>
   </header>
   <div class="content" id="content">
-    <div class="empty" style="padding: 60px 40px">
+    <div class="empty" style="padding: 80px 40px">
       <div class="empty-icon">📂</div>
       <h3 style="color:var(--gold);margin-bottom:12px">欢迎使用 LifeUp 存档管理器</h3>
-      <p style="margin-bottom:20px;color:var(--text2)">输入 LifeUp 备份文件的完整路径来加载</p>
-      <div id="pathBox" style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+      <p style="margin-bottom:20px;color:var(--text2);max-width:500px;margin-left:auto;margin-right:auto">
+        此工具可让你直接在 PC 上浏览和编辑 LifeUp 备份存档中的所有数据。请先打开一个备份文件。
+      </p>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
         <input id="pathInput" style="width:420px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-family:Consolas,monospace" 
                placeholder="C:\Users\USER\Nutstore\1\LifeUp\LifeupBackup.zip">
         <button class="btn btn-primary" onclick="loadByPath()" style="font-size:14px;padding:10px 20px">📂 加载存档</button>
@@ -190,20 +376,73 @@ body {
   </div>
 </div>
 
-<div class="modal-overlay" id="modalOverlay">
+<!-- ========== Modal ========== -->
+<div class="modal-overlay" id="modalOverlay" onclick="overlayClick(event)">
   <div class="modal" id="modalBox"></div>
 </div>
 
+<!-- ========== Toast ========== -->
 <div class="toast" id="toast"></div>
+
+<!-- ========== Batch Bar ========== -->
+<div class="batch-bar" id="batchBar">
+  <span class="batch-count" id="batchCount">已选 0 项</span>
+  <button class="btn btn-cyan btn-sm" id="batchEnableBtn" style="display:none" onclick="batchAction(currentBatchType,'enable')">▶️ 启用</button>
+  <button class="btn btn-sm" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);display:none" id="batchDisableBtn" onclick="batchAction(currentBatchType,'disable')">⏸️ 停用</button>
+  <button class="btn btn-sm" style="background:var(--bg3);color:var(--gold);border:1px solid var(--gold);display:none" id="batchPriceBtn" onclick="batchPriceDialog()">💰 批量改价</button>
+  <button class="btn btn-danger btn-sm" id="batchDeleteBtn" onclick="batchAction(currentBatchType,'delete')">🗑️ 批量删除</button>
+  <button class="btn btn-sm" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border)" onclick="clearAllChecks()">✕ 取消选择</button>
+</div>
 
 
 <script>
-// ====== 状态 ======
+/* =================================================================================
+ *  LifeUp Dashboard - Complete Frontend
+ *  All 14 modules + search/filter + batch ops + snapshots + realms
+ * ================================================================================= */
+
+// ====== Constants ======
 const API_BASE = '';
-// ====== 平台检测 ======
 const IS_DESKTOP = !!(window.pywebview && window.pywebview.api);
 const DEFAULT_PATH = 'C:\\Users\\USER\\Nutstore\\1\\LifeUp\\LifeupBackup.zip';
 
+// ====== Page State (search persistence) ======
+const pageStates = {
+  tasks: { filter: 'all', search: '', category: '' },
+  items: { search: '', category: '' },
+  synthesis: { search: '', category: '', calcMode: false },
+  achievements: { search: '', category: '' },
+  collection: { search: '', rarity: '' },
+  inventory: { search: '', view: 'cards' },
+  history: { dateFrom: '', dateTo: '' }
+};
+let currentBatchType = 'tasks';
+let currentPage = 'dashboard';
+let currentSort = { col: null, asc: true };
+
+// ====== Sort Helper ======
+function sortData(rows, col, asc) {
+  return rows.slice().sort(function(a, b) {
+    var va = a[col], vb = b[col];
+    if (va == null) va = ''; if (vb == null) vb = '';
+    if (typeof va === 'number' && typeof vb === 'number') return asc ? va - vb : vb - va;
+    return asc ? String(va).localeCompare(String(vb), 'zh') : String(vb).localeCompare(String(va), 'zh');
+  });
+}
+function renderSortIcon(colKey, label) {
+  if (currentSort.col !== colKey) return label;
+  return label + (currentSort.asc ? ' ▲' : ' ▼');
+}
+function makeSortable(th_html, colKey) {
+  return '<th onclick="sortClick(\'' + colKey + '\')" style="cursor:pointer;user-select:none">' + renderSortIcon(colKey, th_html) + '</th>';
+}
+function sortClick(col) {
+  if (currentSort.col === col) currentSort.asc = !currentSort.asc;
+  else { currentSort.col = col; currentSort.asc = true; }
+  loadCurrentPage();
+}
+
+// ====== API Helper ======
 async function api(path, opts = {}) {
   const url = API_BASE + path;
   const res = await fetch(url, {
@@ -211,723 +450,1941 @@ async function api(path, opts = {}) {
     ...opts
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({error: res.statusText}));
+    const err = await res.json().catch(() => ({ error: res.statusText }));
     throw new Error(err.error || `HTTP ${res.status}`);
   }
   return res.json();
 }
 
-// ====== 消息提示 ======
-function toast(msg, type = 'success') {
+// ====== Toast ======
+function toast(msg, type) {
+  type = type || 'success';
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 2500);
+  t.className = 'toast ' + type + ' show';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(function(){ t.classList.remove('show'); }, 2500);
 }
 
-// ====== 打开存档对话框 ======
-function showOpenDialog() {
-  if (IS_DESKTOP) {
-    openNativeFileDialog();
-    return;
+// ====== Theme Toggle ======
+function toggleTheme() {
+  document.body.classList.toggle('light-mode');
+  const isLight = document.body.classList.contains('light-mode');
+  document.getElementById('themeBtn').textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('lifeup_theme', isLight ? 'light' : 'dark');
+}
+(function initTheme() {
+  if (localStorage.getItem('lifeup_theme') === 'light') {
+    document.body.classList.add('light-mode');
+    document.getElementById('themeBtn').textContent = '☀️';
   }
-  const saved = localStorage.getItem('lifeup_backup_path') || DEFAULT_PATH;
-  showModal('📂 打开备份存档', `
-    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">输入 LifeUp 备份 ZIP 文件的完整路径</p>
-    <div class="form-group">
-      <label>备份文件路径</label>
-      <input id="f_openpath" value="${saved.replace(/\\/g,'\\\\')}" style="font-family:Consolas,monospace">
-    </div>
-    <p style="font-size:10px;color:var(--text2);margin-bottom:8px">
-      常用路径：C:\\Users\\USER\\Nutstore\\1\\LifeUp\\LifeupBackup.zip
-    </p>
-    <div class="modal-actions">
-      <button class="btn btn-cyan" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="doOpenBackup()">📂 加载</button>
-    </div>
-  `);
-  setTimeout(() => {
-    const inp = document.getElementById('f_openpath');
-    if (inp) { inp.focus(); inp.select(); }
-  }, 100);
+})();
+
+// ====== Modal ======
+function showModal(title, bodyHtml, wide) {
+  document.getElementById('modalBox').innerHTML =
+    '<h3>' + title + '</h3>' + bodyHtml;
+  if (wide) document.getElementById('modalBox').classList.add('wide');
+  else document.getElementById('modalBox').classList.remove('wide');
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+function overlayClick(e) {
+  if (e.target === e.currentTarget) closeModal();
 }
 
-async function openNativeFileDialog() {
-  try {
-    const path = await window.pywebview.api.open_file_dialog();
-    if (!path) return;
-    await _loadBackup(path);
-  } catch (err) {
-    // pywebview 不可用时回退到手动输入
-    const saved = localStorage.getItem('lifeup_backup_path') || DEFAULT_PATH;
-    showModal('📂 打开备份存档', `
-      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">输入 LifeUp 备份 ZIP 文件的完整路径</p>
-      <div class="form-group">
-        <label>备份文件路径</label>
-        <input id="f_openpath" value="${saved.replace(/\\/g,'\\\\')}" style="font-family:Consolas,monospace">
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-cyan" onclick="closeModal()">取消</button>
-        <button class="btn btn-primary" onclick="doOpenBackup()">📂 加载</button>
-      </div>
-    `);
-  }
-}
-
-async function doOpenBackup() {
-  const path = document.getElementById('f_openpath').value.trim();
-  if (!path) return toast('请输入文件路径', 'error');
-  closeModal();
-  await _loadBackup(path);
-}
-
-async function _loadBackup(path, silent = false) {
-  document.getElementById('filePath').textContent = path.split('\\').pop();
-  document.getElementById('connText').textContent = '加载中...';
-  document.getElementById('connDot').className = 'conn-dot';
-
-  try {
-    const res = await api('/api/open', {
-      method: 'POST',
-      body: JSON.stringify({ path })
-    });
-    document.getElementById('connDot').className = 'conn-dot online';
-    document.getElementById('connText').textContent = '已加载';
-    document.getElementById('saveBtn').disabled = false;
-    localStorage.setItem('lifeup_backup_path', path);
-    if (IS_DESKTOP) {
-      try { window.pywebview.api.save_last_path(path); } catch(e) {}
-    }
-    loadCurrentPage();
-    if (!silent) toast('存档加载成功');
-  } catch (err) {
-    document.getElementById('connDot').className = 'conn-dot offline';
-    document.getElementById('connText').textContent = '加载失败';
-    if (!silent) toast('加载失败: ' + err.message, 'error');
-    throw err;
-  }
-}
-
-async function loadByPath() {
-  const path = document.getElementById('pathInput').value.trim();
-  if (!path) return toast('请输入文件路径', 'error');
-  await _loadBackup(path);
-}
-
-async function saveBackup() {
-  const btn = document.getElementById('saveBtn');
-  btn.disabled = true;
-  btn.textContent = '保存中...';
-  try {
-    const res = await api('/api/save', { method: 'POST', body: JSON.stringify({}) });
-    toast('💾 存档已保存！请在手机端恢复备份');
-    btn.textContent = '💾 已保存';
-    setTimeout(() => { btn.disabled = false; btn.textContent = '💾 保存'; }, 1500);
-  } catch (err) {
-    toast('❌ 保存失败: ' + err.message, 'error');
-    btn.disabled = false;
-    btn.textContent = '💾 保存';
-  }
-}
-
-// ====== 导航 ======
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+// ====== Navigation ======
+document.querySelectorAll('.nav-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.nav-item').forEach(function(i) { i.classList.remove('active'); });
     item.classList.add('active');
     loadPage(item.dataset.page);
   });
 });
 
+var pageTitles = {
+  dashboard:'📊 修行总览', tasks:'📋 任务管理', items:'🏪 商店管理',
+  achievements:'🏆 成就管理', skills:'⚔️ 属性面板', inventory:'🎒 背包物品',
+  synthesis:'🔮 合成配方', history:'📜 活动记录', pools:'🎰 卡池管理',
+  achprogress:'📈 成就进度', collection:'🃏 卡牌图鉴', economy:'📊 经济看板',
+  snapshots:'📸 快照管理', realms:'🌌 位面切换'
+};
+
 function loadPage(page) {
-  const titles = {
-    dashboard:'📊 修行总览', tasks:'📋 任务管理', items:'🏪 商店管理',
-    achievements:'🏆 成就管理', skills:'⚔️ 属性面板', inventory:'🎒 背包物品'
-  };
-  document.getElementById('pageTitle').textContent = titles[page] || page;
+  currentPage = page;
+  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+  hideBatchBar();
   loadCurrentPage();
 }
 
 function loadCurrentPage() {
-  const page = document.querySelector('.nav-item.active').dataset.page;
-  const loaders = {
+  var page = currentPage;
+  var loaders = {
     dashboard: loadDashboard, tasks: loadTasks, items: loadItems,
-    achievements: loadAchievements, skills: loadSkills, inventory: loadInventory
+    achievements: loadAchievements, skills: loadSkills, inventory: loadInventory,
+    synthesis: loadSynthesis, history: loadHistory, pools: loadPools,
+    achprogress: loadAchProgress, collection: loadCollection, economy: loadEconomy,
+    snapshots: loadSnapshots, realms: loadRealms
   };
   if (loaders[page]) loaders[page]();
 }
 
-// ====== 总览 ======
+// ====== Batch Bar ======
+function updateBatchBar(type) {
+  currentBatchType = type;
+  var checks = document.querySelectorAll('.batch-check:checked');
+  var count = checks.length;
+  document.getElementById('batchCount').textContent = '已选 ' + count + ' 项';
+  if (count > 0) {
+    document.getElementById('batchBar').classList.add('show');
+    document.getElementById('batchEnableBtn').style.display = type === 'tasks' ? 'inline-flex' : 'none';
+    document.getElementById('batchDisableBtn').style.display = 'inline-flex';
+    document.getElementById('batchPriceBtn').style.display = type === 'items' ? 'inline-flex' : 'none';
+    document.getElementById('batchDeleteBtn').style.display = 'inline-flex';
+  } else {
+    hideBatchBar();
+  }
+}
+function hideBatchBar() {
+  document.getElementById('batchBar').classList.remove('show');
+}
+function toggleAllChecks(e, className) {
+  var checks = document.querySelectorAll('.' + className);
+  checks.forEach(function(c) { c.checked = e.checked; });
+  updateBatchBar(currentBatchType);
+}
+function clearAllChecks() {
+  document.querySelectorAll('.batch-check').forEach(function(c) { c.checked = false; });
+  hideBatchBar();
+}
+function getSelectedIds() {
+  return Array.from(document.querySelectorAll('.batch-check:checked')).map(function(c) { return parseInt(c.value); });
+}
+function batchAction(type, action) {
+  var ids = getSelectedIds();
+  if (ids.length === 0) return toast('请至少选择一项', 'error');
+  if (action === 'delete' && !confirm('确定删除选中的 ' + ids.length + ' 项吗？此操作不可撤销。')) return;
+  var body = { ids: ids, action: action };
+  api('/api/' + type + '/batch', { method: 'POST', body: JSON.stringify(body) }).then(function(r) {
+    toast('✅ 已处理 ' + (r.affected || ids.length) + ' 项');
+    clearAllChecks();
+    if (type === 'tasks') loadTasks(pageStates.tasks.filter);
+    else loadItems();
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+function batchPriceDialog() {
+  var ids = getSelectedIds();
+  if (ids.length === 0) return toast('请至少选择一项', 'error');
+  showModal('💰 批量改价', '<div class="form-group"><label>新价格</label><input id="f_batchprice" type="number" value="0" style="font-size:18px"></div><div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doBatchPrice()">确认修改 ' + ids.length + ' 件商品</button></div>');
+  setTimeout(function() { var inp = document.getElementById('f_batchprice'); if (inp) inp.focus(); }, 100);
+}
+function doBatchPrice() {
+  var price = parseInt(document.getElementById('f_batchprice').value);
+  var ids = getSelectedIds();
+  if (isNaN(price)) return toast('请输入有效价格', 'error');
+  closeModal();
+  api('/api/items/batch', { method: 'POST', body: JSON.stringify({ ids: ids, action: 'price', price: price }) }).then(function(r) {
+    toast('✅ 已更新 ' + (r.affected || ids.length) + ' 件商品价格为 ' + price);
+    clearAllChecks();
+    loadItems();
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+// ====== Archive Open / Save ======
+function showOpenDialog() {
+  if (IS_DESKTOP) {
+    openNativeFileDialog();
+    return;
+  }
+  var saved = localStorage.getItem('lifeup_backup_path') || DEFAULT_PATH;
+  showModal('📂 打开备份存档',
+    '<p style="font-size:12px;color:var(--text2);margin-bottom:12px">输入 LifeUp 备份 ZIP 文件的完整路径</p>' +
+    '<div class="form-group"><label>备份文件路径</label><input id="f_openpath" value="' + saved.replace(/\\/g,'\\\\').replace(/"/g,'&quot;') + '" style="font-family:Consolas,monospace"></div>' +
+    '<p style="font-size:10px;color:var(--text2);margin-bottom:8px">常用路径：C:\\Users\\USER\\Nutstore\\1\\LifeUp\\LifeupBackup.zip</p>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doOpenBackup()">📂 加载</button></div>'
+  );
+  setTimeout(function() { var inp = document.getElementById('f_openpath'); if (inp) { inp.focus(); inp.select(); } }, 100);
+}
+
+function openNativeFileDialog() {
+  try {
+    window.pywebview.api.open_file_dialog().then(function(path) {
+      if (!path) return;
+      _loadBackup(path);
+    });
+  } catch(e) { showOpenDialog(); }
+}
+
+function doOpenBackup() {
+  var path = document.getElementById('f_openpath').value.trim();
+  if (!path) return toast('请输入文件路径', 'error');
+  closeModal();
+  _loadBackup(path);
+}
+
+function _loadBackup(path, silent) {
+  document.getElementById('filePath').textContent = path.split('\\').pop();
+  document.getElementById('connText').textContent = '加载中...';
+  document.getElementById('connDot').className = 'conn-dot';
+  return api('/api/open', { method: 'POST', body: JSON.stringify({ path: path }) }).then(function(res) {
+    document.getElementById('connDot').className = 'conn-dot online';
+    document.getElementById('connText').textContent = '已加载';
+    document.getElementById('saveBtn').disabled = false;
+    localStorage.setItem('lifeup_backup_path', path);
+    if (IS_DESKTOP) { try { window.pywebview.api.save_last_path(path); } catch(e) {} }
+    loadCurrentPage();
+    if (!silent) toast('存档加载成功');
+  }).catch(function(err) {
+    document.getElementById('connDot').className = 'conn-dot offline';
+    document.getElementById('connText').textContent = '加载失败';
+    if (!silent) toast('加载失败: ' + err.message, 'error');
+    throw err;
+  });
+}
+
+function loadByPath() {
+  var path = document.getElementById('pathInput').value.trim();
+  if (!path) return toast('请输入文件路径', 'error');
+  _loadBackup(path);
+}
+
+function saveBackup() {
+  var btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '保存中...';
+  api('/api/save', { method: 'POST', body: JSON.stringify({}) }).then(function() {
+    toast('💾 存档已保存！请在手机端恢复备份');
+    btn.textContent = '💾 已保存';
+    setTimeout(function() { btn.disabled = false; btn.textContent = '💾 保存'; }, 1500);
+  }).catch(function(err) {
+    toast('❌ 保存失败: ' + err.message, 'error');
+    btn.disabled = false; btn.textContent = '💾 保存';
+  });
+}
+
+// ====== Escape Key ======
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeModal(); hideBatchBar(); clearAllChecks(); }
+  if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveBackup(); }
+});
+
+/* =================================================================================
+ *  PAGE 1: Dashboard — 修行总览
+ * ================================================================================= */
 async function loadDashboard() {
-  const c = document.getElementById('content');
+  var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div><p>加载中...</p></div>';
   try {
-    const d = await api('/api/dashboard');
+    var d = await api('/api/dashboard');
 
-    const skillsHtml = (d.skills||[]).map(s => {
-      const name = s.name || '?';
-      const icon = s.icon && s.icon.startsWith('http') ? `<img src="${s.icon}" style="width:24px;height:24px;vertical-align:middle;margin-right:6px;border-radius:4px">` : '';
-      return `<div class="stat-card" style="text-align:left;padding:14px">
-        <div style="font-size:12px;color:var(--text2);margin-bottom:4px">${icon}${name}</div>
-        <div style="font-size:28px;font-weight:700;color:var(--purple);margin-bottom:4px">Lv.${s.level||1}</div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:6px">EXP: ${(s.experience||0).toLocaleString()}</div>
-        <div class="progress-bar"><div class="progress-fill cyan" style="width:${s.progress||0}%"></div></div>
-      </div>`;
+    var skillsHtml = (d.skills||[]).map(function(s) {
+      var icon = s.icon && s.icon.startsWith('http') ? '<img src="' + s.icon + '" style="width:24px;height:24px;vertical-align:middle;margin-right:6px;border-radius:4px">' : '';
+      return '<div class="stat-card" style="text-align:left;padding:14px">' +
+        '<div style="font-size:12px;color:var(--text2);margin-bottom:4px">' + icon + (s.name||'?') + '</div>' +
+        '<div style="font-size:28px;font-weight:700;color:var(--purple);margin-bottom:4px">Lv.' + (s.level||1) + '</div>' +
+        '<div style="font-size:11px;color:var(--text2);margin-bottom:6px">EXP: ' + ((s.experience||0).toLocaleString()) + '</div>' +
+        '<div class="progress-bar"><div class="progress-fill cyan" style="width:' + (s.progress||0) + '%"></div></div>' +
+      '</div>';
     }).join('');
 
-    c.innerHTML = `
-      <div style="margin-bottom:20px">
-        <span style="font-size:14px;color:var(--text2)">修行者：</span>
-        <span style="font-size:16px;color:var(--gold);font-weight:700">${d.user?.nickname||'?'}</span>
-        <span style="margin-left:20px;font-size:14px;color:var(--text2)">修行境界：</span>
-        <span style="font-size:16px;color:var(--purple2);font-weight:700">Lv.${d.level?.current||1}</span>
-        <span style="margin-left:4px;font-size:12px;color:var(--text2)">(${(d.level?.total_exp||0).toLocaleString()} EXP)</span>
-        <div class="progress-bar" style="margin-top:8px;width:300px"><div class="progress-fill gold" style="width:${d.level?.progress||0}%"></div></div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">📋 活跃任务</div>
-          <div class="stat-value cyan">${d.tasks?.active||0}<span style="font-size:14px;color:var(--text2)">/${d.tasks?.total||0}</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">✅ 已完成</div>
-          <div class="stat-value green">${d.tasks?.done||0}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">🏪 商品总数</div>
-          <div class="stat-value gold">${d.items?.total||0}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">🏆 成就进度</div>
-          <div class="stat-value purple">${d.achievements?.done||0}<span style="font-size:14px;color:var(--text2)">/${d.achievements?.total||0}</span></div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">🎒 背包物品</div>
-          <div class="stat-value cyan">${d.items?.inventory||0}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">💎 金币余额</div>
-          <div class="stat-value gold">${(d.coins||0).toLocaleString()}</div>
-        </div>
-      </div>
-      <h3 style="color:var(--purple2);margin-bottom:12px">⚔️ 六维属性</h3>
-      <div class="stats-grid">${skillsHtml || '<div class="empty">暂无属性</div>'}</div>
-    `;
+    c.innerHTML =
+      '<div style="margin-bottom:20px">' +
+        '<span style="font-size:14px;color:var(--text2)">修行者：</span>' +
+        '<span style="font-size:16px;color:var(--gold);font-weight:700">' + ((d.user&&d.user.nickname)||'?') + '</span>' +
+        '<span style="margin-left:20px;font-size:14px;color:var(--text2)">修行境界：</span>' +
+        '<span style="font-size:16px;color:var(--purple2);font-weight:700">Lv.' + ((d.level&&d.level.current)||1) + '</span>' +
+        '<span style="margin-left:4px;font-size:12px;color:var(--text2)">(' + ((d.level&&d.level.total_exp||0).toLocaleString()) + ' EXP)</span>' +
+        '<div class="progress-bar" style="margin-top:8px;width:300px"><div class="progress-fill gold" style="width:' + (d.level&&d.level.progress||0) + '%"></div></div>' +
+        '<div style="margin-top:4px;font-size:11px;color:var(--text2)">连续修炼：' + ((d.record&&d.record.currentusingdaystreak)||0) + ' 天 | 最长：' + ((d.record&&d.record.longestusingdaystreak)||0) + ' 天</div>' +
+      '</div>' +
+      '<div class="stats-grid">' +
+        '<div class="stat-card"><div class="stat-label">📋 活跃任务</div><div class="stat-value cyan">' + (d.tasks&&d.tasks.active||0) + '<span style="font-size:14px;color:var(--text2)">/' + (d.tasks&&d.tasks.total||0) + '</span></div></div>' +
+        '<div class="stat-card"><div class="stat-label">✅ 已完成</div><div class="stat-value green">' + (d.tasks&&d.tasks.done||0) + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">🏪 商品总数</div><div class="stat-value gold">' + (d.items&&d.items.total||0) + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">🏆 成就进度</div><div class="stat-value purple">' + (d.achievements&&d.achievements.done||0) + '<span style="font-size:14px;color:var(--text2)">/' + (d.achievements&&d.achievements.total||0) + '</span></div></div>' +
+        '<div class="stat-card"><div class="stat-label">🎒 背包物品</div><div class="stat-value cyan">' + (d.items&&d.items.inventory||0) + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">💎 金币余额</div><div class="stat-value gold">' + ((d.coins||0).toLocaleString()) + '</div></div>' +
+      '</div>' +
+      '<div class="section-title">⚔️ 六维属性</div>' +
+      '<div class="stats-grid">' + (skillsHtml || '<div class="empty">暂无属性</div>') + '</div>' +
+      '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadDashboard()">🔄 刷新</button></div>';
   } catch(e) {
-    c.innerHTML = `<div class="empty"><div class="empty-icon">❌</div>加载失败: ${e.message}<br><small>请先打开备份存档</small></div>`;
+    c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>加载失败: ' + e.message + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
-// ====== 任务 ======
-let taskFilter = 'all';
+/* =================================================================================
+ *  PAGE 2: Tasks — 任务管理
+ * ================================================================================= */
+async function loadTasks(filterArg) {
+  if (filterArg !== undefined) pageStates.tasks.filter = filterArg;
+  var filter = pageStates.tasks.filter;
+  var search = pageStates.tasks.search;
+  var catId = pageStates.tasks.category;
 
-async function loadTasks(filter = 'all') {
-  taskFilter = filter;
-  const c = document.getElementById('content');
+  var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
-    const tasks = await api(`/api/tasks?filter=${filter}`);
-    const cats = await api('/api/categories/tasks').catch(() => []);
+    var qs = filter ? 'filter=' + filter : '';
+    if (search) qs += '&search=' + encodeURIComponent(search);
+    if (catId) qs += '&category_id=' + catId;
+    var tasks = await api('/api/tasks' + (qs ? '?' + qs : ''));
+    var cats = await api('/api/categories/tasks').catch(function(){ return []; });
+    window._taskCats = cats;
 
-    const freqMap = {0:'单次',1:'每日',2:'每周',3:'每月',4:'每年',5:'无限'};
-    const statusMap = {0:'⏳ 进行中', 1:'✅ 已完成'};
-    const rows = tasks.map(t => {
-      const js = JSON.stringify(t).replace(/'/g,"&#39;").replace(/"/g,"&quot;");
-      return `<tr>
-        <td>${t.id||''}</td>
-        <td>${statusMap[t.done]||'?'} <strong>${t.title||'?'}</strong></td>
-        <td><span class="badge badge-cyan">${freqMap[t.frequency]||t.frequency}</span></td>
-        <td>🪙 ${t.coin||0}</td>
-        <td>✨ ${t.exp||0}</td>
-        <td>${t.done_count||0}/${t.target_count||'∞'}</td>
-        <td><span class="badge badge-purple">${t.category_name||'-'}</span></td>
-        <td>
-          <button class="btn btn-cyan btn-sm" onclick='editTask(${t.id})'>✏️</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteTask(${t.id})">🗑️</button>
-        </td>
-      </tr>`;
+    var freqMap = {0:'单次',1:'每日',2:'每周',3:'每月',4:'每年',5:'无限'};
+    var statusMap = {0:'⏳ 进行中', 1:'✅ 已完成'};
+
+    var rows = tasks.map(function(t) {
+      return '<tr>' +
+        '<td><input type="checkbox" class="batch-check task-check" value="' + t.id + '" onchange="updateBatchBar(\'tasks\')"></td>' +
+        '<td>' + (t.id||'') + '</td>' +
+        '<td>' + (statusMap[t.done]||'?') + ' <strong>' + (t.title||'?') + '</strong></td>' +
+        '<td><span class="badge badge-cyan">' + (freqMap[t.frequency]||t.frequency) + '</span></td>' +
+        '<td>' + (t.coin||0) + '</td>' +
+        '<td>' + (t.exp||0) + '</td>' +
+        '<td>' + (t.priority ? '<span class="badge" style="background:' + ['','#4caf50','#56b6c2','#a78bfa','#e0556a'][t.priority] + '">⚠️LV' + t.priority + '</span>' : '-') + '</td>' +
+        '<td><span class="badge" style="background:' + ['','#56b6c2','#a78bfa','#c4b5fd','#e09040'][t.difficulty||1] + '">💀LV' + (t.difficulty||1) + '</span></td>' +
+        '<td>' + (t.done_count||0) + '/' + (t.target_count||'∞') + '</td>' +
+        '<td><span class="badge badge-purple">' + (t.category_name||'-') + '</span></td>' +
+        '<td>' +
+          '<button class="btn btn-cyan btn-sm" onclick="editTask(' + t.id + ')">✏️</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteTask(' + t.id + ')">🗑️</button>' +
+        '</td>' +
+      '</tr>';
     }).join('');
 
-    c.innerHTML = `
-      <div class="btn-group">
-        <button class="btn btn-primary" onclick="showAddTask()">➕ 新建任务</button>
-        <button class="btn btn-cyan btn-sm" onclick="loadTasks(taskFilter)">🔄 刷新</button>
-        <span style="color:var(--text2);font-size:12px">筛选：</span>
-        <span class="filter-tag ${filter==='all'?'active':''}" onclick="loadTasks('all')">全部</span>
-        <span class="filter-tag ${filter==='active'?'active':''}" onclick="loadTasks('active')">进行中</span>
-        <span class="filter-tag ${filter==='done'?'active':''}" onclick="loadTasks('done')">已完成</span>
-      </div>
-      <div style="overflow-x:auto">
-      <table class="data-table">
-        <thead><tr><th>ID</th><th>名称</th><th>频率</th><th>金币</th><th>经验</th><th>进度</th><th>分类</th><th>操作</th></tr></thead>
-        <tbody>${rows||'<tr><td colspan="8" class="empty">暂无任务</td></tr>'}</tbody>
-      </table>
-      </div>
-    `;
-    // 存储分类数据
-    window._taskCats = cats;
+    var catOpts = '<option value="">全部分类</option>' + cats.map(function(c) {
+      return '<option value="' + c.id + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="search-bar">' +
+        '<input class="search-input" id="taskSearch" placeholder="🔍 搜索任务名称或备注..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')taskSearch()">' +
+        '<button class="btn btn-cyan btn-sm" onclick="taskSearch()">搜索</button>' +
+        (search ? '<span class="search-clear" onclick="taskClearSearch()">✕ 清除</span>' : '') +
+        '<span style="margin-left:8px;color:var(--text2);font-size:12px">分类：</span>' +
+        '<select id="taskCatFilter" onchange="taskFilterCat()" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;max-width:150px">' + catOpts + '</select>' +
+      '</div>' +
+      '<div class="btn-group">' +
+        '<button class="btn btn-primary" onclick="showAddTask()">➕ 新建任务</button>' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadTasks()">🔄 刷新</button>' +
+        '<span style="color:var(--text2);font-size:12px">筛选：</span>' +
+        '<span class="filter-tag' + (filter==='all'?' active':'') + '" onclick="loadTasks(\'all\')">全部</span>' +
+        '<span class="filter-tag' + (filter==='active'?' active':'') + '" onclick="loadTasks(\'active\')">进行中</span>' +
+        '<span class="filter-tag' + (filter==='done'?' active':'') + '" onclick="loadTasks(\'done\')">已完成</span>' +
+        '<span style="margin-left:12px;color:var(--text2);font-size:11px">共 ' + tasks.length + ' 条</span>' +
+        '<span style="margin-left:auto;color:var(--text2);font-size:11px">📋 模板：</span>' +
+        '<button class="btn btn-sm btn-purple" onclick="loadTemplatesIntoTaskPage()">📥 载入模板</button>' +
+      '</div>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr>' +
+          '<th><input type="checkbox" onchange="toggleAllChecks(this,\'task-check\')" title="全选/取消"></th>' +
+          '<th>ID</th><th>名称</th><th>频率</th><th>🪙</th><th>✨</th><th>重要</th><th>困难</th><th>进度</th><th>分类</th><th>操作</th>' +
+        '</tr></thead>' +
+        '<tbody>' + (rows || '<tr><td colspan="11" class="empty">暂无任务</td></tr>') + '</tbody>' +
+      '</table></div>' +
+      '<div id="templatesArea" style="margin-top:12px"></div>';
   } catch(e) {
-    c.innerHTML = `<div class="empty">❌ ${e.message}<br><small>请先打开备份存档</small></div>`;
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
-async function showAddTask() {
-  const cats = window._taskCats || await api('/api/categories/tasks').catch(() => []);
-  const opts = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  showModal('➕ 新建任务', `
-    <div class="form-group"><label>任务名称</label><input id="f_title" placeholder="如：吞吐灵气"></div>
-    <div class="form-row">
-      <div class="form-group"><label>频率</label><select id="f_freq"><option value="1">每日</option><option value="2">每周</option><option value="3">每月</option><option value="5">无限</option><option value="0">单次</option></select></div>
-      <div class="form-group"><label>目标次数</label><input id="f_count" type="number" value="1"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>💎 金币奖励</label><input id="f_coin" type="number" value="0"></div>
-      <div class="form-group"><label>✨ 经验奖励</label><input id="f_exp" type="number" value="0"></div>
-    </div>
-    <div class="form-group"><label>分类</label><select id="f_cat">${opts}</select></div>
-    <div class="form-group"><label>备注</label><textarea id="f_note"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-cyan" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="addTask()">创建</button>
-    </div>
-  `);
+function taskSearch() {
+  var v = document.getElementById('taskSearch').value.trim();
+  pageStates.tasks.search = v;
+  loadTasks();
+}
+function taskClearSearch() {
+  document.getElementById('taskSearch').value = '';
+  pageStates.tasks.search = '';
+  loadTasks();
+}
+function taskFilterCat() {
+  pageStates.tasks.category = document.getElementById('taskCatFilter').value;
+  loadTasks();
 }
 
-async function addTask() {
-  const data = {
+// --- Task Templates ---
+function saveAsTemplate() {
+  var t = window._editingTask;
+  if (!t) return toast('没有正在编辑的任务', 'error');
+  var tmpl = loadTemplates();
+  tmpl.push({
+    title: t.title || '',
+    frequency: t.frequency || 1,
+    target_count: t.target_count || 1,
+    coin: t.coin || 0,
+    exp: t.exp || 0,
+    category_id: t.categoryid || t.category_id || 0,
+    note: t.note || '',
+    savedAt: new Date().toISOString()
+  });
+  localStorage.setItem('lifeup_task_templates', JSON.stringify(tmpl));
+  toast('📋 已保存为模板（共 ' + tmpl.length + ' 个）');
+  loadTemplatesIntoTaskPage();
+}
+function loadTemplates() {
+  try { return JSON.parse(localStorage.getItem('lifeup_task_templates') || '[]'); } catch(e) { return []; }
+}
+function loadTemplatesIntoTaskPage() {
+  var area = document.getElementById('templatesArea');
+  if (!area) return;
+  var tmpls = loadTemplates();
+  if (tmpls.length === 0) {
+    area.innerHTML = '<div style="font-size:11px;color:var(--text2)">暂无任务模板。编辑任务时可选择"保存为模板"。</div>';
+    return;
+  }
+  var freqMap = {0:'单次',1:'每日',2:'每周',3:'每月',4:'每年',5:'无限'};
+  area.innerHTML =
+    '<div style="font-size:12px;color:var(--cyan);margin-bottom:6px">📋 任务模板（' + tmpls.length + ' 个）</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
+      tmpls.map(function(tm, idx) {
+        return '<span class="filter-tag" style="cursor:pointer" onclick="createFromTemplate(' + idx + ')" title="点击快速创建">' +
+          (tm.title||'?') + ' · ' + (freqMap[tm.frequency]||'') + ' · 🪙' + (tm.coin||0) +
+        '</span>';
+      }).join('') +
+    '</div>' +
+    '<button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="clearTemplates()">🗑️ 清空模板</button>';
+}
+function createFromTemplate(idx) {
+  var tmpls = loadTemplates();
+  var tm = tmpls[idx];
+  if (!tm) return toast('模板不存在', 'error');
+  api('/api/tasks/add', { method: 'POST', body: JSON.stringify({
+    title: tm.title, frequency: tm.frequency, target_count: tm.target_count,
+    coin: tm.coin, exp: tm.exp, category_id: tm.category_id, note: tm.note
+  }) }).then(function() {
+    toast('✅ 从模板创建任务成功');
+    loadTasks();
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+function clearTemplates() {
+  if (!confirm('确定清空所有任务模板？')) return;
+  localStorage.removeItem('lifeup_task_templates');
+  toast('🗑️ 模板已清空');
+  loadTemplatesIntoTaskPage();
+}
+
+// --- Task CRUD ---
+function showAddTask() {
+  var cats = window._taskCats || [];
+  var opts = cats.map(function(c) { return '<option value="' + c.id + '">' + (c.name||c.categoryname) + '</option>'; }).join('');
+  // 六大属性
+  var attrs = [
+    {id:1, name:'武道', color:'var(--red)'},
+    {id:2, name:'灵识', color:'var(--cyan2)'},
+    {id:3, name:'道心', color:'var(--purple)'},
+    {id:4, name:'身法', color:'var(--green)'},
+    {id:5, name:'气运', color:'var(--gold)'},
+    {id:6, name:'本源', color:'var(--orange)'}
+  ];
+  var attrBoxes = attrs.map(function(a) {
+    return '<label class="attr-check" style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border:1px solid ' + a.color + ';border-radius:4px;margin:0 4px 4px 0;cursor:pointer;font-size:12px;color:' + a.color + '"><input type="checkbox" class="attr-checkbox" value="' + a.id + '" onchange="limitAttrChecks(this)" style="accent-color:' + a.color + '">' + a.name + '</label>';
+  }).join('');
+
+  showModal('➕ 新建任务',
+    '<div class="form-group"><label>任务名称</label><input id="f_title" placeholder="如：吞吐灵气"></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>频率</label><select id="f_freq"><option value="1">每日</option><option value="2">每周</option><option value="3">每月</option><option value="5">无限</option><option value="0">单次</option></select></div>' +
+      '<div class="form-group"><label>目标次数</label><input id="f_count" type="number" value="1"></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>💎 金币奖励</label><input id="f_coin" type="number" value="0"></div>' +
+      '<div class="form-group"><label>✨ 经验奖励</label><input id="f_exp" type="number" value="0"></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>⚠️ 重要程度</label><div id="f_priority" class="lvl-group">' +
+        '<span class="lvl-btn" data-v="1" onclick="setLvl(this,\'f_priority\')">LV1</span>' +
+        '<span class="lvl-btn" data-v="2" onclick="setLvl(this,\'f_priority\')">LV2</span>' +
+        '<span class="lvl-btn" data-v="3" onclick="setLvl(this,\'f_priority\')">LV3</span>' +
+        '<span class="lvl-btn" data-v="4" onclick="setLvl(this,\'f_priority\')">LV4</span>' +
+      '</div></div>' +
+      '<div class="form-group"><label>💀 困难程度</label><div id="f_difficulty" class="lvl-group">' +
+        '<span class="lvl-btn" data-v="1" onclick="setLvl(this,\'f_difficulty\')">LV1</span>' +
+        '<span class="lvl-btn" data-v="2" onclick="setLvl(this,\'f_difficulty\')">LV2</span>' +
+        '<span class="lvl-btn" data-v="3" onclick="setLvl(this,\'f_difficulty\')">LV3</span>' +
+        '<span class="lvl-btn" data-v="4" onclick="setLvl(this,\'f_difficulty\')">LV4</span>' +
+      '</div></div>' +
+    '</div>' +
+    '<div class="form-group"><label>📊 关联属性 (1-3个，完成获得经验)</label><div id="f_attrs" style="display:flex;flex-wrap:wrap;gap:2px">' + attrBoxes + '</div></div>' +
+    '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
+    '<div class="form-group"><label>🎁 商品奖励</label><div id="f_rewards" style="margin-bottom:4px"></div><button class="btn btn-sm btn-cyan" onclick="addRewardRow()">➕ 添加奖励商品</button></div>' +
+    '<div class="form-group"><label>备注</label><textarea id="f_note"></textarea></div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+      '<button class="btn btn-primary" onclick="addTask()">创建</button>' +
+    '</div>'
+  );
+}
+
+function addTask() {
+  // 获取重要程度
+  var prio = document.getElementById('f_priority').querySelector('.lvl-btn.active');
+  var difficulty = document.getElementById('f_difficulty').querySelector('.lvl-btn.active');
+  // 获取选中属性
+  var checkedAttrs = document.getElementById('f_attrs').querySelectorAll('.attr-checkbox:checked');
+  var skillIds = [];
+  var attrNames = [];
+  [].forEach.call(checkedAttrs, function(cb, i) {
+    skillIds.push(parseInt(cb.value));
+    attrNames.push(cb.parentElement.textContent.trim());
+  });
+  while (attrNames.length < 3) attrNames.push('');
+  // 获取商品奖励
+  var rewardRows = document.getElementById('f_rewards').querySelectorAll('.reward-row');
+  var itemRewards = [];
+  [].forEach.call(rewardRows, function(row) {
+    var sel = row.querySelector('.reward-item');
+    var amt = row.querySelector('.reward-amount');
+    if (sel && sel.value) itemRewards.push({item_id: parseInt(sel.value), amount: parseInt(amt.value) || 1});
+  });
+
+  var data = {
     title: document.getElementById('f_title').value,
     frequency: parseInt(document.getElementById('f_freq').value),
     target_count: parseInt(document.getElementById('f_count').value),
     coin: parseInt(document.getElementById('f_coin').value),
     exp: parseInt(document.getElementById('f_exp').value),
     category_id: parseInt(document.getElementById('f_cat').value) || 0,
-    note: document.getElementById('f_note').value
+    note: document.getElementById('f_note').value,
+    priority: prio ? parseInt(prio.getAttribute('data-v')) : 0,
+    difficulty: difficulty ? parseInt(difficulty.getAttribute('data-v')) : 1,
+    skill_ids: skillIds,
+    attr1: attrNames[0],
+    attr2: attrNames[1],
+    attr3: attrNames[2],
+    item_rewards: itemRewards
   };
   if (!data.title) return toast('请输入任务名称', 'error');
-  try {
-    await api('/api/tasks/add', { method: 'POST', body: JSON.stringify(data) });
+  api('/api/tasks/add', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
-    loadTasks(taskFilter);
+    loadTasks();
     toast('✅ 任务创建成功');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-async function editTask(id) {
-  // 先获取当前任务数据
-  const tasks = await api(`/api/tasks`);
-  const t = tasks.find(x => x.id === id);
-  if (!t) return toast('未找到任务', 'error');
-
-  const cats = window._taskCats || [];
-  const opts = cats.map(c => `<option value="${c.id}" ${c.id===t.categoryid?'selected':''}>${c.name}</option>`).join('');
-  const freqSel = v => [0,1,2,3,5].map(f => `<option value="${f}" ${f==v?'selected':''}>${{0:'单次',1:'每日',2:'每周',3:'每月',5:'无限'}[f]}</option>`).join('');
-
-  showModal('✏️ 编辑任务', `
-    <div class="form-group"><label>任务名称</label><input id="f_title" value="${(t.title||'').replace(/"/g,'&quot;')}"></div>
-    <div class="form-row">
-      <div class="form-group"><label>频率</label><select id="f_freq">${freqSel(t.frequency)}</select></div>
-      <div class="form-group"><label>目标次数</label><input id="f_count" type="number" value="${t.target_count||1}"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="${t.coin||0}"></div>
-      <div class="form-group"><label>✨ 经验</label><input id="f_exp" type="number" value="${t.exp||0}"></div>
-    </div>
-    <div class="form-group"><label>分类</label><select id="f_cat">${opts}</select></div>
-    <div class="form-group"><label>备注</label><textarea id="f_note">${t.note||''}</textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-cyan" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="updateTask(${id})">保存</button>
-    </div>
-  `);
+// Attribute boxes HTML (shared)
+function getAttrBoxesHTML() {
+  var attrs = [
+    {id:1, name:'武道', color:'var(--red)'},
+    {id:2, name:'灵识', color:'var(--cyan2)'},
+    {id:3, name:'道心', color:'var(--purple)'},
+    {id:4, name:'身法', color:'var(--green)'},
+    {id:5, name:'气运', color:'var(--gold)'},
+    {id:6, name:'本源', color:'var(--orange)'}
+  ];
+  var html = attrs.map(function(a) {
+    return '<label class="attr-check" style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border:1px solid ' + a.color + ';border-radius:4px;margin:0 4px 4px 0;cursor:pointer;font-size:12px;color:' + a.color + '"><input type="checkbox" class="attr-checkbox" value="' + a.id + '" onchange="limitAttrChecks(this)" style="accent-color:' + a.color + '">' + a.name + '</label>';
+  }).join('');
+  window._attrBoxesHTML = html;
+  return html;
 }
 
-async function updateTask(id) {
-  const data = {
-    id, title: document.getElementById('f_title').value,
+// LVL button helper
+function setLvl(el, groupId) {
+  var btns = document.getElementById(groupId).querySelectorAll('.lvl-btn');
+  [].forEach.call(btns, function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+}
+// Limit attribute checks to 3
+function limitAttrChecks(cb) {
+  var checked = document.getElementById('f_attrs').querySelectorAll('.attr-checkbox:checked');
+  if (checked.length > 3) { cb.checked = false; toast('最多选择3个属性', 'warn'); }
+}
+// Add reward row
+var _rewardIdx = 0;
+function addRewardRow(itemId, amt) {
+  var idx = _rewardIdx++;
+  var row = document.createElement('div');
+  row.className = 'reward-row';
+  row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:4px';
+  row.id = 'rw_' + idx;
+  // Load items for dropdown
+  var sel = '<select class="reward-item" style="flex:1;padding:6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text)"><option value="">— 选择商品 —</option></select>';
+  row.innerHTML = sel + '<input class="reward-amount" type="number" value="' + (amt||1) + '" min="1" max="99" style="width:60px;padding:6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text)">' +
+    '<button class="btn btn-sm" style="color:var(--red);background:none;border:none;cursor:pointer;font-size:16px" onclick="document.getElementById(\'rw_' + idx + '\').remove()">✕</button>';
+  document.getElementById('f_rewards').appendChild(row);
+  // Populate dropdown
+  api('/api/items?limit=500').then(function(items) {
+    var selEl = row.querySelector('.reward-item');
+    selEl.innerHTML = '<option value="">— 选择商品 —</option>' + items.map(function(i) {
+      return '<option value="' + i.id + '"' + (itemId && i.id===itemId ? ' selected' : '') + '>' + (i.name||i.itemname||'?') + '</option>';
+    }).join('');
+  });
+}
+
+function editTask(id) {
+  api('/api/tasks').then(function(tasks) {
+    var t = tasks.find(function(x) { return x.id === id; });
+    if (!t) return toast('未找到任务', 'error');
+    window._editingTask = t;
+
+    var cats = window._taskCats || [];
+    var opts = cats.map(function(c) {
+      return '<option value="' + c.id + '"' + (c.id===t.categoryid?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+    }).join('');
+    var freqSel = function(v) {
+      return [0,1,2,3,5].map(function(f) {
+        return '<option value="' + f + '"' + (f==v?' selected':'') + '>' + {0:'单次',1:'每日',2:'每周',3:'每月',5:'无限'}[f] + '</option>';
+      }).join('');
+    };
+
+    showModal('✏️ 编辑任务 #' + id,
+      '<div class="form-group"><label>任务名称</label><input id="f_title" value="' + escAttr(t.title||'') + '"></div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>频率</label><select id="f_freq">' + freqSel(t.frequency) + '</select></div>' +
+        '<div class="form-group"><label>目标次数</label><input id="f_count" type="number" value="' + (t.target_count||1) + '"></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="' + (t.coin||0) + '"></div>' +
+        '<div class="form-group"><label>✨ 经验</label><input id="f_exp" type="number" value="' + (t.exp||0) + '"></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>⚠️ 重要程度</label><div id="f_priority" class="lvl-group">' +
+          '<span class="lvl-btn" data-v="1" onclick="setLvl(this,\'f_priority\')">LV1</span>' +
+          '<span class="lvl-btn" data-v="2" onclick="setLvl(this,\'f_priority\')">LV2</span>' +
+          '<span class="lvl-btn" data-v="3" onclick="setLvl(this,\'f_priority\')">LV3</span>' +
+          '<span class="lvl-btn" data-v="4" onclick="setLvl(this,\'f_priority\')">LV4</span>' +
+        '</div></div>' +
+        '<div class="form-group"><label>💀 困难程度</label><div id="f_difficulty" class="lvl-group">' +
+          '<span class="lvl-btn" data-v="1" onclick="setLvl(this,\'f_difficulty\')">LV1</span>' +
+          '<span class="lvl-btn" data-v="2" onclick="setLvl(this,\'f_difficulty\')">LV2</span>' +
+          '<span class="lvl-btn" data-v="3" onclick="setLvl(this,\'f_difficulty\')">LV3</span>' +
+          '<span class="lvl-btn" data-v="4" onclick="setLvl(this,\'f_difficulty\')">LV4</span>' +
+        '</div></div>' +
+      '</div>' +
+      '<div class="form-group"><label>📊 关联属性 (1-3个)</label><div id="f_attrs" style="display:flex;flex-wrap:wrap;gap:2px">' +
+        (window._attrBoxesHTML || getAttrBoxesHTML()) + '</div></div>' +
+      '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
+      '<div class="form-group"><label>🎁 商品奖励</label><div id="f_rewards" style="margin-bottom:4px"></div><button class="btn btn-sm btn-cyan" onclick="addRewardRow()">➕ 添加奖励商品</button></div>' +
+      '<div class="form-group"><label>备注</label><textarea id="f_note">' + escHtml(t.note||'') + '</textarea></div>' +
+      '<div class="modal-actions">' +
+        '<button class="btn btn-purple btn-sm" onclick="saveAsTemplate()">📋 保存为模板</button>' +
+        '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+        '<button class="btn btn-primary" onclick="updateTask(' + id + ')">保存</button>' +
+      '</div>'
+    );
+    // 初始化新字段
+    setTimeout(function() {
+      // 重要程度
+      var prioVal = t.priority || 0;
+      if (prioVal) {
+        var prioBtns = document.getElementById('f_priority').querySelectorAll('.lvl-btn');
+        [].forEach.call(prioBtns, function(b) { if (parseInt(b.getAttribute('data-v')) === prioVal) b.classList.add('active'); });
+      }
+      // 困难程度
+      var diffVal = t.difficulty || 1;
+      var diffBtns = document.getElementById('f_difficulty').querySelectorAll('.lvl-btn');
+      [].forEach.call(diffBtns, function(b) { if (parseInt(b.getAttribute('data-v')) === diffVal) b.classList.add('active'); });
+      // 关联属性
+      if (t.skill_ids && t.skill_ids.length) {
+        var cbs = document.getElementById('f_attrs').querySelectorAll('.attr-checkbox');
+        [].forEach.call(cbs, function(cb) { if (t.skill_ids.indexOf(parseInt(cb.value)) >= 0) cb.checked = true; });
+      }
+      // 商品奖励
+      if (t.item_rewards && t.item_rewards.length) {
+        t.item_rewards.forEach(function(rw) { addRewardRow(rw.item_id, rw.amount); });
+      }
+    }, 100);
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function updateTask(id) {
+  // get priority/difficulty/attrs
+  var prio = document.getElementById('f_priority').querySelector('.lvl-btn.active');
+  var difficulty = document.getElementById('f_difficulty').querySelector('.lvl-btn.active');
+  var checkedAttrs = document.getElementById('f_attrs').querySelectorAll('.attr-checkbox:checked');
+  var skillIds = []; var attrNames = [];
+  [].forEach.call(checkedAttrs, function(cb, i) {
+    skillIds.push(parseInt(cb.value));
+    attrNames.push(cb.parentElement.textContent.trim());
+  });
+  while (attrNames.length < 3) attrNames.push('');
+  // get item rewards
+  var rewardRows = document.getElementById('f_rewards').querySelectorAll('.reward-row');
+  var itemRewards = [];
+  [].forEach.call(rewardRows, function(row) {
+    var sel = row.querySelector('.reward-item');
+    var amt = row.querySelector('.reward-amount');
+    if (sel && sel.value) itemRewards.push({item_id: parseInt(sel.value), amount: parseInt(amt.value) || 1});
+  });
+
+  var data = {
+    id: id,
+    title: document.getElementById('f_title').value,
     frequency: parseInt(document.getElementById('f_freq').value),
     target_count: parseInt(document.getElementById('f_count').value),
     coin: parseInt(document.getElementById('f_coin').value),
     exp: parseInt(document.getElementById('f_exp').value),
     category_id: parseInt(document.getElementById('f_cat').value) || 0,
-    note: document.getElementById('f_note').value
+    note: document.getElementById('f_note').value,
+    priority: prio ? parseInt(prio.getAttribute('data-v')) : 0,
+    difficulty: difficulty ? parseInt(difficulty.getAttribute('data-v')) : 1,
+    skill_ids: skillIds,
+    attr1: attrNames[0], attr2: attrNames[1], attr3: attrNames[2],
+    item_rewards: itemRewards
   };
-  try {
-    await api('/api/tasks/update', { method: 'POST', body: JSON.stringify(data) });
+  api('/api/tasks/update', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
-    loadTasks(taskFilter);
+    loadTasks();
     toast('✅ 已更新');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-async function deleteTask(id) {
+function deleteTask(id) {
   if (!confirm('确定删除此任务？')) return;
-  try {
-    await api('/api/tasks/delete', { method: 'POST', body: JSON.stringify({id}) });
-    loadTasks(taskFilter);
+  api('/api/tasks/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
+    loadTasks();
     toast('🗑️ 已删除');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-// ====== 商店 ======
+/* =================================================================================
+ *  PAGE 3: Items — 商店管理
+ * ================================================================================= */
 async function loadItems() {
-  const c = document.getElementById('content');
+  var search = pageStates.items.search;
+  var catId = pageStates.items.category;
+
+  var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
-    const items = await api('/api/items');
-    const rows = items.map(i => `<tr>
-      <td>${i.id||''}</td>
-      <td>${i.icon&&i.icon.startsWith('http') ? `<img src="${i.icon}" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">` : i.icon||''} ${i.name||'?'}</td>
-      <td><span class="badge badge-gold">🪙 ${i.price||0}</span></td>
-      <td>${i.count == -1 ? '∞' : i.count||0}</td>
-      <td>📦 ${i.inventory_count||0}</td>
-      <td><span class="badge badge-purple">${i.category_name||'-'}</span></td>
-      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.description||''}</td>
-      <td>
-        <button class="btn btn-cyan btn-sm" onclick='editItem(${i.id})'>✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteItem(${i.id})">🗑️</button>
-      </td>
-    </tr>`).join('');
+    var qs = [];
+    if (search) qs.push('search=' + encodeURIComponent(search));
+    if (catId) qs.push('category_id=' + catId);
+    var url = '/api/items' + (qs.length ? '?' + qs.join('&') : '');
+    var items = await api(url);
+    var cats = await api('/api/categories/shop').catch(function(){ return []; });
 
-    c.innerHTML = `
-      <div class="btn-group">
-        <button class="btn btn-primary" onclick="showAddItem()">➕ 新建商品</button>
-        <button class="btn btn-cyan btn-sm" onclick="loadItems()">🔄 刷新</button>
-        <span style="color:var(--text2);font-size:12px">共 ${items.length} 件</span>
-      </div>
-      <div style="overflow-x:auto">
-      <table class="data-table">
-        <thead><tr><th>ID</th><th>名称</th><th>价格</th><th>库存(商店)</th><th>持有</th><th>分类</th><th>描述</th><th>操作</th></tr></thead>
-        <tbody>${rows||'<tr><td colspan="8" class="empty">暂无商品</td></tr>'}</tbody>
-      </table>
-      </div>
-    `;
+    var rows = items.map(function(i) {
+      return '<tr>' +
+        '<td><input type="checkbox" class="batch-check item-check" value="' + i.id + '" onchange="updateBatchBar(\'items\')"></td>' +
+        '<td>' + (i.id||'') + '</td>' +
+        '<td>' + (i.icon&&i.icon.startsWith('http') ? '<img src="' + i.icon + '" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">' : i.icon||'') + ' ' + (i.name||'?') + '</td>' +
+        '<td><span class="badge badge-gold">🪙 ' + (i.price||0) + '</span></td>' +
+        '<td>' + (i.count == -1 ? '∞' : i.count||0) + '</td>' +
+        '<td>📦 ' + (i.inventory_count||0) + '</td>' +
+        '<td><span class="badge badge-purple">' + (i.category_name||'-') + '</span></td>' +
+        '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (i.description||'') + '</td>' +
+        '<td>' +
+          '<button class="btn btn-cyan btn-sm" onclick="editItem(' + i.id + ')">✏️</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteItem(' + i.id + ')">🗑️</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+
+    var catOpts = '<option value="">全部类别</option>' + cats.map(function(c) {
+      return '<option value="' + c.id + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="search-bar">' +
+        '<input class="search-input" id="itemSearch" placeholder="🔍 搜索商品名称或描述..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')itemSearch()">' +
+        '<select id="itemCatFilter" onchange="itemFilterCat()" style="padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px">' + catOpts + '</select>' +
+        '<button class="btn btn-cyan btn-sm" onclick="itemSearch()">搜索</button>' +
+        (search ? '<span class="search-clear" onclick="itemClearSearch()">✕ 清除</span>' : '') +
+      '</div>' +
+      '<div class="btn-group">' +
+        '<button class="btn btn-primary" onclick="showAddItem()">➕ 新建商品</button>' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadItems()">🔄 刷新</button>' +
+        '<span style="color:var(--text2);font-size:12px">共 ' + items.length + ' 件</span>' +
+        '<span style="margin-left:auto"></span>' +
+        '<button class="btn btn-sm btn-purple" onclick="exportTable(\'items\')">📥 导出</button>' +
+      '</div>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr>' +
+          '<th><input type="checkbox" onchange="toggleAllChecks(this,\'item-check\')" title="全选/取消"></th>' +
+          '<th>ID</th><th>名称</th><th>价格</th><th>商店库存</th><th>持有</th><th>分类</th><th>描述</th><th>操作</th>' +
+        '</tr></thead>' +
+        '<tbody>' + (rows || '<tr><td colspan="11" class="empty">暂无商品</td></tr>') + '</tbody>' +
+      '</table></div>';
   } catch(e) {
-    c.innerHTML = `<div class="empty">❌ ${e.message}<br><small>请先打开备份存档</small></div>`;
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
-async function showAddItem() {
-  const cats = await api('/api/categories/shop').catch(() => []);
-  const opts = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  showModal('➕ 新建商品', `
-    <div class="form-group"><label>商品名称</label><input id="f_name" placeholder="如：基础修复液"></div>
-    <div class="form-row">
-      <div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="100"></div>
-      <div class="form-group"><label>📦 商店库存 (-1=无限)</label><input id="f_count" type="number" value="-1"></div>
-    </div>
-    <div class="form-group"><label>分类</label><select id="f_cat">${opts}</select></div>
-    <div class="form-group"><label>图标 URL</label><input id="f_icon" placeholder="https://... 或 lifeup_sample_*.png"></div>
-    <div class="form-group"><label>描述</label><textarea id="f_desc"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-cyan" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="addItem()">创建</button>
-    </div>
-  `);
+function itemSearch() {
+  pageStates.items.search = document.getElementById('itemSearch').value.trim();
+  loadItems();
+}
+function itemClearSearch() { document.getElementById('itemSearch').value = ''; pageStates.items.search = ''; loadItems(); }
+function itemFilterCat() {
+  pageStates.items.category = document.getElementById('itemCatFilter').value;
+  loadItems();
 }
 
-async function addItem() {
-  const data = {
+// --- Item CRUD ---
+function showAddItem() {
+  api('/api/categories/shop').then(function(cats) {
+    var opts = cats.map(function(c) { return '<option value="' + c.id + '">' + (c.name||c.categoryname) + '</option>'; }).join('');
+    showModal('➕ 新建商品',
+      '<div class="form-group"><label>商品名称</label><input id="f_name" placeholder="如：基础修复液"></div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="100"></div>' +
+        '<div class="form-group"><label>📦 商店库存 (-1=无限)</label><input id="f_count" type="number" value="-1"></div>' +
+      '</div>' +
+      '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
+      '<div class="form-group"><label>图标 URL</label><input id="f_icon" placeholder="https://... 或 lifeup_sample_*.png"></div>' +
+      '<div class="form-group"><label>描述</label><textarea id="f_desc"></textarea></div>' +
+      '<div class="modal-actions">' +
+        '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+        '<button class="btn btn-primary" onclick="addItem()">创建</button>' +
+      '</div>'
+    );
+  }).catch(function() { showAddItemSimple(); });
+}
+function showAddItemSimple() {
+  showModal('➕ 新建商品',
+    '<div class="form-group"><label>商品名称</label><input id="f_name" placeholder="如：基础修复液"></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="100"></div>' +
+      '<div class="form-group"><label>📦 商店库存 (-1=无限)</label><input id="f_count" type="number" value="-1"></div>' +
+    '</div>' +
+    '<div class="form-group"><label>分类ID</label><input id="f_catid" type="number" value="0"></div>' +
+    '<div class="form-group"><label>图标 URL</label><input id="f_icon"></div>' +
+    '<div class="form-group"><label>描述</label><textarea id="f_desc"></textarea></div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+      '<button class="btn btn-primary" onclick="addItem()">创建</button>' +
+    '</div>'
+  );
+}
+
+function addItem() {
+  var data = {
     name: document.getElementById('f_name').value,
     price: parseInt(document.getElementById('f_price').value),
     count: parseInt(document.getElementById('f_count').value),
     icon: document.getElementById('f_icon').value,
     description: document.getElementById('f_desc').value,
-    category_id: parseInt(document.getElementById('f_cat').value) || 0
+    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0
   };
   if (!data.name) return toast('请输入商品名称', 'error');
-  try {
-    await api('/api/items/add', { method: 'POST', body: JSON.stringify(data) });
+  api('/api/items/add', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
     loadItems();
     toast('✅ 商品创建成功');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-async function editItem(id) {
-  const items = await api('/api/items');
-  const i = items.find(x => x.id === id);
-  if (!i) return toast('未找到商品', 'error');
-
-  const cats = await api('/api/categories/shop').catch(() => []);
-  const opts = cats.map(c => `<option value="${c.id}" ${c.id===i.shopcategoryid?'selected':''}>${c.name}</option>`).join('');
-
-  showModal('✏️ 编辑商品', `
-    <div class="form-group"><label>商品名称</label><input id="f_name" value="${(i.name||'').replace(/"/g,'&quot;')}"></div>
-    <div class="form-row">
-      <div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="${i.price||0}"></div>
-      <div class="form-group"><label>📦 库存</label><input id="f_count" type="number" value="${i.count||0}"></div>
-    </div>
-    <div class="form-group"><label>分类</label><select id="f_cat">${opts}</select></div>
-    <div class="form-group"><label>图标 URL</label><input id="f_icon" value="${i.icon||''}"></div>
-    <div class="form-group"><label>描述</label><textarea id="f_desc">${i.description||''}</textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-cyan" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="updateItem(${id})">保存</button>
-    </div>
-  `);
+function editItem(id) {
+  api('/api/items').then(function(items) {
+    var i = items.find(function(x) { return x.id === id; });
+    if (!i) return toast('未找到商品', 'error');
+    api('/api/categories/shop').then(function(cats) {
+      var opts = cats.map(function(c) {
+        return '<option value="' + c.id + '"' + (c.id===i.shopcategoryid?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+      }).join('');
+      showModal('✏️ 编辑商品 #' + id,
+        '<div class="form-group"><label>商品名称</label><input id="f_name" value="' + escAttr(i.name||'') + '"></div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="' + (i.price||0) + '"></div>' +
+          '<div class="form-group"><label>📦 库存</label><input id="f_count" type="number" value="' + (i.count||0) + '"></div>' +
+        '</div>' +
+        '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
+        '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(i.icon||'') + '"></div>' +
+        '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(i.description||'') + '</textarea></div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+          '<button class="btn btn-primary" onclick="updateItem(' + id + ')">保存</button>' +
+        '</div>'
+      );
+    }).catch(function() {
+      showModal('✏️ 编辑商品 #' + id,
+        '<div class="form-group"><label>商品名称</label><input id="f_name" value="' + escAttr(i.name||'') + '"></div>' +
+        '<div class="form-row"><div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="' + (i.price||0) + '"></div><div class="form-group"><label>📦 库存</label><input id="f_count" type="number" value="' + (i.count||0) + '"></div></div>' +
+        '<div class="form-group"><label>分类ID</label><input id="f_catid" type="number" value="' + (i.shopcategoryid||0) + '"></div>' +
+        '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(i.icon||'') + '"></div>' +
+        '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(i.description||'') + '</textarea></div>' +
+        '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="updateItem(' + id + ')">保存</button></div>'
+      );
+    });
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-async function updateItem(id) {
-  const data = {
-    id, name: document.getElementById('f_name').value,
+function updateItem(id) {
+  var data = {
+    id: id,
+    name: document.getElementById('f_name').value,
     price: parseInt(document.getElementById('f_price').value),
     count: parseInt(document.getElementById('f_count').value),
     icon: document.getElementById('f_icon').value,
     description: document.getElementById('f_desc').value,
-    category_id: parseInt(document.getElementById('f_cat').value) || 0
+    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0
   };
-  try {
-    await api('/api/items/update', { method: 'POST', body: JSON.stringify(data) });
+  api('/api/items/update', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
     loadItems();
     toast('✅ 已更新');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-async function deleteItem(id) {
+function deleteItem(id) {
   if (!confirm('确定删除此商品？')) return;
-  try {
-    await api('/api/items/delete', { method: 'POST', body: JSON.stringify({id}) });
+  api('/api/items/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadItems();
     toast('🗑️ 已删除');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-// ====== 成就 ======
+/* =================================================================================
+ *  PAGE 4: Achievements — 成就管理
+ * ================================================================================= */
 async function loadAchievements() {
-  const c = document.getElementById('content');
+  var search = pageStates.achievements.search;
+  var catId = pageStates.achievements.category;
+
+  var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
-    const ach = await api('/api/achievements');
-    const sysAch = await api('/api/achievements/system').catch(() => []);
-    const statusMap = {0:'🔒 未解锁', 1:'🔓 已解锁', 2:'🎁 已领取'};
+    var qs = [];
+    if (search) qs.push('search=' + encodeURIComponent(search));
+    if (catId) qs.push('category_id=' + catId);
+    var ach = await api('/api/achievements' + (qs.length ? '?' + qs.join('&') : ''));
+    var cats = await api('/api/categories/achievements').catch(function(){ return []; });
+    var sysAch = await api('/api/achievements/system').catch(function(){ return []; });
+    var statusMap = {0:'🔒 未解锁', 1:'🔓 已解锁', 2:'🎁 已领取'};
 
-    const rows = ach.map(a => `<tr>
-      <td>${a.id||''}</td>
-      <td>${a.icon&&a.icon.startsWith('http') ? `<img src="${a.icon}" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">` : ''} <strong>${a.name||'?'}</strong></td>
-      <td><span class="badge badge-purple">${a.category_name||'-'}</span></td>
-      <td><span class="badge badge-${a.achievementstatus>=1?'green':'red'}">${statusMap[a.achievementstatus]||a.achievementstatus}</span></td>
-      <td>🪙 ${a.coin||0}</td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.description||''}</td>
-      <td>
-        <button class="btn btn-cyan btn-sm" onclick='editAchievement(${a.id})'>✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteAchievement(${a.id})">🗑️</button>
-      </td>
-    </tr>`).join('');
+    var rows = ach.map(function(a) {
+      return '<tr>' +
+        '<td>' + (a.id||'') + '</td>' +
+        '<td>' + (a.icon&&a.icon.startsWith('http') ? '<img src="' + a.icon + '" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">' : '') + ' <strong>' + (a.name||'?') + '</strong></td>' +
+        '<td><span class="badge badge-purple">' + (a.category_name||'-') + '</span></td>' +
+        '<td><span class="badge badge-' + (a.achievementstatus>=1?'green':'red') + '">' + (statusMap[a.achievementstatus]||a.achievementstatus) + '</span></td>' +
+        '<td>🪙 ' + (a.coin||0) + '</td>' +
+        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (a.description||'') + '</td>' +
+        '<td>' +
+          '<button class="btn btn-cyan btn-sm" onclick="editAchievement(' + a.id + ')">✏️</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteAchievement(' + a.id + ')">🗑️</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
 
-    c.innerHTML = `
-      <div class="btn-group">
-        <button class="btn btn-primary" onclick="showAddAchievement()">➕ 新建成就</button>
-        <button class="btn btn-cyan btn-sm" onclick="loadAchievements()">🔄 刷新</button>
-        <span style="color:var(--text2);font-size:12px">自定义 ${ach.length} 个 | 系统成就 ${sysAch.length} 个</span>
-      </div>
-      <div style="overflow-x:auto">
-      <table class="data-table">
-        <thead><tr><th>ID</th><th>名称</th><th>分类</th><th>状态</th><th>奖励</th><th>描述</th><th>操作</th></tr></thead>
-        <tbody>${rows||'<tr><td colspan="7" class="empty">暂无成就</td></tr>'}</tbody>
-      </table>
-      </div>
-      ${sysAch.length > 0 ? `
-        <h4 style="color:var(--purple2);margin:20px 0 12px">📋 系统成就（只读）</h4>
-        <div style="overflow-x:auto">
-        <table class="data-table">
-          <thead><tr><th>ID</th><th>名称</th><th>类型</th><th>等级</th><th>奖励</th><th>目标值</th></tr></thead>
-          <tbody>${sysAch.map(a => `<tr>
-            <td>${a.id}</td><td>${a.title||'?'}</td><td>${a.achievementtype||0}</td><td>${a.levelnumber||1}</td>
-            <td>🪙${a.rewardcoin||0} ✨${a.rewardexp||0}</td><td>${a.targetvalue||0}</td>
-          </tr>`).join('')}</tbody>
-        </table></div>
-      ` : ''}
-    `;
+    var catOptsAch = '<option value="">全部分类</option>' + cats.map(function(c) {
+      return '<option value="' + c.id + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="search-bar">' +
+        '<input class="search-input" id="achSearch" placeholder="🔍 搜索成就名称或描述..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')achSearch()">' +
+        '<button class="btn btn-cyan btn-sm" onclick="achSearch()">搜索</button>' +
+        (search ? '<span class="search-clear" onclick="achClearSearch()">✕ 清除</span>' : '') +
+        '<span style="margin-left:8px;color:var(--text2);font-size:12px">分类：</span>' +
+        '<select id="achCatFilter" onchange="achFilterCat()" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;max-width:150px">' + catOptsAch + '</select>' +
+      '</div>' +
+      '<div class="btn-group">' +
+        '<button class="btn btn-primary" onclick="showAddAchievement()">➕ 新建成就</button>' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadAchievements()">🔄 刷新</button>' +
+        '<span style="color:var(--text2);font-size:12px">自定义 ' + ach.length + ' 个 | 系统成就 ' + sysAch.length + ' 个</span>' +
+        '<span style="margin-left:auto"></span>' +
+        '<button class="btn btn-sm btn-purple" onclick="exportTable(\'achievements\')">📥 导出</button>' +
+      '</div>' +
+      '<div style="overflow-x:auto"><table class="data-table">' +
+        '<thead><tr><th>ID</th><th>名称</th><th>分类</th><th>状态</th><th>奖励</th><th>描述</th><th>操作</th></tr></thead>' +
+        '<tbody>' + (rows || '<tr><td colspan="7" class="empty">暂无成就</td></tr>') + '</tbody>' +
+      '</table></div>' +
+      (sysAch.length > 0 ?
+        '<div class="section-title">📋 系统成就（只读）</div>' +
+        '<div style="overflow-x:auto"><table class="data-table">' +
+          '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>等级</th><th>奖励</th><th>目标值</th></tr></thead>' +
+          '<tbody>' + sysAch.map(function(a) {
+            return '<tr><td>' + a.id + '</td><td>' + (a.title||'?') + '</td><td>' + (a.achievementtype||0) + '</td><td>' + (a.levelnumber||1) + '</td><td>🪙' + (a.rewardcoin||0) + ' ✨' + (a.rewardexp||0) + '</td><td>' + (a.targetvalue||0) + '</td></tr>';
+          }).join('') + '</tbody>' +
+        '</table></div>' : '');
   } catch(e) {
-    c.innerHTML = `<div class="empty">❌ ${e.message}<br><small>请先打开备份存档</small></div>`;
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
-async function showAddAchievement() {
-  const cats = await api('/api/categories/achievements').catch(() => []);
-  const opts = cats.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  showModal('➕ 新建成就', `
-    <div class="form-group"><label>成就名称</label><input id="f_name" placeholder="如：筑基"></div>
-    <div class="form-row">
-      <div class="form-group"><label>分类</label><select id="f_cat">${opts}</select></div>
-      <div class="form-group"><label>💎 金币奖励</label><input id="f_coin" type="number" value="100"></div>
-    </div>
-    <div class="form-group"><label>图标 URL</label><input id="f_icon" placeholder="https://... 或 lifeup_sample_*.png"></div>
-    <div class="form-group"><label>描述/条件</label><textarea id="f_desc" placeholder="如：本源等级达到3级"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-cyan" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="addAchievement()">创建</button>
-    </div>
-  `);
+function achSearch() {
+  pageStates.achievements.search = document.getElementById('achSearch').value.trim();
+  loadAchievements();
+}
+function achClearSearch() {
+  document.getElementById('achSearch').value = '';
+  pageStates.achievements.search = '';
+  loadAchievements();
+}
+function achFilterCat() {
+  pageStates.achievements.category = document.getElementById('achCatFilter').value;
+  loadAchievements();
 }
 
-async function addAchievement() {
-  const data = {
+function showAddAchievement() {
+  api('/api/categories/achievements').then(function(cats) {
+    var opts = cats.map(function(c) { return '<option value="' + c.id + '">' + (c.name||c.categoryname) + '</option>'; }).join('');
+    showAchievementForm('➕ 新建成就', '', 0, 100, '', '', opts);
+  }).catch(function() { showAchievementForm('➕ 新建成就', '', 0, 100, '', '', ''); });
+}
+function showAchievementForm(title, name, catId, coin, icon, desc, catOpts) {
+  showModal(title,
+    '<div class="form-group"><label>成就名称</label><input id="f_name" value="' + escAttr(name) + '" placeholder="如：筑基"></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>分类</label>' + (catOpts ? '<select id="f_cat">' + catOpts + '</select>' : '<input id="f_catid" type="number" value="' + catId + '">') + '</div>' +
+      '<div class="form-group"><label>💎 金币奖励</label><input id="f_coin" type="number" value="' + coin + '"></div>' +
+    '</div>' +
+    '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(icon) + '" placeholder="https://... 或 lifeup_sample_*.png"></div>' +
+    '<div class="form-group"><label>描述/条件</label><textarea id="f_desc" placeholder="如：本源等级达到3级">' + escHtml(desc) + '</textarea></div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+      '<button class="btn btn-primary" id="achSubmitBtn" onclick="addAchievement()">创建</button>' +
+    '</div>'
+  );
+}
+
+function addAchievement() {
+  var data = {
     name: document.getElementById('f_name').value,
-    category_id: parseInt(document.getElementById('f_cat').value) || 0,
+    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0,
     coin: parseInt(document.getElementById('f_coin').value),
     icon: document.getElementById('f_icon').value,
     description: document.getElementById('f_desc').value,
     type: 0
   };
   if (!data.name) return toast('请输入成就名称', 'error');
-  try {
-    await api('/api/achievements/add', { method: 'POST', body: JSON.stringify(data) });
+  api('/api/achievements/add', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
     loadAchievements();
     toast('✅ 成就创建成功');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-async function editAchievement(id) {
-  const ach = await api('/api/achievements');
-  const a = ach.find(x => x.id === id);
-  if (!a) return toast('未找到成就', 'error');
-
-  const cats = await api('/api/categories/achievements').catch(() => []);
-  const opts = cats.map(c => `<option value="${c.id}" ${c.id===a.categoryid?'selected':''}>${c.name}</option>`).join('');
-
-  showModal('✏️ 编辑成就', `
-    <div class="form-group"><label>成就名称</label><input id="f_name" value="${(a.name||'').replace(/"/g,'&quot;')}"></div>
-    <div class="form-row">
-      <div class="form-group"><label>分类</label><select id="f_cat">${opts}</select></div>
-      <div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="${a.coin||0}"></div>
-    </div>
-    <div class="form-group"><label>图标 URL</label><input id="f_icon" value="${a.icon||''}"></div>
-    <div class="form-group"><label>描述</label><textarea id="f_desc">${a.description||''}</textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-cyan" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="updateAchievement(${id})">保存</button>
-    </div>
-  `);
+function editAchievement(id) {
+  api('/api/achievements').then(function(ach) {
+    var a = ach.find(function(x) { return x.id === id; });
+    if (!a) return toast('未找到成就', 'error');
+    api('/api/categories/achievements').then(function(cats) {
+      var opts = cats.map(function(c) {
+        return '<option value="' + c.id + '"' + (c.id===a.categoryid?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+      }).join('');
+      showModal('✏️ 编辑成就 #' + id,
+        '<div class="form-group"><label>成就名称</label><input id="f_name" value="' + escAttr(a.name||'') + '"></div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
+          '<div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="' + (a.coin||0) + '"></div>' +
+        '</div>' +
+        '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(a.icon||'') + '"></div>' +
+        '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(a.description||'') + '</textarea></div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+          '<button class="btn btn-primary" onclick="updateAchievement(' + id + ')">保存</button>' +
+        '</div>'
+      );
+    }).catch(function() {
+      showModal('✏️ 编辑成就 #' + id,
+        '<div class="form-group"><label>成就名称</label><input id="f_name" value="' + escAttr(a.name||'') + '"></div>' +
+        '<div class="form-row"><div class="form-group"><label>分类ID</label><input id="f_catid" type="number" value="' + (a.categoryid||0) + '"></div><div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="' + (a.coin||0) + '"></div></div>' +
+        '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(a.icon||'') + '"></div>' +
+        '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(a.description||'') + '</textarea></div>' +
+        '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="updateAchievement(' + id + ')">保存</button></div>'
+      );
+    });
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-async function updateAchievement(id) {
-  const data = {
-    id, name: document.getElementById('f_name').value,
-    category_id: parseInt(document.getElementById('f_cat').value) || 0,
+function updateAchievement(id) {
+  var data = {
+    id: id,
+    name: document.getElementById('f_name').value,
+    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0,
     coin: parseInt(document.getElementById('f_coin').value),
     icon: document.getElementById('f_icon').value,
     description: document.getElementById('f_desc').value
   };
-  try {
-    await api('/api/achievements/update', { method: 'POST', body: JSON.stringify(data) });
+  api('/api/achievements/update', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
     loadAchievements();
     toast('✅ 已更新');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-async function deleteAchievement(id) {
+function deleteAchievement(id) {
   if (!confirm('确定删除此成就？')) return;
-  try {
-    await api('/api/achievements/delete', { method: 'POST', body: JSON.stringify({id}) });
+  api('/api/achievements/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadAchievements();
     toast('🗑️ 已删除');
-  } catch(e) { toast('❌ ' + e.message, 'error'); }
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-// ====== 技能/属性 ======
+/* =================================================================================
+ *  PAGE 5: Skills — 属性面板
+ * ================================================================================= */
 async function loadSkills() {
-  const c = document.getElementById('content');
+  var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
-    const skills = await api('/api/skills');
-    const cards = skills.map(s => `
-      <div class="stat-card" style="text-align:left;padding:20px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:14px;font-weight:600;color:var(--text)">${s.name||'?'}</span>
-          <span class="badge badge-cyan">${s.description||''}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
-          <span style="font-size:36px;font-weight:700;color:var(--purple)">Lv.${s.level||1}</span>
-          <span style="font-size:12px;color:var(--text2)">EXP: ${(s.experience||0).toLocaleString()}</span>
-        </div>
-        <div class="progress-bar" style="height:8px"><div class="progress-fill purple" style="width:${s.progress||0}%"></div></div>
-        <div style="font-size:10px;color:var(--text2);margin-top:4px;text-align:right">${s.current_exp}/${s.next_exp}</div>
-      </div>
-    `).join('');
+    var skills = await api('/api/skills');
+    var cards = skills.map(function(s) {
+      return '<div class="stat-card" style="text-align:left;padding:20px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+          '<span style="font-size:14px;font-weight:600;color:var(--text)">' + (s.name||'?') + '</span>' +
+          '<span class="badge badge-cyan">' + (s.description||'') + '</span>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">' +
+          '<span style="font-size:36px;font-weight:700;color:var(--purple)">Lv.' + (s.level||1) + '</span>' +
+          '<span style="font-size:12px;color:var(--text2)">EXP: ' + ((s.experience||0).toLocaleString()) + '</span>' +
+        '</div>' +
+        '<div class="progress-bar h8"><div class="progress-fill purple" style="width:' + (s.progress||0) + '%"></div></div>' +
+        '<div style="font-size:10px;color:var(--text2);margin-top:4px;text-align:right">' + (s.current_exp||0) + '/' + (s.next_exp||0) + '</div>' +
+      '</div>';
+    }).join('');
 
-    c.innerHTML = `
-      <div class="btn-group">
-        <button class="btn btn-cyan btn-sm" onclick="loadSkills()">🔄 刷新</button>
-      </div>
-      <div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
-        ${cards||'<div class="empty">暂无属性数据</div>'}
-      </div>
-    `;
+    c.innerHTML =
+      '<div class="btn-group">' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadSkills()">🔄 刷新</button>' +
+        '<span style="color:var(--text2);font-size:12px">共 ' + skills.length + ' 项属性</span>' +
+        '<span style="margin-left:auto"></span>' +
+        '<button class="btn btn-sm btn-purple" onclick="exportTable(\'skills\')">📥 导出</button>' +
+      '</div>' +
+      '<div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">' +
+        (cards || '<div class="empty">暂无属性数据</div>') +
+      '</div>';
   } catch(e) {
-    c.innerHTML = `<div class="empty">❌ ${e.message}<br><small>请先打开备份存档</small></div>`;
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
-// ====== 背包 ======
+/* =================================================================================
+ *  PAGE 6: Inventory — 背包物品
+ * ================================================================================= */
 async function loadInventory() {
-  const c = document.getElementById('content');
+  var search = pageStates.inventory.search;
+  var view = pageStates.inventory.view;
+  var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
-    const inv = await api('/api/inventory');
-    const rows = inv.map(i => `<tr>
-      <td>${i.id||''}</td>
-      <td>${i.item_icon&&i.item_icon.startsWith('http') ? `<img src="${i.item_icon}" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">` : ''} ${i.item_name||'?'}</td>
-      <td>📦 ${i.stocknumber||0}</td>
-      <td><span class="badge badge-gold">🪙 ${i.price||0}</span></td>
-      <td>${i.isstarred ? '⭐' : ''}</td>
-    </tr>`).join('');
+    var inv = await api('/api/inventory');
+    // Search filter
+    if (search) {
+      var s = search.toLowerCase();
+      inv = inv.filter(function(i) { return (i.item_name||'').toLowerCase().indexOf(s) >= 0; });
+    }
+    // Sort by current
+    if (currentSort.col) inv = sortData(inv, currentSort.col, currentSort.asc);
 
-    c.innerHTML = `
-      <div class="btn-group">
-        <button class="btn btn-cyan btn-sm" onclick="loadInventory()">🔄 刷新</button>
-        <span style="color:var(--text2);font-size:12px">共 ${inv.length} 件物品</span>
-      </div>
-      <div style="overflow-x:auto">
-      <table class="data-table">
-        <thead><tr><th>ID</th><th>物品</th><th>数量</th><th>单价</th><th>收藏</th></tr></thead>
-        <tbody>${rows||'<tr><td colspan="5" class="empty">背包为空</td></tr>'}</tbody>
-      </table>
-      </div>
-    `;
+    // Card view
+    var gridHtml = inv.map(function(i) {
+      var iconHtml = i.item_icon && i.item_icon.startsWith('http')
+        ? '<img src="' + i.item_icon + '" class="card-icon" loading="lazy">'
+        : '<div class="card-icon-placeholder">📦</div>';
+      return '<div class="inv-card" title="ID: ' + i.id + '">' +
+        iconHtml +
+        '<div class="inv-card-name">' + (i.item_name || '?') + '</div>' +
+        '<div class="inv-card-meta">' +
+          '<span>📦 ' + (i.stocknumber || 0) + '</span>' +
+          '<span>🪙 ' + (i.price || 0) + '</span>' +
+        '</div>' +
+        (i.isstarred ? '<div class="inv-card-star">⭐</div>' : '') +
+      '</div>';
+    }).join('');
+
+    // Table view
+    var rows = inv.map(function(i) {
+      return '<tr>' +
+        '<td>' + (i.id||'') + '</td>' +
+        '<td>' + (i.item_icon&&i.item_icon.startsWith('http') ? '<img src="' + i.item_icon + '" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">' : '') + ' ' + (i.item_name||'?') + '</td>' +
+        '<td>📦 ' + (i.stocknumber||0) + '</td>' +
+        '<td><span class="badge badge-gold">🪙 ' + (i.price||0) + '</span></td>' +
+        '<td>' + (i.isstarred ? '⭐ 已收藏' : '') + '</td>' +
+      '</tr>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="btn-group" style="flex-wrap:wrap">' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadInventory()">🔄 刷新</button>' +
+        '<input id="invSearch" placeholder="🔍 搜索物品..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')invSearch()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 10px;border-radius:4px;font-size:12px;width:160px">' +
+        '<button class="btn btn-sm" onclick="invSearch()">搜索</button>' +
+        '<span style="color:var(--text2);font-size:12px;margin-left:8px">' + inv.length + ' 件</span>' +
+        '<span style="margin-left:auto"></span>' +
+        '<button class="btn btn-sm" style="' + (view==='cards'?'background:var(--cyan);color:#000':'') + '" onclick="pageStates.inventory.view=\'cards\';loadInventory()">🃏 卡片</button>' +
+        '<button class="btn btn-sm" style="' + (view==='table'?'background:var(--cyan);color:#000':'') + '" onclick="pageStates.inventory.view=\'table\';loadInventory()">📋 表格</button>' +
+        '<button class="btn btn-sm btn-purple" onclick="exportTable(\'inventory\')">📥 导出</button>' +
+      '</div>' +
+      (view === 'cards'
+        ? '<div class="inv-grid">' + (gridHtml || '<div class="empty">没有匹配的物品</div>') + '</div>'
+        : '<div style="overflow-x:auto"><table class="data-table">' +
+            '<thead><tr>' +
+              makeSortable('ID','id') +
+              '<th>物品</th>' +
+              makeSortable('数量','stocknumber') +
+              makeSortable('单价','price') +
+              '<th>收藏</th>' +
+            '</tr></thead>' +
+            '<tbody>' + (rows || '<tr><td colspan="5" class="empty">背包为空</td></tr>') + '</tbody>' +
+          '</table></div>');
   } catch(e) {
-    c.innerHTML = `<div class="empty">❌ ${e.message}<br><small>请先打开备份存档</small></div>`;
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+  }
+}
+function invSearch() {
+  pageStates.inventory.search = document.getElementById('invSearch').value.trim();
+  loadInventory();
+}
+
+/* =================================================================================
+ *  PAGE 7: Synthesis — 合成配方
+ * ================================================================================= */
+async function loadSynthesis() {
+  var search = pageStates.synthesis.search;
+  var catId = pageStates.synthesis.category;
+  var calcMode = pageStates.synthesis.calcMode;
+
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var qs = [];
+    if (search) qs.push('search=' + encodeURIComponent(search));
+    if (catId) qs.push('category_id=' + catId);
+    var url = '/api/synthesis' + (qs.length ? '?' + qs.join('&') : '');
+    var data = await api(url);
+    var recipes = data.recipes || [];
+
+    var calcData = null, calcMap = {};
+    if (calcMode) {
+      calcData = await api('/api/synthesis/calculate').catch(function(){ return {}; });
+      [].concat(calcData.can_synth||[], calcData.miss_one||[], calcData.miss_more||[], calcData.no_match||[]).forEach(function(e) {
+        calcMap[e.recipe_id] = e.ratio >= 1 ? 'can' : (e.owned > 0 ? (e.ratio >= 0.5 ? 'miss1' : 'miss2') : 'none');
+      });
+    }
+
+    var calcSummaryHtml = '';
+    if (calcMode && calcData) {
+      calcSummaryHtml = '<div class="calc-summary">' +
+        '<div class="calc-summary-item s-can" onclick="synthCalcFilter(\'can\')" id="calcSum_can">✅ 可合成 ' + (calcData.can_synth||[]).length + ' 个</div>' +
+        '<div class="calc-summary-item s-miss1" onclick="synthCalcFilter(\'miss1\')" id="calcSum_miss1">⚠️ 缺1件 ' + (calcData.miss_one||[]).length + ' 个</div>' +
+        '<div class="calc-summary-item s-miss2" onclick="synthCalcFilter(\'miss2\')" id="calcSum_miss2">🔴 缺多件 ' + (calcData.miss_more||[]).length + ' 个</div>' +
+        '<div style="color:var(--text2);font-size:11px;align-self:center">📦 库存 ' + (calcData.inventory_count||0) + ' 种 | 配方 ' + (calcData.total_recipes||0) + ' 个</div>' +
+      '</div>';
+    }
+
+    var synthCats = await api('/api/synthesis/categories').catch(function(){ return []; });
+    var synthCatOpts = '<option value="">全部分类</option>' + synthCats.map(function(c) {
+      return '<option value="' + c.id + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+    }).join('');
+
+    var calcFilter = pageStates.synthesis.calcFilter || '';
+    var cards = recipes.map(function(r) {
+      var calcStatus = calcMap[r.id] || '';
+      if (calcFilter && calcStatus !== calcFilter) return '';
+      var borderClass = calcStatus === 'can' ? ' can-synth' : (calcStatus === 'miss1' ? ' miss-one' : (calcStatus === 'miss2' ? ' miss-more' : (calcStatus === 'none' ? ' no-match' : '')));
+      var calcBadge = '';
+      if (calcMode && calcStatus) {
+        var label = calcStatus === 'can' ? '✅ 可合成' : (calcStatus === 'miss1' ? '⚠️ 缺1件' : (calcStatus === 'miss2' ? '🔴 缺多件' : ''));
+        if (label) calcBadge = '<span class="calc-badge ' + calcStatus + '">' + label + '</span>';
+      }
+      var inputs = (r.inputs||[]).map(function(inp) {
+        return '<span style="background:var(--bg);padding:2px 8px;border-radius:4px;font-size:11px">' +
+          (inp.amount||1) + 'x ' + (inp.item_name||'?') + '</span>';
+      }).join(' ');
+      var outputs = (r.outputs||[]).map(function(out) {
+        return '<span style="background:rgba(212,168,67,0.15);padding:2px 8px;border-radius:4px;font-size:11px;color:var(--gold)">' +
+          (out.amount||1) + 'x ' + (out.item_name||'?') + '</span>';
+      }).join(' ');
+      return '<div class="stat-card synth-card' + borderClass + '" style="text-align:left;padding:14px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+          '<strong style="font-size:13px;color:var(--text)">' + (r.title||'?') + '</strong>' +
+          '<span class="badge badge-cyan">' + (r.categoryname||'-') + '</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">' +
+          inputs + ' <span style="color:var(--cyan)">➜</span> ' + outputs +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">' +
+          (calcMode ? calcBadge : '') +
+          '<div style="margin-left:auto">' +
+            '<button class="btn btn-cyan btn-xs" onclick="editSynthesis(' + r.id + ')">✏️</button>' +
+            '<button class="btn btn-danger btn-xs" onclick="deleteSynthesis(' + r.id + ')">🗑️</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="search-bar">' +
+        '<input class="search-input" id="synthSearch" placeholder="🔍 搜索配方名称或材料..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')synthSearch()">' +
+        '<button class="btn btn-cyan btn-sm" onclick="synthSearch()">搜索</button>' +
+        (search ? '<span class="search-clear" onclick="synthClearSearch()">✕ 清除</span>' : '') +
+        '<span style="margin-left:8px;color:var(--text2);font-size:12px">分类：</span>' +
+        '<select id="synthCatFilter" onchange="synthFilterCat()" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;max-width:180px">' + synthCatOpts + '</select>' +
+      '</div>' +
+      '<div class="btn-group">' +
+        '<button class="btn btn-primary" onclick="showAddSynthesis()">➕ 新建配方</button>' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadSynthesis()">🔄 刷新</button>' +
+        '<button class="btn btn-sm" style="' + (calcMode?'background:var(--gold);color:#000':'') + '" onclick="synthToggleCalc()">🧮 计算器' + (calcMode ? ' ON' : '') + '</button>' +
+        '<span style="color:var(--text2);font-size:12px">共 ' + (data.total||recipes.length) + ' 个配方</span>' +
+      '</div>' +
+      calcSummaryHtml +
+      '<div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(340px,1fr))">' +
+        (cards || '<div class="empty">暂无合成配方</div>') +
+      '</div>';
+  } catch(e) {
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
-// ====== Modal ======
-function showModal(title, body) {
-  document.getElementById('modalBox').innerHTML = `<h3>${title}</h3>${body}`;
-  document.getElementById('modalOverlay').classList.add('show');
+function synthToggleCalc() {
+  pageStates.synthesis.calcMode = !pageStates.synthesis.calcMode;
+  pageStates.synthesis.calcFilter = '';
+  loadSynthesis();
 }
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('show');
+function synthCalcFilter(status) {
+  pageStates.synthesis.calcFilter = (pageStates.synthesis.calcFilter === status) ? '' : status;
+  document.querySelectorAll('.calc-summary-item').forEach(function(el){ el.classList.remove('s-active'); });
+  if (pageStates.synthesis.calcFilter) {
+    var el = document.getElementById('calcSum_' + status);
+    if (el) el.classList.add('s-active');
+  }
+  loadSynthesis();
 }
-document.getElementById('modalOverlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeModal();
-});
 
-// ====== 键盘快捷键 ======
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
-  if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveBackup(); }
-});
+function synthSearch() {
+  pageStates.synthesis.search = document.getElementById('synthSearch').value.trim();
+  loadSynthesis();
+}
+function synthClearSearch() { document.getElementById('synthSearch').value = ''; pageStates.synthesis.search = ''; loadSynthesis(); }
+function synthFilterCat() {
+  pageStates.synthesis.category = document.getElementById('synthCatFilter').value;
+  loadSynthesis();
+}
 
-// ====== 自动尝试加载 ======
-window.addEventListener('DOMContentLoaded', async () => {
+// --- Synthesis CRUD ---
+function showAddSynthesis() {
+  showModal('➕ 新建合成配方', true,
+    '<div class="form-group"><label>配方名称</label><input id="f_stitle" placeholder="如：炼制丹药"></div>' +
+    '<div class="form-group"><label>备注</label><textarea id="f_snote"></textarea></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>输入材料 (ID:数量, 用逗号分隔)</label><input id="f_sinputs" placeholder="如 1:2, 3:1"></div>' +
+      '<div class="form-group"><label>输出产物 (ID:数量, 用逗号分隔)</label><input id="f_soutputs" placeholder="如 5:1"></div>' +
+    '</div>' +
+    '<p style="font-size:10px;color:var(--text2);margin-bottom:12px">提示：可在商店管理页面查看物品ID。格式为 item_id:数量，多项用英文逗号分隔。</p>' +
+    '<div class="modal-actions">' +
+      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+      '<button class="btn btn-primary" onclick="addSynthesis()">创建</button>' +
+    '</div>'
+  );
+}
+
+function parseItemPairs(str) {
+  if (!str.trim()) return [];
+  return str.split(',').map(function(p) {
+    var parts = p.trim().split(':');
+    return { item_id: parseInt(parts[0]), amount: parseInt(parts[1]) || 1 };
+  }).filter(function(p) { return p.item_id > 0; });
+}
+
+function addSynthesis() {
+  var data = {
+    title: document.getElementById('f_stitle').value,
+    note: document.getElementById('f_snote').value,
+    category_id: 1,
+    inputs: parseItemPairs(document.getElementById('f_sinputs').value),
+    outputs: parseItemPairs(document.getElementById('f_soutputs').value)
+  };
+  if (!data.title) return toast('请输入配方名称', 'error');
+  if (data.inputs.length === 0) return toast('请至少输入一个材料', 'error');
+  if (data.outputs.length === 0) return toast('请至少输入一个产物', 'error');
+  api('/api/synthesis/add', { method: 'POST', body: JSON.stringify(data) }).then(function() {
+    closeModal();
+    loadSynthesis();
+    toast('✅ 配方创建成功');
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function editSynthesis(id) {
+  api('/api/synthesis').then(function(data) {
+    var r = (data.recipes||[]).find(function(x) { return x.id === id; });
+    if (!r) return toast('未找到配方', 'error');
+    var inpStr = (r.inputs||[]).map(function(x) { return x.item_id + ':' + x.amount; }).join(', ');
+    var outStr = (r.outputs||[]).map(function(x) { return x.item_id + ':' + x.amount; }).join(', ');
+    showModal('✏️ 编辑配方 #' + id, true,
+      '<div class="form-group"><label>配方名称</label><input id="f_stitle" value="' + escAttr(r.title||'') + '"></div>' +
+      '<div class="form-group"><label>备注</label><textarea id="f_snote">' + escHtml(r.note||'') + '</textarea></div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>输入材料 (ID:数量)</label><input id="f_sinputs" value="' + escAttr(inpStr) + '"></div>' +
+        '<div class="form-group"><label>输出产物 (ID:数量)</label><input id="f_soutputs" value="' + escAttr(outStr) + '"></div>' +
+      '</div>' +
+      '<div class="modal-actions">' +
+        '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+        '<button class="btn btn-primary" onclick="updateSynthesis(' + id + ')">保存</button>' +
+      '</div>'
+    );
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function updateSynthesis(id) {
+  var data = {
+    id: id,
+    title: document.getElementById('f_stitle').value,
+    note: document.getElementById('f_snote').value,
+    category_id: 1,
+    inputs: parseItemPairs(document.getElementById('f_sinputs').value),
+    outputs: parseItemPairs(document.getElementById('f_soutputs').value)
+  };
+  api('/api/synthesis/update', { method: 'POST', body: JSON.stringify(data) }).then(function() {
+    closeModal();
+    loadSynthesis();
+    toast('✅ 已更新');
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function deleteSynthesis(id) {
+  if (!confirm('确定删除此配方？')) return;
+  api('/api/synthesis/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
+    loadSynthesis();
+    toast('🗑️ 已删除');
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+/* =================================================================================
+ *  PAGE 8: History — 活动记录
+ * ================================================================================= */
+async function loadHistory() {
+  var df = pageStates.history.dateFrom;
+  var dt = pageStates.history.dateTo;
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var data = await api('/api/history?limit=200');
+    var events = data.events || [];
+
+    // Date range filter (client-side, timestamp in ms)
+    var fromMs = df ? new Date(df).getTime() : null;
+    var toMs = dt ? new Date(dt + 'T23:59:59').getTime() : null;
+    if (fromMs || toMs) {
+      events = events.filter(function(e) {
+        if (fromMs && e.ts < fromMs) return false;
+        if (toMs && e.ts > toMs) return false;
+        return true;
+      });
+    }
+
+    var taskCount = 0, itemCount = 0;
+    var items = events.map(function(e) {
+      var icon = e.type === 'task' ? '✅' : '📦';
+      var body;
+      if (e.type === 'task') { taskCount++;
+        body = '<strong>' + (e.name||'?') + '</strong> 完成 ×' + (e.count||1) +
+               ' | 奖励 🪙' + (e.coin||0) + ' ✨' + (e.exp||0);
+      } else { itemCount++;
+        var dir = e.is_decrease ? '消耗' : '获得';
+        body = '<strong>' + (e.name||'?') + '</strong> ' + dir + ' ' + (e.change||0) + ' 件';
+        if (e.desc) body += ' <span style="color:var(--text2);font-size:11px">(' + e.desc + ')</span>';
+      }
+      return '<div class="timeline-item">' +
+        '<div class="timeline-time">' + (e.time||'') + '</div>' +
+        '<div class="timeline-body">' + icon + ' ' + body + '</div>' +
+      '</div>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="btn-group" style="flex-wrap:wrap;align-items:center">' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadHistory()">🔄 刷新</button>' +
+        '<label style="color:var(--text2);font-size:11px;margin-left:8px">从</label>' +
+        '<input id="histDateFrom" type="date" value="' + df + '" onchange="histDateChange()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:12px">' +
+        '<label style="color:var(--text2);font-size:11px">到</label>' +
+        '<input id="histDateTo" type="date" value="' + dt + '" onchange="histDateChange()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:12px">' +
+        (df||dt ? '<button class="btn btn-sm btn-red" onclick="histClearDate()">✕ 清除</button>' : '') +
+        '<span style="color:var(--text2);font-size:12px;margin-left:8px">任务 ' + taskCount + ' | 物品 ' + itemCount + ' | 共 ' + events.length + ' 条</span>' +
+        '<span style="margin-left:auto"></span>' +
+        '<button class="btn btn-sm btn-purple" onclick="exportTable(\'history\')">📥 导出</button>' +
+      '</div>' +
+      '<div class="timeline">' + (items || '<div class="empty">暂无匹配的活动记录</div>') + '</div>';
+  } catch(e) {
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+  }
+}
+function histDateChange() {
+  pageStates.history.dateFrom = document.getElementById('histDateFrom').value;
+  pageStates.history.dateTo = document.getElementById('histDateTo').value;
+  loadHistory();
+}
+function histClearDate() {
+  pageStates.history.dateFrom = ''; pageStates.history.dateTo = '';
+  document.getElementById('histDateFrom').value = '';
+  document.getElementById('histDateTo').value = '';
+  loadHistory();
+}
+
+/* =================================================================================
+ *  PAGE 9: Pools — 卡池管理
+ * ================================================================================= */
+async function loadPools() {
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var data = await api('/api/pools');
+    var pools = data.pools || [];
+
+    var poolCards = pools.map(function(p) {
+      var entries = (p.entries||[]).map(function(e) {
+        var badgeColor = e.is_fixed ? 'badge-gold' : (e.probability > 50 ? 'badge-purple' : 'badge-cyan');
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(30,58,95,0.2)">' +
+          '<span style="font-size:12px">' + (e.icon&&e.icon.startsWith('http') ? '<img src="' + e.icon + '" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;border-radius:3px">' : '🎴') + ' ' + (e.item_name||'?') + '</span>' +
+          '<span>' +
+            '<span class="badge ' + badgeColor + '" style="margin-right:4px">' + (e.probability||0) + '%</span>' +
+            (e.is_fixed ? '<span class="badge badge-gold">固定</span>' : '') +
+            ' <span style="font-size:10px;color:var(--text2)">×' + (e.amount||1) + '</span>' +
+          '</span>' +
+        '</div>';
+      }).join('');
+
+      return '<div class="stat-card" style="text-align:left;padding:14px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+          '<strong style="font-size:13px;color:var(--text)">🎰 ' + (p.itemname||'卡池 #'+p.id) + '</strong>' +
+          '<span class="badge badge-cyan">' + (p.entries.length||0) + ' 项</span>' +
+        '</div>' +
+        entries +
+        '<div style="text-align:right;margin-top:8px">' +
+          '<button class="btn btn-cyan btn-xs" onclick="editPool(' + p.id + ')">✏️ 编辑概率</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="btn-group">' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadPools()">🔄 刷新</button>' +
+        '<span style="color:var(--text2);font-size:12px">卡池 ' + (data.pool_count||pools.length) + ' 个 | 其他效果 ' + (data.effect_count||0) + ' 个</span>' +
+      '</div>' +
+      '<div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))">' +
+        (poolCards || '<div class="empty">暂无卡池</div>') +
+      '</div>';
+  } catch(e) {
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+  }
+}
+
+function editPool(id) {
+  api('/api/pools').then(function(data) {
+    var p = (data.pools||[]).find(function(x) { return x.id === id; });
+    if (!p) return toast('未找到卡池', 'error');
+    var entriesHtml = (p.entries||[]).map(function(e, idx) {
+      return '<div class="form-row" style="margin-bottom:8px">' +
+        '<div class="form-group"><label>物品</label><input value="' + escAttr(e.item_name||e.item_id) + '" readonly style="background:var(--bg3);font-size:11px"></div>' +
+        '<div class="form-group"><label>概率(%)</label><input type="number" id="pe_prob_' + idx + '" value="' + (e.probability||0) + '" style="width:80px"></div>' +
+        '<div class="form-group"><label>数量</label><input type="number" id="pe_amt_' + idx + '" value="' + (e.amount||1) + '" style="width:60px"></div>' +
+        '<div class="form-group"><label>固定</label><select id="pe_fixed_' + idx + '" style="width:70px"><option value="0"' + (e.is_fixed?'':' selected') + '>否</option><option value="1"' + (e.is_fixed?' selected':'') + '>是</option></select></div>' +
+      '</div>';
+    }).join('');
+    showModal('✏️ 编辑卡池 #' + id, true,
+      entriesHtml +
+      '<div class="modal-actions">' +
+        '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+        '<button class="btn btn-primary" onclick="savePool(' + id + ',' + (p.entries||[]).length + ')">保存</button>' +
+      '</div>'
+    );
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function savePool(id, count) {
+  var entries = [];
+  for (var i = 0; i < count; i++) {
+    entries.push({
+      item_id: 0,
+      probability: parseInt(document.getElementById('pe_prob_' + i).value) || 0,
+      amount: parseInt(document.getElementById('pe_amt_' + i).value) || 1,
+      is_fixed: document.getElementById('pe_fixed_' + i).value === '1'
+    });
+  }
+  api('/api/pools/update', { method: 'POST', body: JSON.stringify({ id: id, entries: entries }) }).then(function() {
+    closeModal();
+    loadPools();
+    toast('✅ 卡池已更新');
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+/* =================================================================================
+ *  PAGE 10: Achievement Progress — 成就进度
+ * ================================================================================= */
+async function loadAchProgress() {
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var data = await api('/api/achievements/progress');
+    var achs = data.achievements || [];
+    var statusMap = {0:'未完成', 1:'已完成', 2:'已领取'};
+
+    var rows = achs.map(function(a) {
+      var progBar = '';
+      if (a.current_total !== undefined && a.target_total > 0) {
+        progBar = '<div class="progress-bar" style="margin-top:4px"><div class="progress-fill cyan" style="width:' + (a.total_progress||0) + '%"></div></div>' +
+                  '<div style="font-size:10px;color:var(--text2)">' + (a.current_total||0) + '/' + (a.target_total||0) + '</div>';
+      } else if (a.progress !== undefined && a.progress > 0) {
+        progBar = '<div class="progress-bar" style="margin-top:4px"><div class="progress-fill cyan" style="width:' + (a.progress||0) + '%"></div></div>';
+      }
+
+      var statusColor = a.achievementstatus >= 1 ? 'green' : 'red';
+      return '<div class="stat-card" style="text-align:left;padding:12px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
+          '<span style="font-size:13px;font-weight:600">' + (a.content||'?') + '</span>' +
+          '<span class="badge badge-' + statusColor + '">' + (statusMap[a.achievementstatus]||a.achievementstatus) + '</span>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">' + (a.description||'') + '</div>' +
+        '<div style="font-size:11px;color:var(--text2)">分类: ' + (a.categoryname||'-') + ' | 奖励: 🪙' + (a.rewardcoin||0) + '</div>' +
+        progBar +
+      '</div>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="btn-group">' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadAchProgress()">🔄 刷新</button>' +
+        '<span style="color:var(--text2);font-size:12px">已完成 ' + (data.completed||0) + '/' + (data.total||achs.length) + '</span>' +
+      '</div>' +
+      '<div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">' +
+        (rows || '<div class="empty">暂无成就进度</div>') +
+      '</div>';
+  } catch(e) {
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+  }
+}
+
+/* =================================================================================
+ *  PAGE 11: Collection — 卡牌图鉴
+ * ================================================================================= */
+async function loadCollection() {
+  var search = pageStates.collection.search;
+  var rarity = pageStates.collection.rarity;
+
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var qs = [];
+    if (search) qs.push('search=' + encodeURIComponent(search));
+    if (rarity) qs.push('rarity=' + rarity);
+    var url = '/api/collection' + (qs.length ? '?' + qs.join('&') : '');
+    var data = await api(url);
+    var groups = data.groups || {};
+    var stats = data.stats || {};
+
+    var rarityOrder = ['SSR', 'SR', 'R', 'N'];
+    var rarityColors = {
+      'SSR': 'var(--gold)',
+      'SR': 'var(--purple)',
+      'R': 'var(--cyan)',
+      'N': 'var(--text2)'
+    };
+
+    var sections = rarityOrder.map(function(r) {
+      var cards = groups[r] || [];
+      if (cards.length === 0) return '';
+      var s = stats[r] || { total: 0, owned: 0 };
+      var cardsHtml = cards.map(function(card) {
+        var isOwned = card.owned > 0;
+        return '<div class="card-item' + (isOwned ? ' owned' : '') + '">' +
+          '<div class="card-icon">' + (card.icon&&card.icon.startsWith('http') ? '<img src="' + card.icon + '" style="width:36px;height:36px;border-radius:6px">' : '🃏') + '</div>' +
+          '<div class="card-name">' + (card.itemname||'?') + '</div>' +
+          '<div class="card-rarity" style="color:' + (rarityColors[r]||'var(--text2)') + '">' + r + (isOwned ? ' ✅' : '') + '</div>' +
+          (isOwned ? '<div style="font-size:9px;color:var(--gold)">拥有: ' + card.owned + '</div>' : '') +
+        '</div>';
+      }).join('');
+
+      return '<div style="margin-bottom:20px">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+          '<span style="font-size:15px;font-weight:700;color:' + (rarityColors[r]||'var(--text2)') + '">' + r + '</span>' +
+          '<span style="font-size:11px;color:var(--text2)">' + s.owned + '/' + s.total + '</span>' +
+          '<div class="progress-bar" style="width:120px"><div class="progress-fill gold" style="width:' + (s.total>0?s.owned/s.total*100:0) + '%"></div></div>' +
+        '</div>' +
+        '<div class="card-grid">' + cardsHtml + '</div>' +
+      '</div>';
+    }).join('');
+
+    c.innerHTML =
+      '<div class="search-bar">' +
+        '<input class="search-input" id="collSearch" placeholder="🔍 搜索卡牌名称..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')collSearch()">' +
+        '<button class="btn btn-cyan btn-sm" onclick="collSearch()">搜索</button>' +
+        (search ? '<span class="search-clear" onclick="collClearSearch()">✕ 清除</span>' : '') +
+      '</div>' +
+      '<div class="btn-group">' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadCollection()">🔄 刷新</button>' +
+        '<span style="color:var(--text2);font-size:12px;margin-left:8px">稀有度：</span>' +
+        '<span class="filter-tag' + (rarity===''?' active':'') + '" onclick="collSetRarity(\'\')">全部</span>' +
+        '<span class="filter-tag' + (rarity==='SSR'?' active':'') + '" onclick="collSetRarity(\'SSR\')" style="color:var(--gold)">SSR</span>' +
+        '<span class="filter-tag' + (rarity==='SR'?' active':'') + '" onclick="collSetRarity(\'SR\')" style="color:var(--purple)">SR</span>' +
+        '<span class="filter-tag' + (rarity==='R'?' active':'') + '" onclick="collSetRarity(\'R\')" style="color:var(--cyan)">R</span>' +
+        '<span class="filter-tag' + (rarity==='N'?' active':'') + '" onclick="collSetRarity(\'N\')" style="color:var(--text2)">N</span>' +
+      '</div>' +
+      '<div style="margin-bottom:16px;padding:12px;background:var(--bg3);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">' +
+        '<span style="font-size:13px">📊 收集进度：<strong style="color:var(--gold)">' + (data.total_owned||0) + '</strong>/<strong>' + (data.total||0) + '</strong> (' + (data.completion_rate||0) + '%)</span>' +
+        '<div class="progress-bar" style="width:200px"><div class="progress-fill gold" style="width:' + (data.completion_rate||0) + '%"></div></div>' +
+      '</div>' +
+      (sections || '<div class="empty">暂无卡牌数据</div>');
+  } catch(e) {
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+  }
+}
+
+function collSearch() {
+  pageStates.collection.search = document.getElementById('collSearch').value.trim();
+  loadCollection();
+}
+function collClearSearch() { document.getElementById('collSearch').value = ''; pageStates.collection.search = ''; loadCollection(); }
+function collSetRarity(r) {
+  pageStates.collection.rarity = r;
+  loadCollection();
+}
+
+/* =================================================================================
+ *  PAGE 12: Economy — 经济看板
+ * ================================================================================= */
+async function loadEconomy() {
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var data = await api('/api/economy');
+    var last14 = data.last_14 || [];
+
+    var maxCoin = last14.reduce(function(m, d) { return Math.max(m, d.coin); }, 0) || 1;
+    var maxExp = last14.reduce(function(m, d) { return Math.max(m, d.exp); }, 0) || 1;
+
+    var chartBars = last14.map(function(d) {
+      var coinH = Math.round(d.coin / maxCoin * 150) || 2;
+      var expH = Math.round(d.exp / maxExp * 150) || 2;
+      var dateLabel = d.date.slice(5);
+      return '<div class="chart-col">' +
+        '<div style="display:flex;gap:2px;align-items:flex-end;height:160px">' +
+          '<div class="chart-bar coin" style="height:' + coinH + 'px" title="🪙 ' + d.coin + '"></div>' +
+          '<div class="chart-bar exp" style="height:' + expH + 'px" title="✨ ' + d.exp + '"></div>' +
+        '</div>' +
+        '<div class="chart-value">🪙' + (d.coin||0) + '</div>' +
+        '<div class="chart-value">✨' + (d.exp||0) + '</div>' +
+        '<div class="chart-label">' + dateLabel + '</div>' +
+      '</div>';
+    }).join('');
+
+    var topDays = (data.daily||[]).slice().sort(function(a, b) { return b.coin - a.coin; }).slice(0, 5);
+
+    c.innerHTML =
+      '<div class="stats-grid">' +
+        '<div class="stat-card"><div class="stat-label">💎 总收入(金币)</div><div class="stat-value gold">' + ((data.total_coin||0).toLocaleString()) + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">✨ 总经验</div><div class="stat-value purple">' + ((data.total_exp||0).toLocaleString()) + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">📊 日均金币</div><div class="stat-value cyan">' + ((data.avg_daily_coin||0).toLocaleString()) + '</div></div>' +
+        '<div class="stat-card"><div class="stat-label">📅 活跃天数</div><div class="stat-value green">' + (data.days||0) + '</div></div>' +
+      '</div>' +
+      '<div class="section-title">📈 最近 14 天经济趋势</div>' +
+      '<div style="padding:8px;font-size:10px;color:var(--text2);margin-bottom:8px">🟡 金币 | 🟣 经验 | 悬浮查看数值</div>' +
+      '<div class="chart-row" style="overflow-x:auto">' + chartBars + '</div>' +
+      (topDays.length > 0 ?
+        '<div class="section-title">🏆 TOP 5 收入日</div>' +
+        '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>日期</th><th>金币</th><th>经验</th><th>次数</th></tr></thead>' +
+        '<tbody>' + topDays.map(function(d) { return '<tr><td>' + d.date + '</td><td>🪙 ' + (d.coin||0).toLocaleString() + '</td><td>✨ ' + (d.exp||0).toLocaleString() + '</td><td>' + (d.count||0) + '</td></tr>'; }).join('') + '</tbody></table></div>' : '') +
+      '<div class="btn-group" style="margin-top:12px"><button class="btn btn-cyan btn-sm" onclick="loadEconomy()">🔄 刷新</button></div>';
+  } catch(e) {
+    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+  }
+}
+
+/* =================================================================================
+ *  PAGE 13: Snapshots — 快照管理
+ * ================================================================================= */
+function getSnapshots() {
+  try { return JSON.parse(localStorage.getItem('lifeup_snapshots') || '[]'); } catch(e) { return []; }
+}
+function saveSnapshots(snaps) {
+  localStorage.setItem('lifeup_snapshots', JSON.stringify(snaps));
+}
+
+function loadSnapshots() {
+  var c = document.getElementById('content');
+  var snaps = getSnapshots();
+
+  var rows = snaps.map(function(s, idx) {
+    return '<tr>' +
+      '<td>' + (s.name||'Snapshot #'+idx) + '</td>' +
+      '<td>' + (s.path||'') + '</td>' +
+      '<td>' + (s.time||'') + '</td>' +
+      '<td>' + (s.size||'?') + '</td>' +
+      '<td>' +
+        '<button class="btn btn-cyan btn-sm" onclick="restoreSnapshot(' + idx + ')">📂 恢复</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteSnapshot(' + idx + ')">🗑️</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  c.innerHTML =
+    '<div class="btn-group">' +
+      '<button class="btn btn-primary" onclick="createSnapshot()">📸 创建快照</button>' +
+      '<button class="btn btn-cyan btn-sm" onclick="loadSnapshots()">🔄 刷新</button>' +
+      '<span style="color:var(--text2);font-size:12px">共 ' + snaps.length + ' 个快照（存储在浏览器本地）</span>' +
+    '</div>' +
+    '<p style="font-size:11px;color:var(--text2);margin-bottom:12px">快照记录备份文件的路径和状态，方便快速切换。实际数据取决于服务器当前加载的存档。</p>' +
+    '<div style="overflow-x:auto"><table class="data-table">' +
+      '<thead><tr><th>名称</th><th>路径</th><th>时间</th><th>大小</th><th>操作</th></tr></thead>' +
+      '<tbody>' + (rows || '<tr><td colspan="5" class="empty">暂无快照</td></tr>') + '</tbody>' +
+    '</table></div>';
+}
+
+function createSnapshot() {
+  showModal('📸 创建快照',
+    '<p style="font-size:12px;color:var(--text2);margin-bottom:12px">保存当前加载的存档路径作为快照，方便以后快速切换。</p>' +
+    '<div class="form-group"><label>快照名称</label><input id="f_snapname" placeholder="如：2024年1月存档"></div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+      '<button class="btn btn-primary" onclick="doCreateSnapshot()">📸 创建</button>' +
+    '</div>'
+  );
+  setTimeout(function() { var inp = document.getElementById('f_snapname'); if (inp) inp.focus(); }, 100);
+}
+function doCreateSnapshot() {
+  var name = document.getElementById('f_snapname').value.trim() || 'Snapshot';
+  var path = localStorage.getItem('lifeup_backup_path') || '';
+  var snaps = getSnapshots();
+  snaps.push({
+    name: name,
+    path: path,
+    time: new Date().toLocaleString(),
+    size: '?'
+  });
+  saveSnapshots(snaps);
+  closeModal();
+  loadSnapshots();
+  toast('📸 快照已创建');
+}
+function restoreSnapshot(idx) {
+  var snaps = getSnapshots();
+  var s = snaps[idx];
+  if (!s || !s.path) return toast('快照数据不完整', 'error');
+  if (!confirm('确定切换到快照 "' + (s.name||'') + '" 吗？当前未保存的修改将丢失。')) return;
+  _loadBackup(s.path).then(function() {
+    toast('📂 已切换到快照: ' + (s.name||''));
+  }).catch(function(e) { toast('❌ 恢复失败: ' + e.message, 'error'); });
+}
+function deleteSnapshot(idx) {
+  if (!confirm('确定删除此快照？')) return;
+  var snaps = getSnapshots();
+  snaps.splice(idx, 1);
+  saveSnapshots(snaps);
+  loadSnapshots();
+  toast('🗑️ 快照已删除');
+}
+
+/* =================================================================================
+ *  PAGE 14: Realms — 位面切换
+ * ================================================================================= */
+function getRealms() {
+  try { return JSON.parse(localStorage.getItem('lifeup_realms') || '[]'); } catch(e) { return []; }
+}
+function saveRealms(realms) {
+  localStorage.setItem('lifeup_realms', JSON.stringify(realms));
+}
+
+function loadRealms() {
+  var c = document.getElementById('content');
+  var realms = getRealms();
+  var current = localStorage.getItem('lifeup_backup_path') || '';
+
+  var rows = realms.map(function(r, idx) {
+    var isActive = r.path === current;
+    return '<tr' + (isActive ? ' style="background:rgba(212,168,67,0.08)"' : '') + '>' +
+      '<td>' + (isActive ? '⭐ ' : '') + (r.name||'Realm #'+idx) + (isActive ? ' <span class="badge badge-gold">当前</span>' : '') + '</td>' +
+      '<td style="font-family:monospace;font-size:11px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (r.path||'') + '</td>' +
+      '<td>' + (r.desc||'') + '</td>' +
+      '<td>' +
+        (isActive ? '' : '<button class="btn btn-cyan btn-sm" onclick="switchRealm(' + idx + ')">🔄 切换</button>') +
+        '<button class="btn btn-danger btn-sm" onclick="deleteRealm(' + idx + ')">🗑️</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  c.innerHTML =
+    '<div class="btn-group">' +
+      '<button class="btn btn-primary" onclick="addRealmDialog()">➕ 添加位面</button>' +
+      '<button class="btn btn-cyan btn-sm" onclick="loadRealms()">🔄 刷新</button>' +
+      '<span style="color:var(--text2);font-size:12px">共 ' + realms.length + ' 个位面</span>' +
+    '</div>' +
+    '<p style="font-size:11px;color:var(--text2);margin-bottom:12px">位面即不同的 LifeUp 备份存档。你可以管理多个存档并在它们之间快速切换。</p>' +
+    '<div style="overflow-x:auto"><table class="data-table">' +
+      '<thead><tr><th>位面名称</th><th>路径</th><th>描述</th><th>操作</th></tr></thead>' +
+      '<tbody>' + (rows || '<tr><td colspan="4" class="empty">暂无其他位面。点击"添加位面"来管理多个存档。</td></tr>') + '</tbody>' +
+    '</table></div>';
+}
+
+function addRealmDialog() {
+  showModal('🌌 添加位面',
+    '<div class="form-group"><label>位面名称</label><input id="f_rname" placeholder="如：地球Online存档"></div>' +
+    '<div class="form-group"><label>备份文件路径</label><input id="f_rpath" placeholder="C:\\Users\\...\\LifeupBackup.zip" style="font-family:Consolas,monospace"></div>' +
+    '<div class="form-group"><label>描述（可选）</label><input id="f_rdesc" placeholder="如：2024年3月"></div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+      '<button class="btn btn-primary" onclick="doAddRealm()">添加</button>' +
+    '</div>'
+  );
+}
+function doAddRealm() {
+  var name = document.getElementById('f_rname').value.trim();
+  var path = document.getElementById('f_rpath').value.trim();
+  var desc = document.getElementById('f_rdesc').value.trim();
+  if (!name) return toast('请输入位面名称', 'error');
+  if (!path) return toast('请输入文件路径', 'error');
+  var realms = getRealms();
+  realms.push({ name: name, path: path, desc: desc });
+  saveRealms(realms);
+  closeModal();
+  loadRealms();
+  toast('🌌 位面已添加');
+}
+function switchRealm(idx) {
+  var realms = getRealms();
+  var r = realms[idx];
+  if (!r || !r.path) return toast('位面数据不完整', 'error');
+  if (!confirm('确定切换到位面 "' + (r.name||'') + '" 吗？当前未保存的修改将丢失。')) return;
+  _loadBackup(r.path).then(function() {
+    localStorage.setItem('lifeup_backup_path', r.path);
+    toast('🔄 已切换到位面: ' + (r.name||''));
+  }).catch(function(e) { toast('❌ 切换失败: ' + e.message, 'error'); });
+}
+function deleteRealm(idx) {
+  if (!confirm('确定删除此位面？')) return;
+  var realms = getRealms();
+  realms.splice(idx, 1);
+  saveRealms(realms);
+  loadRealms();
+  toast('🗑️ 位面已删除');
+}
+
+/* =================================================================================
+ *  Export Utility
+ * ================================================================================= */
+function exportTable(table) {
+  api('/api/export/' + table + '?format=csv').then(function(text) {
+    var blob = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'lifeup_' + table + '_' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('📥 ' + table + ' 导出成功');
+  }).catch(function(e) { toast('❌ 导出失败: ' + e.message, 'error'); });
+}
+
+/* =================================================================================
+ *  HTML Escape Helpers
+ * ================================================================================= */
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* =================================================================================
+ *  Auto-load on Startup
+ * ================================================================================= */
+window.addEventListener('DOMContentLoaded', function() {
   if (IS_DESKTOP) {
-    // 桌面版：从 config 获取上次路径
     try {
-      const path = await window.pywebview.api.get_last_path();
-      if (path) await _loadBackup(path, true);
-    } catch(e) { /* 首次使用 */ }
+      window.pywebview.api.get_last_path().then(function(path) {
+        if (path) _loadBackup(path, true);
+      });
+    } catch(e) { /* first run */ }
     return;
   }
-  // 浏览器版：从 localStorage 获取
-  const saved = localStorage.getItem('lifeup_backup_path') || DEFAULT_PATH;
-  const inp = document.getElementById('pathInput');
+  var saved = localStorage.getItem('lifeup_backup_path') || DEFAULT_PATH;
+  var inp = document.getElementById('pathInput');
   if (inp) inp.value = saved;
-  try {
-    await _loadBackup(saved, true);
-  } catch(e) { /* 服务器未启动或路径变了 */ }
+  _loadBackup(saved, true).catch(function() { /* server not running */ });
 });
 </script>
 </body>
