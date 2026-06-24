@@ -233,6 +233,22 @@ body {
 .inv-card .inv-card-star { position: absolute; top: 6px; right: 8px; font-size: 14px; }
 
 /* ========== Synthesis Calculator ========== */
+.synth-flow {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 8px 0; padding: 10px;
+  background: var(--bg); border-radius: var(--radius);
+}
+.synth-flow-group {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+.synth-flow-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+}
+.synth-flow-pill.input { background: rgba(86,182,194,0.15); color: var(--cyan); border: 1px solid rgba(86,182,194,0.25); }
+.synth-flow-pill.output { background: rgba(212,168,67,0.15); color: var(--gold); border: 1px solid rgba(212,168,67,0.25); }
+.synth-flow-arrow {
+  font-size: 20px; color: var(--gold2); flex-shrink: 0; padding: 0 6px;
+}
 .synth-card.can-synth { border-left: 3px solid var(--green); }
 .synth-card.miss-one { border-left: 3px solid var(--orange); }
 .synth-card.miss-more { border-left: 3px solid var(--red); opacity: 0.75; }
@@ -261,19 +277,28 @@ body {
 .card-item .card-rarity { font-size: 10px; margin-top: 4px; }
 
 /* ========== Timeline ========== */
-.timeline { position: relative; padding-left: 32px; }
+.timeline { position: relative; padding-left: 36px; }
 .timeline::before {
   content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
   width: 2px; background: var(--border);
 }
-.timeline-item { position: relative; padding: 8px 0; margin-bottom: 8px; }
+.timeline-group { margin-bottom: 16px; }
+.timeline-date-header {
+  font-size: 13px; font-weight: 700; color: var(--gold);
+  padding: 6px 0; margin-bottom: 4px;
+  border-bottom: 1px solid rgba(212,168,67,0.15);
+}
+.timeline-item { position: relative; padding: 6px 0; margin-bottom: 4px; }
 .timeline-item::before {
-  content: ''; position: absolute; left: -24px; top: 14px;
+  content: ''; position: absolute; left: -24px; top: 12px;
   width: 10px; height: 10px; border-radius: 50%;
   background: var(--cyan); border: 2px solid var(--bg2);
 }
-.timeline-time { font-size: 11px; color: var(--text2); }
-.timeline-body { font-size: 13px; color: var(--text); margin-top: 2px; }
+.timeline-item.type-task::before { background: var(--green); box-shadow: 0 0 6px rgba(76,175,80,0.5); }
+.timeline-item.type-item::before { background: var(--cyan); }
+.timeline-item.type-item.decrease::before { background: var(--orange); }
+.timeline-time { font-size: 10px; color: var(--text2); font-family: monospace; }
+.timeline-body { font-size: 13px; color: var(--text); margin-top: 2px; line-height: 1.5; }
 
 /* ========== Chart Bars ========== */
 .chart-row { display: flex; align-items: flex-end; gap: 4px; height: 200px; padding: 8px 0; }
@@ -292,6 +317,40 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+/* ========== Ach Progress Matrix ========== */
+.ach-matrix { display: flex; flex-direction: column; gap: 24px; }
+.ach-cat-group {}
+.ach-cat-header {
+  font-size: 14px; font-weight: 700; color: var(--purple2);
+  padding: 8px 0; margin-bottom: 8px;
+  border-bottom: 1px solid rgba(167,139,250,0.2);
+  display: flex; align-items: center; gap: 10px;
+}
+.ach-cat-header .cat-count { font-size: 11px; color: var(--text2); font-weight: 400; }
+.ach-row {
+  display: grid; grid-template-columns: 180px 1fr 80px 60px;
+  align-items: center; gap: 12px; padding: 8px 12px;
+  border-radius: 6px; transition: background 0.15s;
+}
+.ach-row:hover { background: rgba(167,139,250,0.05); }
+.ach-row.done { opacity: 0.6; }
+.ach-row .ach-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ach-row .ach-bar-wrap { position: relative; height: 22px; background: var(--bg); border-radius: 11px; overflow: hidden; }
+.ach-row .ach-bar-fill {
+  height: 100%; border-radius: 11px; transition: width 0.5s;
+  background: linear-gradient(90deg, var(--purple), var(--cyan));
+}
+.ach-row .ach-bar-text {
+  position: absolute; top: 0; left: 0; right: 0; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.ach-row .ach-pct { text-align: right; font-size: 12px; font-weight: 700; font-family: monospace; }
+.ach-row .ach-pct.gold { color: var(--gold); }
+.ach-row .ach-pct.cyan { color: var(--cyan); }
+.ach-row .ach-pct.muted { color: var(--text2); }
+.ach-row .ach-conds { font-size: 10px; color: var(--text2); text-align: center; }
+
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
   body { flex-direction: column; }
@@ -308,6 +367,84 @@ body {
 /* ========== Section Header ========== */
 .section-title { font-size: 15px; color: var(--purple2); margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 
+/* ========== Drop Zone ========== */
+.drop-zone {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(10,14,23,0.92); z-index: 300; justify-content: center; align-items: center;
+  border: 3px dashed var(--gold); margin: 16px; border-radius: 20px;
+  pointer-events: none; transition: all 0.2s;
+}
+.drop-zone.active {
+  display: flex; border-color: var(--gold2); background: rgba(10,14,23,0.85);
+}
+.drop-zone-inner {
+  text-align: center; pointer-events: none;
+}
+.drop-zone-icon { font-size: 72px; margin-bottom: 16px; display: block; }
+.drop-zone-text { font-size: 22px; font-weight: 700; color: var(--gold2); margin-bottom: 8px; }
+.drop-zone-sub { font-size: 14px; color: var(--text2); }
+.drop-zone-multi { font-size: 12px; color: var(--cyan); margin-top: 8px; }
+
+/* ========== History Panel ========== */
+.history-section {
+  margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border);
+}
+.history-section h4 {
+  font-size: 12px; color: var(--text2); margin-bottom: 8px; padding: 0 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.history-section h4 .history-clear {
+  font-size: 10px; color: var(--red); cursor: pointer; padding: 2px 8px;
+  border: 1px solid var(--red); border-radius: 3px; transition: all 0.15s;
+}
+.history-section h4 .history-clear:hover { background: var(--red); color: #fff; }
+.history-item {
+  padding: 7px 20px; cursor: pointer; font-size: 11px; color: var(--text2);
+  display: flex; align-items: center; gap: 8px; transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+.history-item:hover { color: var(--text); background: rgba(255,255,255,0.03); border-left-color: var(--cyan); }
+.history-item-icon { font-size: 13px; flex-shrink: 0; }
+.history-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; }
+.history-item-time { font-size: 10px; color: var(--text2); flex-shrink: 0; }
+.history-item-remove {
+  font-size: 14px; color: var(--text2); cursor: pointer; padding: 0 4px; opacity: 0;
+  transition: opacity 0.15s; flex-shrink: 0;
+}
+.history-item:hover .history-item-remove { opacity: 0.6; }
+.history-item-remove:hover { opacity: 1 !important; color: var(--red); }
+.history-empty { padding: 8px 20px; font-size: 11px; color: var(--text2); font-style: italic; }
+
+/* ========== Quick-load buttons in modal ========== */
+.quick-load-row {
+  display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
+}
+.quick-load-btn {
+  padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg); color: var(--text); font-size: 12px; cursor: pointer;
+  transition: all 0.15s; text-align: center; flex: 1; min-width: 100px;
+}
+.quick-load-btn:hover { border-color: var(--cyan); background: rgba(86,182,194,0.08); }
+.quick-load-btn .ql-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+/* ========== Error detail ========== */
+.error-detail {
+  background: rgba(224,85,106,0.08); border: 1px solid rgba(224,85,106,0.2);
+  border-radius: 6px; padding: 10px 14px; margin-top: 8px; font-size: 12px;
+  color: var(--red); line-height: 1.5;
+}
+.error-suggestion {
+  margin-top: 6px; color: var(--text2); font-size: 11px;
+}
+
+/* ========== Loading progress ========== */
+.load-progress-bar {
+  height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; overflow: hidden;
+}
+.load-progress-fill {
+  height: 100%; background: var(--cyan); border-radius: 2px; transition: width 0.3s;
+}
+
 /* ========== LVL Buttons ========== */
 .lvl-group { display:flex; gap:6px; }
 .lvl-btn { padding:6px 12px; border-radius:4px; border:1px solid var(--border); cursor:pointer; font-size:13px; text-align:center; background:var(--bg); color:var(--text2); transition:all 0.15s; user-select:none; }
@@ -319,6 +456,60 @@ body {
 .lvl-group .lvl-btn:nth-child(4).active { background: var(--red); border-color: var(--red); }
 .attr-check input { accent-color: inherit; }
 .attr-check:hover { background: rgba(255,255,255,0.05); }
+
+/* ========== Cultivation Pages: Heatmap ========== */
+.heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.heatmap-cell { aspect-ratio: 1; border-radius: 2px; font-size: 9px; display: flex; align-items: center; justify-content: center; }
+.heatmap-months { display: flex; justify-content: space-around; font-size: 10px; color: var(--text2); margin-bottom: 4px; }
+
+/* ========== Focus Timer ========== */
+.focus-timer { text-align: center; padding: 40px 20px; }
+.focus-timer .timer-display { font-size: 64px; font-weight: 700; color: var(--gold); font-family: monospace; }
+.focus-timer .timer-btn { width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--border); background: var(--bg3); color: var(--text); font-size: 24px; cursor: pointer; transition: all 0.15s; }
+.focus-timer .timer-btn:hover { border-color: var(--gold); color: var(--gold); }
+.focus-timer .timer-btn.pulse { animation: timer-pulse 1.5s ease-in-out infinite; }
+@keyframes timer-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(224, 85, 106, 0.4); } 50% { box-shadow: 0 0 0 20px rgba(224, 85, 106, 0); } }
+
+/* ========== Ring Chart ========== */
+.ring-chart { position: relative; width: 120px; height: 120px; }
+.ring-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+
+/* ========== Goal Card ========== */
+.goal-card { border-left: 3px solid var(--cyan); padding: 16px; background: var(--bg3); border-radius: 8px; margin-bottom: 12px; cursor: pointer; transition: all 0.15s; }
+.goal-card:hover { background: rgba(86, 182, 194, 0.05); }
+.goal-card.urgent { border-left-color: var(--red); }
+
+/* ========== Milestone Timeline Nodes ========== */
+.timeline-node { position: relative; padding: 8px 0 8px 24px; font-size: 13px; }
+.timeline-node::before { content: ''; position: absolute; left: -24px; top: 12px; width: 12px; height: 12px; border-radius: 50%; }
+.timeline-node.done::before { background: var(--green); }
+.timeline-node.active::before { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+.timeline-node.pending::before { background: var(--bg3); border: 2px solid var(--border); }
+
+/* ========== Insight Card ========== */
+.insight-card { background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(86, 182, 194, 0.1)); border: 1px solid rgba(167, 139, 250, 0.3); border-radius: 8px; padding: 14px 18px; margin-bottom: 10px; }
+
+/* ========== Quick Actions ========== */
+.quick-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 16px; background: var(--bg3); border-radius: 8px; margin-bottom: 16px; }
+.quick-badge { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+.quick-badge:hover { border-color: var(--cyan); }
+.quick-badge.done { background: rgba(76, 175, 80, 0.15); border-color: var(--green); }
+
+/* ========== Chart Containers ========== */
+.chart-container { background: var(--bg3); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.chart-row-flex { display: flex; gap: 16px; }
+.chart-half { flex: 1; min-width: 0; }
+
+/* ========== Trend Arrows ========== */
+.trend-up { color: var(--green); }
+.trend-down { color: var(--red); }
+.trend-flat { color: var(--text2); }
+
+/* ========== Bar Chart ========== */
+.bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding-top: 20px; }
+.bar-chart .bar { flex: 1; background: var(--cyan); border-radius: 3px 3px 0 0; min-width: 12px; position: relative; }
+.bar-chart .bar-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--text2); }
+
 </style>
 </head>
 <body>
@@ -328,6 +519,10 @@ body {
   <div class="sidebar-title">☯ 诸天万界</div>
   <nav>
     <div class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span> 修行总览</div>
+    <div class="nav-item" data-page="daily"><span class="nav-icon">📿</span> 日常功课</div>
+    <div class="nav-item" data-page="focus"><span class="nav-icon">🧘</span> 闭关修炼</div>
+    <div class="nav-item" data-page="goals"><span class="nav-icon">🌟</span> 大道宏愿</div>
+    <div class="nav-item" data-page="review"><span class="nav-icon">📜</span> 道行复盘</div>
     <div class="nav-item" data-page="tasks"><span class="nav-icon">📋</span> 任务管理</div>
     <div class="nav-item" data-page="items"><span class="nav-icon">🏪</span> 商店管理</div>
     <div class="nav-item" data-page="achievements"><span class="nav-icon">🏆</span> 成就管理</div>
@@ -342,6 +537,11 @@ body {
     <div class="nav-item" data-page="snapshots"><span class="nav-icon">📸</span> 快照管理</div>
     <div class="nav-item" data-page="realms"><span class="nav-icon">🌌</span> 位面切换</div>
   </nav>
+  <!-- 历史记录 -->
+  <div class="history-section" id="sidebarHistory" style="display:none">
+    <h4>📂 最近打开 <span class="history-clear" onclick="clearHistory()" title="清空历史">清空</span></h4>
+    <div id="sidebarHistoryList"></div>
+  </div>
 </aside>
 
 <!-- ========== Main Area ========== -->
@@ -364,15 +564,29 @@ body {
       <p style="margin-bottom:20px;color:var(--text2);max-width:500px;margin-left:auto;margin-right:auto">
         此工具可让你直接在 PC 上浏览和编辑 LifeUp 备份存档中的所有数据。请先打开一个备份文件。
       </p>
-      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn btn-cyan" onclick="openNativeFileDialog(false)" style="font-size:14px;padding:10px 20px">📁 选择文件</button>
+        <button class="btn" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);font-size:14px;padding:10px 20px" onclick="openNativeFileDialog(true)">📂 批量加载</button>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
         <input id="pathInput" style="width:420px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-family:Consolas,monospace" 
                placeholder="C:\Users\USER\Nutstore\1\LifeUp\LifeupBackup.zip">
         <button class="btn btn-primary" onclick="loadByPath()" style="font-size:14px;padding:10px 20px">📂 加载存档</button>
       </div>
       <p style="font-size:11px;color:var(--text2);text-align:center">
-        默认路径：C:\Users\USER\Nutstore\1\LifeUp\LifeupBackup.zip
+        💡 快捷操作：拖拽文件到窗口 · 按 Ctrl+O 打开文件 · 侧栏显示最近记录
       </p>
     </div>
+  </div>
+</div>
+
+<!-- ========== Drop Zone Overlay ========== -->
+<div class="drop-zone" id="dropZone">
+  <div class="drop-zone-inner">
+    <span class="drop-zone-icon">📂</span>
+    <div class="drop-zone-text">释放文件以加载存档</div>
+    <div class="drop-zone-sub">支持 ZIP 格式的 LifeUp 备份文件</div>
+    <div class="drop-zone-multi">💡 可同时拖入多个文件批量加载</div>
   </div>
 </div>
 
@@ -388,6 +602,8 @@ body {
 <div class="batch-bar" id="batchBar">
   <span class="batch-count" id="batchCount">已选 0 项</span>
   <button class="btn btn-cyan btn-sm" id="batchEnableBtn" style="display:none" onclick="batchAction(currentBatchType,'enable')">▶️ 启用</button>
+  <button class="btn btn-sm" style="background:#56b6c2;color:white;display:none" id="batchFreezeBtn" onclick="batchAction(currentBatchType,'freeze')">❄️ 批量冻结</button>
+  <button class="btn btn-sm" style="background:#e09040;color:white;display:none" id="batchUnfreezeBtn" onclick="batchAction(currentBatchType,'unfreeze')">🔓 批量解冻</button>
   <button class="btn btn-sm" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border);display:none" id="batchDisableBtn" onclick="batchAction(currentBatchType,'disable')">⏸️ 停用</button>
   <button class="btn btn-sm" style="background:var(--bg3);color:var(--gold);border:1px solid var(--gold);display:none" id="batchPriceBtn" onclick="batchPriceDialog()">💰 批量改价</button>
   <button class="btn btn-danger btn-sm" id="batchDeleteBtn" onclick="batchAction(currentBatchType,'delete')">🗑️ 批量删除</button>
@@ -414,7 +630,7 @@ const pageStates = {
   achievements: { search: '', category: '' },
   collection: { search: '', rarity: '' },
   inventory: { search: '', view: 'cards' },
-  history: { dateFrom: '', dateTo: '' }
+  achprogress: { category: '', status: '' },
 };
 let currentBatchType = 'tasks';
 let currentPage = 'dashboard';
@@ -505,7 +721,8 @@ document.querySelectorAll('.nav-item').forEach(function(item) {
 });
 
 var pageTitles = {
-  dashboard:'📊 修行总览', tasks:'📋 任务管理', items:'🏪 商店管理',
+  dashboard:'📊 修行总览', daily:'📿 日常功课', focus:'🧘 闭关修炼', goals:'🌟 大道宏愿', review:'📜 道行复盘',
+  tasks:'📋 任务管理', items:'🏪 商店管理',
   achievements:'🏆 成就管理', skills:'⚔️ 属性面板', inventory:'🎒 背包物品',
   synthesis:'🔮 合成配方', history:'📜 活动记录', pools:'🎰 卡池管理',
   achprogress:'📈 成就进度', collection:'🃏 卡牌图鉴', economy:'📊 经济看板',
@@ -522,7 +739,8 @@ function loadPage(page) {
 function loadCurrentPage() {
   var page = currentPage;
   var loaders = {
-    dashboard: loadDashboard, tasks: loadTasks, items: loadItems,
+    dashboard: loadDashboard, daily: loadDaily, focus: loadFocus, goals: loadGoals, review: loadReview,
+    tasks: loadTasks, items: loadItems,
     achievements: loadAchievements, skills: loadSkills, inventory: loadInventory,
     synthesis: loadSynthesis, history: loadHistory, pools: loadPools,
     achprogress: loadAchProgress, collection: loadCollection, economy: loadEconomy,
@@ -540,6 +758,8 @@ function updateBatchBar(type) {
   if (count > 0) {
     document.getElementById('batchBar').classList.add('show');
     document.getElementById('batchEnableBtn').style.display = type === 'tasks' ? 'inline-flex' : 'none';
+    document.getElementById('batchFreezeBtn').style.display = type === 'tasks' ? 'inline-flex' : 'none';
+    document.getElementById('batchUnfreezeBtn').style.display = type === 'tasks' ? 'inline-flex' : 'none';
     document.getElementById('batchDisableBtn').style.display = 'inline-flex';
     document.getElementById('batchPriceBtn').style.display = type === 'items' ? 'inline-flex' : 'none';
     document.getElementById('batchDeleteBtn').style.display = 'inline-flex';
@@ -566,6 +786,16 @@ function batchAction(type, action) {
   var ids = getSelectedIds();
   if (ids.length === 0) return toast('请至少选择一项', 'error');
   if (action === 'delete' && !confirm('确定删除选中的 ' + ids.length + ' 项吗？此操作不可撤销。')) return;
+  // freeze/unfreeze 使用专用端点
+  if (action === 'freeze' || action === 'unfreeze') {
+    var frozen = action === 'freeze';
+    api('/api/tasks/batch/freeze', { method: 'POST', body: JSON.stringify({ ids: ids, isfrozen: frozen }) }).then(function(r) {
+      toast('❄️ 已' + (frozen ? '冻结' : '解冻') + ' ' + (r.affected || ids.length) + ' 项');
+      clearAllChecks();
+      loadTasks(pageStates.tasks.filter);
+    }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+    return;
+  }
   var body = { ids: ids, action: action };
   api('/api/' + type + '/batch', { method: 'POST', body: JSON.stringify(body) }).then(function(r) {
     toast('✅ 已处理 ' + (r.affected || ids.length) + ' 项');
@@ -595,26 +825,87 @@ function doBatchPrice() {
 // ====== Archive Open / Save ======
 function showOpenDialog() {
   if (IS_DESKTOP) {
-    openNativeFileDialog();
+    // 桌面版：使用原生文件选择对话框（单选/多选均可）
+    renderHistorySidebar();
+    // 弹出多入口快速选择面板
+    renderQuickOpenModal();
     return;
   }
+  // Web 版：输入路径
+  renderQuickOpenModal();
+}
+
+function renderQuickOpenModal() {
+  var historyHtml = '';
+  var history = getHistory();
+  if (history.length > 0) {
+    historyHtml = '<div class="history-section" style="margin-top:0;padding-top:0;border-top:none"><h4>📂 最近打开</h4>';
+    history.forEach(function(h, i) {
+      historyHtml += '<div class="history-item" onclick="quickLoadFromHistory(' + i + ')" title="' + escAttr(h.path) + '">' +
+        '<span class="history-item-icon">📄</span>' +
+        '<span class="history-item-name">' + escAttr(h.name) + '</span>' +
+        '<span class="history-item-time">' + formatHistoryTime(h.time) + '</span>' +
+        '<span class="history-item-remove" onclick="event.stopPropagation();removeHistoryItem(' + i + ');renderQuickOpenModal();">✕</span>' +
+        '</div>';
+    });
+    historyHtml += '</div>';
+  }
+
   var saved = localStorage.getItem('lifeup_backup_path') || DEFAULT_PATH;
+
   showModal('📂 打开备份存档',
-    '<p style="font-size:12px;color:var(--text2);margin-bottom:12px">输入 LifeUp 备份 ZIP 文件的完整路径</p>' +
-    '<div class="form-group"><label>备份文件路径</label><input id="f_openpath" value="' + saved.replace(/\\/g,'\\\\').replace(/"/g,'&quot;') + '" style="font-family:Consolas,monospace"></div>' +
-    '<p style="font-size:10px;color:var(--text2);margin-bottom:8px">常用路径：C:\\Users\\USER\\Nutstore\\1\\LifeUp\\LifeupBackup.zip</p>' +
-    '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doOpenBackup()">📂 加载</button></div>'
+    // 快速入口
+    '<div class="quick-load-row">' +
+    '<button class="quick-load-btn" onclick="openNativeFileDialog()"><span class="ql-icon">📁</span>选择文件</button>' +
+    '<button class="quick-load-btn" onclick="openNativeFileDialog(true)"><span class="ql-icon">📂</span>批量选择</button>' +
+    '<button class="quick-load-btn" onclick="clearHistory()"><span class="ql-icon">🗑️</span>清空历史</button>' +
+    '</div>' +
+    // 历史记录
+    historyHtml +
+    // 手动输入路径
+    '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">' +
+    '<p style="font-size:12px;color:var(--text2);margin-bottom:8px">或手动输入文件路径：</p>' +
+    '<div class="form-group"><input id="f_openpath" value="' + saved.replace(/\\/g,'\\\\').replace(/"/g,'&quot;') + '" style="font-family:Consolas,monospace" placeholder="ZIP 文件路径"></div>' +
+    '<p style="font-size:10px;color:var(--text2);margin-bottom:8px">💡 提示：也支持拖拽文件到窗口，或按 Ctrl+O 快速打开</p>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doOpenBackup()">📂 加载</button></div>' +
+    '</div>'
   );
   setTimeout(function() { var inp = document.getElementById('f_openpath'); if (inp) { inp.focus(); inp.select(); } }, 100);
 }
 
-function openNativeFileDialog() {
+function openNativeFileDialog(multi) {
+  closeModal();
+  if (!IS_DESKTOP) {
+    showOpenDialog();
+    return;
+  }
+  multi = !!multi;
+  // 延迟确保模态框关闭后再弹出系统对话框
+  setTimeout(function() {
   try {
-    window.pywebview.api.open_file_dialog().then(function(path) {
-      if (!path) return;
-      _loadBackup(path);
+    window.pywebview.api.open_file_dialog(multi).then(function(result) {
+      if (!result) return;
+      if (multi && Array.isArray(result)) {
+        // 批量加载
+        loadMultipleFiles(result);
+      } else {
+        // 单文件
+        _loadBackup(typeof result === 'string' ? result : result[0]);
+      }
+      renderHistorySidebar();
     });
-  } catch(e) { showOpenDialog(); }
+  } catch(e) {
+    renderQuickOpenModal();
+  }
+  }, 150);
+}
+
+function quickLoadFromHistory(idx) {
+  var history = getHistory();
+  if (idx >= 0 && idx < history.length) {
+    closeModal();
+    _loadBackup(history[idx].path);
+  }
 }
 
 function doOpenBackup() {
@@ -625,24 +916,258 @@ function doOpenBackup() {
 }
 
 function _loadBackup(path, silent) {
-  document.getElementById('filePath').textContent = path.split('\\').pop();
-  document.getElementById('connText').textContent = '加载中...';
-  document.getElementById('connDot').className = 'conn-dot';
+  updateLoadStatus('加载中...', null);
   return api('/api/open', { method: 'POST', body: JSON.stringify({ path: path }) }).then(function(res) {
-    document.getElementById('connDot').className = 'conn-dot online';
-    document.getElementById('connText').textContent = '已加载';
+    updateLoadStatus('已加载', 'online');
     document.getElementById('saveBtn').disabled = false;
+    // 持久化
     localStorage.setItem('lifeup_backup_path', path);
-    if (IS_DESKTOP) { try { window.pywebview.api.save_last_path(path); } catch(e) {} }
+    if (IS_DESKTOP) {
+      try { window.pywebview.api.save_last_path(path); } catch(e) {}
+    }
+    // Web 版手动更新历史
+    if (!IS_DESKTOP) { addToLocalHistory(path); }
+    // 桌面版刷新历史缓存
+    if (IS_DESKTOP) { refreshHistory(); }
     loadCurrentPage();
-    if (!silent) toast('存档加载成功');
+    if (!silent) toast('✅ 存档加载成功 — ' + (res.filename || path.split('\\').pop()));
   }).catch(function(err) {
-    document.getElementById('connDot').className = 'conn-dot offline';
-    document.getElementById('connText').textContent = '加载失败';
-    if (!silent) toast('加载失败: ' + err.message, 'error');
+    updateLoadStatus('加载失败', 'offline');
+    if (!silent) {
+      var msg = err.message || '未知错误';
+      showLoadError(msg, '请检查文件路径是否正确，或尝试重新导出备份');
+      toast('❌ ' + msg, 'error');
+    }
     throw err;
   });
 }
+
+function loadMultipleFiles(paths) {
+  if (!paths || paths.length === 0) return;
+  var total = paths.length;
+  var loaded = 0;
+  var failed = 0;
+  var lastPath = null;
+
+  updateLoadStatus('加载中 0/' + total + '...', null);
+
+  function loadNext(idx) {
+    if (idx >= total) {
+      var msg = '✅ 成功加载 ' + loaded + ' 个文件';
+      if (failed > 0) msg += '，' + failed + ' 个失败';
+      toast(msg);
+      if (IS_DESKTOP) { refreshHistory(); }
+      else { renderHistorySidebar(); }
+      return;
+    }
+    var p = paths[idx];
+    updateLoadStatus('加载中 ' + (idx + 1) + '/' + total + '...', null);
+
+    api('/api/open', { method: 'POST', body: JSON.stringify({ path: p }) }).then(function(res) {
+      loaded++;
+      lastPath = p;
+      updateLoadStatus('已加载 (' + (idx + 1) + '/' + total + ')', 'online');
+      document.getElementById('saveBtn').disabled = false;
+      localStorage.setItem('lifeup_backup_path', p);
+      loadCurrentPage();
+      loadNext(idx + 1);
+    }).catch(function(err) {
+      failed++;
+      toast('⚠️ 跳过: ' + (p.split('\\').pop()) + ' — ' + (err.message || '失败'), 'error');
+      loadNext(idx + 1);
+    });
+  }
+  loadNext(0);
+}
+
+function updateLoadStatus(text, status) {
+  document.getElementById('connText').textContent = text;
+  var dot = document.getElementById('connDot');
+  if (status === 'online') dot.className = 'conn-dot online';
+  else if (status === 'offline') dot.className = 'conn-dot offline';
+  else dot.className = 'conn-dot';
+}
+
+function showLoadError(errorMsg, suggestion) {
+  var html = '<div class="error-detail">' +
+    '<strong>⚠️ ' + escAttr(errorMsg) + '</strong>' +
+    (suggestion ? '<div class="error-suggestion">💡 ' + escAttr(suggestion) + '</div>' : '') +
+    '</div>';
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="empty" style="padding: 80px 40px">' +
+    '<div class="empty-icon">❌</div>' +
+    '<h3 style="color:var(--red);margin-bottom:8px">存档加载失败</h3>' +
+    html +
+    '<div style="margin-top:20px;display:flex;gap:8px;justify-content:center">' +
+    '<button class="btn btn-cyan" onclick="showOpenDialog()">📂 重新选择文件</button>' +
+    '<button class="btn btn-sm" style="background:var(--bg3);color:var(--text2);border:1px solid var(--border)" onclick="loadCurrentPage()">🔄 重试加载</button>' +
+    '</div></div>';
+}
+
+// ====== Drag & Drop ======
+var dragCounter = 0;
+
+function setupDragDrop() {
+  var dz = document.getElementById('dropZone');
+  if (!dz) { setTimeout(setupDragDrop, 200); return; }
+
+  document.addEventListener('dragenter', function(e) {
+    e.preventDefault();
+    dragCounter++;
+    if (dragCounter === 1) dz.classList.add('active');
+  });
+
+  document.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      dz.classList.remove('active');
+    }
+  });
+
+  document.addEventListener('dragover', function(e) {
+    e.preventDefault();
+  });
+
+  document.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dragCounter = 0;
+    dz.classList.remove('active');
+
+    var files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+
+    var paths = [];
+    for (var i = 0; i < files.length; i++) {
+      var f = files[i];
+      // 尝试获取完整路径（WebView2 中可能可用）
+      var p = f.path || f.fullPath || '';
+      if (p && /\.zip$/i.test(p)) {
+        paths.push(p);
+      } else if (p) {
+        toast('⚠️ 跳过非 ZIP 文件: ' + f.name, 'error');
+      } else {
+        // 无法获取路径（浏览器安全限制），使用文件名提示
+        toast('⚠️ 无法读取文件路径，请使用 📂 按钮选择文件', 'error');
+        // 回退：打开文件选择对话框
+        if (IS_DESKTOP) {
+          openNativeFileDialog(files.length > 1);
+        } else {
+          showOpenDialog();
+        }
+        return;
+      }
+    }
+
+    if (paths.length === 1) {
+      _loadBackup(paths[0]);
+    } else if (paths.length > 1) {
+      loadMultipleFiles(paths);
+    }
+  });
+}
+
+// ====== History Management ======
+var _cachedHistory = [];
+
+function getHistory() {
+  return _cachedHistory;
+}
+
+function refreshHistory() {
+  if (IS_DESKTOP) {
+    try {
+      window.pywebview.api.get_history().then(function(h) {
+        _cachedHistory = h || [];
+        renderHistorySidebar();
+      }).catch(function() { _cachedHistory = []; });
+    } catch(e) { _cachedHistory = []; }
+  } else {
+    try {
+      _cachedHistory = JSON.parse(localStorage.getItem('lifeup_history') || '[]');
+    } catch(e) { _cachedHistory = []; }
+  }
+}
+
+function addToLocalHistory(path) {
+  if (!path) return;
+  _cachedHistory = _cachedHistory.filter(function(h) { return h.path !== path; });
+  _cachedHistory.unshift({ path: path, name: path.split('\\').pop() || path.split('/').pop(), time: Math.floor(Date.now() / 1000) });
+  _cachedHistory = _cachedHistory.slice(0, 10);
+  localStorage.setItem('lifeup_history', JSON.stringify(_cachedHistory));
+  renderHistorySidebar();
+}
+
+function clearHistory() {
+  if (IS_DESKTOP) {
+    try {
+      window.pywebview.api.clear_history().then(function() {
+        _cachedHistory = [];
+        renderHistorySidebar();
+      });
+    } catch(e) { _cachedHistory = []; renderHistorySidebar(); }
+  } else {
+    localStorage.removeItem('lifeup_history');
+    _cachedHistory = [];
+    renderHistorySidebar();
+  }
+  try { closeModal(); setTimeout(function() { renderQuickOpenModal(); }, 100); } catch(e) {}
+  toast('📋 历史记录已清空');
+}
+
+function removeHistoryItem(idx) {
+  if (idx < 0 || idx >= _cachedHistory.length) return;
+  var item = _cachedHistory[idx];
+  if (IS_DESKTOP && item && item.path) {
+    try { window.pywebview.api.remove_history_item(item.path); } catch(e) {}
+    _cachedHistory.splice(idx, 1);
+  } else {
+    _cachedHistory.splice(idx, 1);
+    localStorage.setItem('lifeup_history', JSON.stringify(_cachedHistory));
+  }
+  renderHistorySidebar();
+}
+
+function renderHistorySidebar() {
+  var section = document.getElementById('sidebarHistory');
+  var list = document.getElementById('sidebarHistoryList');
+  if (!section || !list) return;
+
+  var history = getHistory();
+  if (!history || history.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  var html = '';
+  var MAX_DISPLAY = 6; // 侧栏最多显示 6 条
+  var display = history.slice(0, MAX_DISPLAY);
+  display.forEach(function(h, i) {
+    html += '<div class="history-item" onclick="quickLoadFromHistory(' + i + ')" title="' + escAttr(h.path) + '">' +
+      '<span class="history-item-icon">📄</span>' +
+      '<span class="history-item-name">' + escAttr(h.name) + '</span>' +
+      '<span class="history-item-time">' + formatHistoryTime(h.time) + '</span>' +
+      '<span class="history-item-remove" onclick="event.stopPropagation();removeHistoryItem(' + i + ')">✕</span>' +
+      '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function formatHistoryTime(ts) {
+  if (!ts) return '';
+  var d = new Date(ts * 1000);
+  var now = new Date();
+  var diff = Math.floor((now - d) / 1000);
+  if (diff < 60) return '刚刚';
+  if (diff < 3600) return Math.floor(diff / 60) + ' 分钟前';
+  if (diff < 86400) return Math.floor(diff / 3600) + ' 小时前';
+  if (diff < 604800) return Math.floor(diff / 86400) + ' 天前';
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+
+function pad2(n) { return n < 10 ? '0' + n : '' + n; }
 
 function loadByPath() {
   var path = document.getElementById('pathInput').value.trim();
@@ -663,9 +1188,10 @@ function saveBackup() {
   });
 }
 
-// ====== Escape Key ======
+// ====== Keyboard Shortcuts ======
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { closeModal(); hideBatchBar(); clearAllChecks(); }
+  if (e.ctrlKey && e.key === 'o') { e.preventDefault(); showOpenDialog(); }
   if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveBackup(); }
 });
 
@@ -677,7 +1203,52 @@ async function loadDashboard() {
   c.innerHTML = '<div class="loading"><div class="spinner"></div><p>加载中...</p></div>';
   try {
     var d = await api('/api/dashboard');
+    var m = getMockCultivationData();
 
+    // === 顶部：修行者信息 ===
+    var headerHtml = '<div style="margin-bottom:16px">' +
+      '<span style="font-size:14px;color:var(--text2)">修行者：</span>' +
+      '<span style="font-size:16px;color:var(--gold);font-weight:700">' + ((d.user&&d.user.nickname)||'?') + '</span>' +
+      '<span style="margin-left:20px;font-size:14px;color:var(--text2)">修行境界：</span>' +
+      '<span style="font-size:16px;color:var(--purple2);font-weight:700">Lv.' + ((d.level&&d.level.current)||1) + '</span>' +
+      '<span style="margin-left:4px;font-size:12px;color:var(--text2)">(' + ((d.level&&d.level.total_exp||0).toLocaleString()) + ' EXP)</span>' +
+      '<div class="progress-bar" style="margin-top:8px;width:300px"><div class="progress-fill gold" style="width:' + (d.level&&d.level.progress||0) + '%"></div></div>' +
+      '<div style="margin-top:4px;font-size:11px;color:var(--text2)">连续修炼：' + ((d.record&&d.record.currentusingdaystreak)||0) + ' 天 | 最长：' + ((d.record&&d.record.longestusingdaystreak)||0) + ' 天</div>' +
+    '</div>';
+
+    // === 6 张数据卡片 ===
+    var statCards = '<div class="stats-grid">' +
+      '<div class="stat-card"><div class="stat-label">📿 今日功课完成率</div><div class="stat-value cyan">' + m.dailyCompletion + '%</div><div class="progress-bar" style="margin-top:6px"><div class="progress-fill cyan" style="width:' + m.dailyCompletion + '%"></div></div></div>' +
+      '<div class="stat-card"><div class="stat-label">🧘 今日闭关时长</div><div class="stat-value gold">' + formatMinutes(m.todayFocusMin) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">✨ 今日获得修为</div><div class="stat-value purple">+' + m.todayExp + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">💎 金币余额</div><div class="stat-value gold">' + ((d.coins||0).toLocaleString()) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">📋 待完成功课</div><div class="stat-value" style="color:' + (m.pendingTasks>0?'var(--orange)':'var(--green)') + '">' + m.pendingTasks + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">🌟 本月圆满天数</div><div class="stat-value cyan">' + m.perfectDays + '<span style="font-size:14px;color:var(--text2)">/' + m.daysInMonth + '</span></div></div>' +
+    '</div>';
+
+    // === 快捷操作区 ===
+    var quickHtml = '<div class="quick-actions">' +
+      '<button class="btn btn-gold" onclick="loadPage(\'focus\')" style="padding:10px 24px;font-size:14px">🧘 开始闭关</button>' +
+      m.quickHabits.map(function(h, i) {
+        return '<div class="quick-badge' + (h.done?' done':'') + '" onclick="toggleQuickHabit(' + i + ')" id="qhab' + i + '">' +
+          '<span>' + h.icon + '</span><span style="font-size:13px">' + h.name + '</span>' +
+          (h.done ? '<span style="color:var(--green);font-size:16px">✓</span>' : '<span style="font-size:10px;color:var(--text2)">点击打卡</span>') +
+        '</div>';
+      }).join('') +
+    '</div>';
+
+    // === 折线图：近7天修为增长（纯 SVG）===
+    var lineChart = buildLineChart(m.weeklyExp, '📈 近7日修为增长', 'purple');
+
+    // === 环形图：今日修行时间分配 ===
+    var ringChart = buildRingChart(m.timeDistribution, '⏱️ 今日修行时间分配');
+
+    var chartsRow = '<div class="chart-row-flex">' +
+      '<div class="chart-half">' + lineChart + '</div>' +
+      '<div class="chart-half">' + ringChart + '</div>' +
+    '</div>';
+
+    // === 六维属性面板 ===
     var skillsHtml = (d.skills||[]).map(function(s) {
       var icon = s.icon && s.icon.startsWith('http') ? '<img src="' + s.icon + '" style="width:24px;height:24px;vertical-align:middle;margin-right:6px;border-radius:4px">' : '';
       return '<div class="stat-card" style="text-align:left;padding:14px">' +
@@ -688,30 +1259,433 @@ async function loadDashboard() {
       '</div>';
     }).join('');
 
-    c.innerHTML =
-      '<div style="margin-bottom:20px">' +
-        '<span style="font-size:14px;color:var(--text2)">修行者：</span>' +
-        '<span style="font-size:16px;color:var(--gold);font-weight:700">' + ((d.user&&d.user.nickname)||'?') + '</span>' +
-        '<span style="margin-left:20px;font-size:14px;color:var(--text2)">修行境界：</span>' +
-        '<span style="font-size:16px;color:var(--purple2);font-weight:700">Lv.' + ((d.level&&d.level.current)||1) + '</span>' +
-        '<span style="margin-left:4px;font-size:12px;color:var(--text2)">(' + ((d.level&&d.level.total_exp||0).toLocaleString()) + ' EXP)</span>' +
-        '<div class="progress-bar" style="margin-top:8px;width:300px"><div class="progress-fill gold" style="width:' + (d.level&&d.level.progress||0) + '%"></div></div>' +
-        '<div style="margin-top:4px;font-size:11px;color:var(--text2)">连续修炼：' + ((d.record&&d.record.currentusingdaystreak)||0) + ' 天 | 最长：' + ((d.record&&d.record.longestusingdaystreak)||0) + ' 天</div>' +
-      '</div>' +
-      '<div class="stats-grid">' +
-        '<div class="stat-card"><div class="stat-label">📋 活跃任务</div><div class="stat-value cyan">' + (d.tasks&&d.tasks.active||0) + '<span style="font-size:14px;color:var(--text2)">/' + (d.tasks&&d.tasks.total||0) + '</span></div></div>' +
-        '<div class="stat-card"><div class="stat-label">✅ 已完成</div><div class="stat-value green">' + (d.tasks&&d.tasks.done||0) + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">🏪 商品总数</div><div class="stat-value gold">' + (d.items&&d.items.total||0) + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">🏆 成就进度</div><div class="stat-value purple">' + (d.achievements&&d.achievements.done||0) + '<span style="font-size:14px;color:var(--text2)">/' + (d.achievements&&d.achievements.total||0) + '</span></div></div>' +
-        '<div class="stat-card"><div class="stat-label">🎒 背包物品</div><div class="stat-value cyan">' + (d.items&&d.items.inventory||0) + '</div></div>' +
-        '<div class="stat-card"><div class="stat-label">💎 金币余额</div><div class="stat-value gold">' + ((d.coins||0).toLocaleString()) + '</div></div>' +
-      '</div>' +
+    c.innerHTML = headerHtml + statCards + quickHtml + chartsRow +
       '<div class="section-title">⚔️ 六维属性</div>' +
       '<div class="stats-grid">' + (skillsHtml || '<div class="empty">暂无属性</div>') + '</div>' +
       '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadDashboard()">🔄 刷新</button></div>';
   } catch(e) {
     c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>加载失败: ' + e.message + '<br><small>请先打开备份存档</small></div>';
   }
+}
+
+/* =================================================================================
+ *  PAGE 1B: Daily — 日常功课（筑基日常/试炼悬赏/位面征服）
+ * ================================================================================= */
+async function loadDaily() {
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    var tasks = await api('/api/tasks?filter=all');
+    var cats = await api('/api/categories/tasks').catch(function(){ return []; });
+
+    // 找到三大功课分类
+    var targetNames = ['筑基日常', '试炼悬赏', '位面征服'];
+    var targetCats = cats.filter(function(cat){ return targetNames.indexOf(cat.name) !== -1; });
+    var targetIds = targetCats.map(function(c){ return c.id; });
+
+    // 筛选属于三大分类的任务
+    var dailyTasks = tasks.filter(function(t){ return targetIds.indexOf(t.categoryid) !== -1; });
+
+    var totalTasks = dailyTasks.length;
+    if (totalTasks === 0) {
+      c.innerHTML = '<div class="empty"><div class="empty-icon">📿</div><h3 style="color:var(--gold);margin-bottom:8px">未找到日常功课</h3>' +
+        '<p style="color:var(--text2);margin-bottom:12px">需要在 LifeUp 中创建「筑基日常」「试炼悬赏」「位面征服」分类下的任务</p>' +
+        '<button class="btn btn-cyan btn-sm" onclick="loadDaily()">🔄 刷新</button></div>';
+      return;
+    }
+
+    // 按分类分组
+    var groups = {};
+    targetCats.forEach(function(cat){
+      groups[cat.id] = { name: cat.name, tasks: [], doneCount: 0, coin: 0, exp: 0 };
+    });
+    dailyTasks.forEach(function(t){
+      var g = groups[t.categoryid]; if (!g) return;
+      g.tasks.push(t);
+      g.coin += (t.coin || 0);
+      g.exp += (t.exp || 0);
+      if (t.done > 0) g.doneCount++;
+    });
+
+    var doneTasks = dailyTasks.filter(function(t){ return t.done > 0; }).length;
+    var completionRate = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) : 0;
+    var pendingTasks = totalTasks - doneTasks;
+    var pendingCoin = dailyTasks.filter(function(t){ return t.done === 0; }).reduce(function(s,t){ return s + (t.coin||0); }, 0);
+    var pendingExp = dailyTasks.filter(function(t){ return t.done === 0; }).reduce(function(s,t){ return s + (t.exp||0); }, 0);
+
+    // 顶部统计卡片
+    var statCards = '<div class="stats-grid">' +
+      '<div class="stat-card"><div class="stat-label">📿 今日完成率</div><div class="stat-value cyan">' + completionRate + '%</div>' +
+        '<div class="progress-bar"><div class="progress-fill cyan" style="width:' + completionRate + '%"></div></div></div>' +
+      '<div class="stat-card"><div class="stat-label">📋 待完成功课</div><div class="stat-value" style="color:' + (pendingTasks > 0 ? 'var(--orange)' : 'var(--green)') + '">' + pendingTasks + '<span style="font-size:14px;color:var(--text2)">/' + totalTasks + '</span></div></div>' +
+      '<div class="stat-card"><div class="stat-label">💰 可获金币/修为</div><div class="stat-value gold" style="font-size:22px">' + (pendingCoin||0).toLocaleString() + ' <span style="font-size:14px;color:var(--purple)">✨' + (pendingExp||0) + '</span></div></div>' +
+    '</div>';
+
+    // 分类汇总栏
+    var freqMap = {'-1':'单次', 0:'单次',1:'每日',2:'每周',3:'每月',4:'每年',5:'无限',6:'每年',7:'每周'};
+    var difColors = ['','#4caf50','#56b6c2','#a78bfa','#e0556a'];
+    var catIcons = {'筑基日常':'🌅', '试炼悬赏':'⚔️', '位面征服':'🗺️'};
+
+    var dailyCatId = targetCats.filter(function(c){return c.name==='筑基日常'})[0];
+    var dailyTotal = dailyCatId ? (groups[dailyCatId.id]&&groups[dailyCatId.id].tasks.length||0) : 0;
+    var dailyDone = dailyCatId ? (groups[dailyCatId.id]&&groups[dailyCatId.id].doneCount||0) : 0;
+    var bountyCatId = targetCats.filter(function(c){return c.name==='试炼悬赏'})[0];
+    var bountyTotal = bountyCatId ? (groups[bountyCatId.id]&&groups[bountyCatId.id].tasks.length||0) : 0;
+    var bountyDone = bountyCatId ? (groups[bountyCatId.id]&&groups[bountyCatId.id].doneCount||0) : 0;
+    var realmCatId = targetCats.filter(function(c){return c.name==='位面征服'})[0];
+    var realmTotal = realmCatId ? (groups[realmCatId.id]&&groups[realmCatId.id].tasks.length||0) : 0;
+    var realmDone = realmCatId ? (groups[realmCatId.id]&&groups[realmCatId.id].doneCount||0) : 0;
+
+    var summaryBar = '<div style="background:var(--bg3);border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;gap:24px;flex-wrap:wrap;align-items:center;font-size:13px">' +
+      '<span style="color:var(--gold)">🌅 筑基日常 <b>' + dailyDone + '/' + dailyTotal + '</b></span>' +
+      '<span style="color:var(--cyan)">⚔️ 试炼悬赏 <b>' + bountyDone + '/' + bountyTotal + '</b></span>' +
+      '<span style="color:var(--purple)">🗺️ 位面征服 <b>' + realmDone + '/' + realmTotal + '</b></span>' +
+      '<span style="color:var(--green);margin-left:auto">✅ 总计 ' + doneTasks + '/' + totalTasks + ' 完成</span>' +
+    '</div>';
+
+    // 任务表格（按分类顺序展示）
+    var sectionsHtml = targetCats.map(function(cat){
+      var g = groups[cat.id];
+      if (!g || g.tasks.length === 0) {
+        return '<div class="section-title" style="margin-top:16px">' + (catIcons[cat.name]||'📋') + ' ' + cat.name +
+          '<span style="font-size:12px;color:var(--text2);margin-left:8px">暂无任务</span></div>';
+      }
+      var rows = g.tasks.map(function(t){
+        var done = t.done > 0;
+        return '<tr' + (done ? ' style="opacity:0.5"' : '') + '>' +
+          '<td>' + (t.icon && t.icon.startsWith('http') ? '<img src="' + t.icon + '" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:3px">' : '') +
+          '<span style="font-size:14px;' + (done ? 'text-decoration:line-through;' : '') + '">' + (t.title||'?') + '</span></td>' +
+          '<td><span class="badge badge-cyan">' + (freqMap[t.frequency]||'每日') + '</span></td>' +
+          '<td style="color:var(--gold)">🪙 ' + (t.coin||0) + '</td>' +
+          '<td style="color:var(--purple)">✨ ' + (t.exp||0) + '</td>' +
+          '<td>' + (t.difficulty ? '<span class="badge" style="background:' + difColors[t.difficulty] + '">💀LV' + t.difficulty + '</span>' : '-') + '</td>' +
+          '<td>' + (done ? '<span style="color:var(--green);font-weight:600">✅ 已完成</span>' : '<span style="color:var(--text2)">⏳ ' + (t.done_count||0) + '/' + (t.target_count||1) + '</span>') + '</td>' +
+        '</tr>';
+      }).join('');
+      return '<div class="section-title" style="margin-top:16px">' + (catIcons[cat.name]||'📋') + ' ' + cat.name +
+        '<span style="font-size:11px;color:var(--text2);margin-left:8px">' + g.doneCount + '/' + g.tasks.length + '</span>' +
+        '<span style="float:right;font-size:11px;color:var(--gold)">🪙' + g.coin + '</span>' +
+        '<span style="float:right;font-size:11px;color:var(--purple);margin-right:8px">✨' + g.exp + '</span>' +
+      '</div>' +
+      '<table class="data-table"><thead><tr><th>功课名称</th><th>频率</th><th>金币</th><th>修为</th><th>难度</th><th>状态</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    }).join('');
+
+    // 月度热力图（mock）
+    var now2 = new Date();
+    var dim = new Date(now2.getFullYear(), now2.getMonth()+1, 0).getDate();
+    var fow = new Date(now2.getFullYear(), now2.getMonth(), 1).getDay() || 7;
+    var heatData = [];
+    for (var b = 1; b < fow; b++) { heatData.push({ label: '', value: -1, date: '' }); }
+    for (var d = 1; d <= dim; d++) {
+      var dk = now2.getFullYear() + '-' + String(now2.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      var val = _mockDailyCheck[dk] ? (_mockDailyCheck[dk].habitsDone || 0) : 0;
+      heatData.push({ label: String(d), value: val, date: dk });
+    }
+    var heatmapHtml = buildHeatmap(heatData, '📅 ' + (now2.getMonth()+1) + '月 每日功课完成热力图', ['一','二','三','四','五','六','日']);
+
+    c.innerHTML = statCards + summaryBar + sectionsHtml + heatmapHtml +
+      '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadDaily()">🔄 刷新</button></div>';
+
+  } catch(e) {
+    c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>加载失败: ' + e.message + '<br><small>请先打开备份存档，确保包含筑基日常/试炼悬赏/位面征服分类</small></div>';
+  }
+}
+
+/* =================================================================================
+ *  PAGE 1C: Focus — 闭关修炼
+ * ================================================================================= */
+async function loadFocus() {
+  var c = document.getElementById('content');
+  var m = getMockCultivationData();
+  var now = new Date();
+  var todayKey = now.toISOString().slice(0,10);
+  var weekAgo = new Date(now); weekAgo.setDate(now.getDate()-6);
+  var weekKey = weekAgo.toISOString().slice(0,10);
+
+  // 本周/本月统计
+  var weekFocusMin = m.weekFocusMin;
+  var monthFocusMin = m.monthFocusMin;
+  var todayFocusMin = m.todayFocusMin;
+
+  // 近7天闭关时长柱状图
+  var weekBarData = [];
+  for (var i = 6; i >= 0; i--) {
+    var wd = new Date(now); wd.setDate(now.getDate() - i);
+    var wk = wd.toISOString().slice(0,10);
+    var mins = _mockFocusSessions.filter(function(s){ return s.date===wk; }).reduce(function(s,v){ return s+v.duration; }, 0);
+    weekBarData.push({ label: (wd.getMonth()+1)+'/'+wd.getDate(), value: mins });
+  }
+
+  // 时辰分布热力图
+  var hourDist = m.hourDistribution;
+  // 转换为 24/7 网格数据: 分成7列展示
+  var hourCells = [];
+  for (var h = 0; h < 24; h++) {
+    var hv = hourDist[h] ? hourDist[h].value : 0;
+    hourCells.push({ label: String(h), value: hv, date: h+'时' });
+  }
+  // 用 6列展示 24小时 (4行)
+  var hourGridCells = hourCells.map(function(d) {
+    var level = 0;
+    if (d.value >= 4) level = 4; else if (d.value >= 3) level = 3; else if (d.value >= 2) level = 2; else if (d.value >= 1) level = 1;
+    var colors = ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'];
+    return '<div style="aspect-ratio:1;border-radius:2px;font-size:8px;display:flex;align-items:center;justify-content:center;background:' + colors[level] + '" title="' + d.date + ': ' + d.value + '次">' + d.label + '</div>';
+  }).join('');
+
+  // 历史闭关记录
+  var sessionsHtml = m.focusSessions.slice(0, 10).map(function(s) {
+    return '<tr><td>' + s.date + '</td><td>' + s.type + '</td><td>' + formatMinutes(s.duration) + '</td><td style="color:var(--purple)">+' + s.expEarned + ' EXP</td></tr>';
+  }).join('');
+
+  var isRunning = _focusRunning;
+  var timerBtnHtml = '';
+  if (isRunning) {
+    var dm = Math.floor(_focusSeconds / 60);
+    var ds = _focusSeconds % 60;
+    timerBtnHtml = '<div class="focus-timer">' +
+      '<div style="font-size:18px;color:var(--text2);margin-bottom:12px" id="focusStatusText">' + _focusType + ' 进行中...</div>' +
+      '<div class="timer-display" id="focusTimerDisplay">' + (dm<10?'0':'')+dm+':'+(ds<10?'0':'')+ds + '</div>' +
+      '<div style="margin-top:20px;display:flex;gap:12px;justify-content:center">' +
+      '<button class="timer-btn' + (_focusRunning?'':' pulse') + '" id="focusPauseBtn" onclick="' + (_focusRunning?'pauseFocusTimer()':'resumeFocusTimer()') + '">' + (_focusRunning?'⏸':'▶') + '</button>' +
+      '<button class="timer-btn" onclick="stopFocusTimer();loadFocus();" style="border-color:var(--red);color:var(--red)">⏹</button>' +
+      '</div></div>';
+  } else {
+    // 开始闭关选择
+    var focusTypes = ['打坐修炼','研读功法','炼丹制器','斩妖除魔'];
+    var focusMinutes = [15, 30, 45, 60];
+    timerBtnHtml = '<div style="background:var(--bg3);border-radius:8px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<div style="font-size:20px;font-weight:700;color:var(--gold);margin-bottom:16px">🧘 开始闭关</div>' +
+      '<div style="margin-bottom:16px"><span style="font-size:13px;color:var(--text2);margin-right:12px">修炼类型：</span>' +
+      focusTypes.map(function(t, i) {
+        return '<button class="btn btn-sm" id="ftype' + i + '" style="margin:4px;' + (i===0?'background:var(--cyan);color:#fff;border-color:var(--cyan);':'background:var(--bg);color:var(--text2);border:1px solid var(--border);') + '" onclick="selectFocusType(\'' + t + '\',' + i + ')">' + t + '</button>';
+      }).join('') + '</div>' +
+      '<div style="margin-bottom:20px"><span style="font-size:13px;color:var(--text2);margin-right:12px">时长：</span>' +
+      focusMinutes.map(function(mi, i) {
+        return '<button class="btn btn-sm" id="ftime' + i + '" style="margin:4px;background:var(--bg);color:var(--text2);border:1px solid var(--border)" onclick="selectFocusTime(' + mi + ',' + i + ')">' + mi + '分钟</button>';
+      }).join('') + '</div>' +
+      '<button class="btn btn-gold" style="padding:12px 48px;font-size:16px" onclick="startFocusWithSelection()">🔮 入定修炼</button>' +
+    '</div>';
+  }
+
+  window._selectedFocusType = '打坐修炼';
+  window._selectedFocusMin = 30;
+  window.selectFocusType = function(t, idx) {
+    window._selectedFocusType = t;
+    ['打坐修炼','研读功法','炼丹制器','斩妖除魔'].forEach(function(_, i) {
+      var btn = document.getElementById('ftype'+i);
+      if (btn) { btn.style.background = i===idx ? 'var(--cyan)' : 'var(--bg)'; btn.style.color = i===idx ? '#fff' : 'var(--text2)'; btn.style.borderColor = i===idx ? 'var(--cyan)' : 'var(--border)'; }
+    });
+  };
+  window.selectFocusTime = function(mi, idx) {
+    window._selectedFocusMin = mi;
+    [15,30,45,60].forEach(function(_, i) {
+      var btn = document.getElementById('ftime'+i);
+      if (btn) { btn.style.background = i===idx ? 'var(--cyan)' : 'var(--bg)'; btn.style.color = i===idx ? '#fff' : 'var(--text2)'; btn.style.borderColor = i===idx ? 'var(--cyan)' : 'var(--border)'; }
+    });
+  };
+  window.startFocusWithSelection = function() {
+    startFocusTimer(window._selectedFocusType, window._selectedFocusMin);
+  };
+
+  c.innerHTML =
+    timerBtnHtml +
+    '<div class="stats-grid">' +
+      '<div class="stat-card"><div class="stat-label">🧘 今日闭关</div><div class="stat-value gold">' + formatMinutes(todayFocusMin) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">📅 本周闭关</div><div class="stat-value cyan">' + formatMinutes(weekFocusMin) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">📆 本月闭关</div><div class="stat-value purple">' + formatMinutes(monthFocusMin) + '</div></div>' +
+    '</div>' +
+    buildBarChart(weekBarData, '📊 近7天闭关时长', 'cyan') +
+    '<div class="chart-container"><h4>🕐 一日时辰修炼分布</h4>' +
+      '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-bottom:6px"><span style="font-size:9px;color:var(--text2);grid-column:1/-1;margin-bottom:2px">0时 → 23时（颜色越深闭关越多）</span>' + hourGridCells + '</div>' +
+      '<div style="display:flex;gap:2px;align-items:center;margin-top:6px;font-size:10px;color:var(--text2)"><span>少</span>' +
+        ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'].map(function(cl){return '<span style="width:12px;height:12px;border-radius:2px;background:'+cl+'"></span>';}).join('') +
+      '<span>多</span></div></div>' +
+    '<div class="section-title">📜 修炼记录</div>' +
+    (m.focusSessions.length === 0 ? '<div class="empty">暂无闭关记录，开始你的第一次修炼吧 🧘</div>' :
+      '<table class="data-table"><thead><tr><th>日期</th><th>修炼类型</th><th>时长</th><th>获得修为</th></tr></thead><tbody>' + sessionsHtml + '</tbody></table>') +
+    '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadFocus()">🔄 刷新</button></div>';
+}
+
+/* =================================================================================
+ *  PAGE 1D: Goals — 大道宏愿（目标管理）
+ * ================================================================================= */
+async function loadGoals() {
+  var c = document.getElementById('content');
+  var m = getMockCultivationData();
+  var goals = m.goals;
+  var now = new Date();
+
+  if (!goals || goals.length === 0) {
+    c.innerHTML = '<div class="empty"><div class="empty-icon">🌟</div>暂无大道宏愿<br><small>设定你的修行目标，步步登仙</small></div>';
+    return;
+  }
+
+  var cardsHtml = goals.map(function(g) {
+    var deadline = new Date(g.deadline);
+    var daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+    var isUrgent = daysLeft <= 3 && daysLeft >= 0;
+    var progress = g.progress || 0;
+
+    // 环形进度条 SVG
+    var R = 40, cx = 50, cy = 50, sw = 8;
+    var circumference = 2 * Math.PI * R;
+    var dashLen = (progress / 100) * circumference;
+    var dashGap = circumference - dashLen;
+    var ringColor = isUrgent ? 'var(--red)' : 'var(--cyan)';
+    var ringSvg = '<svg viewBox="0 0 100 100" style="width:80px;height:80px;flex-shrink:0">' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="var(--border)" stroke-width="' + sw + '"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="' + ringColor + '" stroke-width="' + sw + '" stroke-dasharray="' + dashLen + ' ' + dashGap + '" stroke-dashoffset="' + (-0.25 * circumference) + '" stroke-linecap="round" transform="rotate(-90 50 50)"/>' +
+      '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dy="0.35em" font-size="16" font-weight="700" fill="' + ringColor + '">' + progress + '%</text>' +
+    '</svg>';
+
+    // 里程碑时间轴
+    var msHtml = g.milestones.map(function(ms, mi) {
+      var stateClass = ms.done ? 'done' : (mi === g.milestones.filter(function(x){return x.done;}).length ? 'active' : 'pending');
+      return '<div class="timeline-node ' + stateClass + '">' +
+        '<span style="font-size:13px">' + ms.name + '</span>' +
+        (ms.done ? '<span style="color:var(--green);margin-left:6px">✓</span>' : '') +
+      '</div>';
+    }).join('');
+    var timelineHtml = '<div class="timeline" style="margin-top:12px">' + msHtml + '</div>';
+
+    var goalClass = 'goal-card' + (isUrgent ? ' urgent' : '');
+    return '<div class="' + goalClass + '" onclick="toggleGoalDetail(' + g.id + ')" style="display:flex;gap:16px;align-items:flex-start">' +
+      ringSvg +
+      '<div style="flex:1">' +
+        '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">' + g.title + '</div>' +
+        '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + g.desc + '</div>' +
+        '<div style="font-size:11px;color:' + (isUrgent?'var(--red)':'var(--text2)') + '">⏰ 截止：' + g.deadline +
+          (daysLeft >= 0 ? '（剩余 <b>' + daysLeft + '</b> 天）' : '（已过期）') +
+        '</div>' +
+        '<div id="goalDetail' + g.id + '" style="display:none">' + timelineHtml + '</div>' +
+      '</div>' +
+      '<span style="font-size:11px;color:var(--text2);cursor:pointer" onclick="event.stopPropagation();toggleGoalDetail(' + g.id + ')">▶</span>' +
+    '</div>';
+  }).join('');
+
+  c.innerHTML =
+    '<div class="section-title">🌟 大道宏愿</div>' +
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:16px">完成进度：' + goals.filter(function(g){ return g.progress >= 100; }).length + '/' + goals.length + ' 个宏愿</div>' +
+    cardsHtml +
+    '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadGoals()">🔄 刷新</button></div>';
+}
+
+/* =================================================================================
+ *  PAGE 1E: Review — 道行复盘
+ * ================================================================================= */
+async function loadReview() {
+  var c = document.getElementById('content');
+  var m = getMockCultivationData();
+  var period = _reviewPeriod;
+
+  // 周期切换
+  var periodBtns = '<div class="lvl-group" style="margin-bottom:16px">' +
+    '<button class="lvl-btn' + (period==='week'?' active':'') + '" onclick="setReviewPeriod(\'week\')">📅 本周</button>' +
+    '<button class="lvl-btn' + (period==='month'?' active':'') + '" onclick="setReviewPeriod(\'month\')">📆 本月</button>' +
+    '<button class="lvl-btn' + (period==='year'?' active':'') + '" onclick="setReviewPeriod(\'year\')">📊 本年</button>' +
+  '</div>';
+
+  // 根据周期获取数据
+  var focusMin, lastFocusMin, habitsDone, lastHabitsDone, expGained, lastExpGained, goalsDone, lastGoalsDone;
+  if (period === 'week') {
+    focusMin = m.weekFocusMin; lastFocusMin = m.lastWeekFocus;
+    habitsDone = m.weekHabits; lastHabitsDone = m.lastWeekHabits;
+    expGained = m.weekExp; lastExpGained = m.lastWeekExp;
+    goalsDone = m.weekGoals; lastGoalsDone = m.lastWeekGoals;
+  } else if (period === 'month') {
+    focusMin = m.monthFocusMin; lastFocusMin = m.lastMonthFocus;
+    habitsDone = m.monthHabits; lastHabitsDone = m.lastMonthHabits;
+    expGained = m.monthExp; lastExpGained = m.lastMonthExp;
+    goalsDone = m.monthGoals; lastGoalsDone = m.lastMonthGoals;
+  } else {
+    focusMin = m.monthFocusMin * 8; lastFocusMin = m.lastMonthFocus * 7;
+    habitsDone = m.monthHabits * 8; lastHabitsDone = m.lastMonthHabits * 7;
+    expGained = m.monthExp * 8; lastExpGained = m.lastMonthExp * 7;
+    goalsDone = m.monthGoals * 6; lastGoalsDone = m.lastMonthGoals * 5;
+  }
+
+  // 汇总卡片
+  var summaryCards = '<div class="stats-grid">' +
+    '<div class="stat-card"><div class="stat-label">🧘 总闭关时长</div><div class="stat-value gold">' + formatMinutes(focusMin) + '</div><div style="font-size:11px;margin-top:4px">' + trendArrow(focusMin, lastFocusMin) + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">📿 完成功课数</div><div class="stat-value cyan">' + habitsDone + '</div><div style="font-size:11px;margin-top:4px">' + trendArrow(habitsDone, lastHabitsDone) + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">✨ 获得修为</div><div class="stat-value purple">' + expGained + '</div><div style="font-size:11px;margin-top:4px">' + trendArrow(expGained, lastExpGained) + '</div></div>' +
+    '<div class="stat-card"><div class="stat-label">🌟 目标达成</div><div class="stat-value green">' + goalsDone + '</div><div style="font-size:11px;margin-top:4px">' + trendArrow(goalsDone, lastGoalsDone) + '</div></div>' +
+  '</div>';
+
+  // 周期对比柱状图
+  var now = new Date();
+  var barData = [];
+  var labelPrefix = period === 'year' ? '月' : '日';
+  var count = period === 'year' ? 12 : 7;
+  for (var i = count-1; i >= 0; i--) {
+    var bd = new Date(now);
+    if (period === 'year') bd.setMonth(now.getMonth() - i);
+    else bd.setDate(now.getDate() - i);
+    var lbl = period === 'year' ? (bd.getMonth()+1)+'月' : (bd.getMonth()+1)+'/'+bd.getDate();
+    var val = Math.floor(Math.random() * 120) + 30;
+    barData.push({ label: lbl, value: val, color: (i >= count/2?'cyan':'border') });
+  }
+
+  // 雷达图：六维属性增长
+  var radarData = [
+    { label: '体质', value: Math.floor(Math.random()*30)+50 },
+    { label: '神识', value: Math.floor(Math.random()*30)+45 },
+    { label: '灵力', value: Math.floor(Math.random()*30)+55 },
+    { label: '悟性', value: Math.floor(Math.random()*30)+60 },
+    { label: '根骨', value: Math.floor(Math.random()*30)+40 },
+    { label: '机缘', value: Math.floor(Math.random()*30)+48 }
+  ];
+
+  // 修行洞察
+  var insights = [];
+  if (focusMin < lastFocusMin) {
+    insights.push({ icon: '⏱️', text: '本周期闭关时长有所下降，建议每日至少留出30分钟专注修炼时间。' });
+  } else if (focusMin > lastFocusMin * 1.2) {
+    insights.push({ icon: '🚀', text: '闭关时长大幅提升！保持这股势头，突破大境界指日可待。' });
+  } else {
+    insights.push({ icon: '✅', text: '闭关时长稳定，修行节奏良好。可以尝试增加单次修炼时长以获取更多修为。' });
+  }
+
+  if (m.dailyCompletion < 70) {
+    insights.push({ icon: '📋', text: '日常功课完成率偏低（' + m.dailyCompletion + '%），建议重点补上未完成的功课以维持修炼连续性。' });
+  } else if (m.dailyCompletion >= 90) {
+    insights.push({ icon: '🏆', text: '功课完成率优秀（' + m.dailyCompletion + '%），每日精进，功不唐捐！' });
+  } else {
+    insights.push({ icon: '📿', text: '功课完成率良好，再坚持一下就能达到圆满。薄弱环节需要额外关注。' });
+  }
+
+  var maxStreak = Math.max.apply(null, m.habits.map(function(h){ return h.streak; }));
+  if (maxStreak < 10) {
+    insights.push({ icon: '🔥', text: '连续打卡天数偏少，建议保持每日修炼习惯，连续打卡奖励会越来越丰厚。' });
+  } else {
+    insights.push({ icon: '💪', text: '连续打卡记录优秀（最高' + maxStreak + '天），自律成就自由！' });
+  }
+
+  var urgentGoals = m.goals.filter(function(g){
+    var dl = new Date(g.deadline);
+    var days = Math.ceil((dl - new Date()) / (1000*60*60*24));
+    return days <= 7 && days >= 0 && g.progress < 100;
+  });
+  if (urgentGoals.length > 0) {
+    insights.push({ icon: '⚠️', text: '有 ' + urgentGoals.length + ' 个宏愿临近截止（' + urgentGoals.map(function(g){ return g.title; }).join('、') + '），请优先推进。' });
+  } else if (m.goals.filter(function(g){ return g.progress >= 100; }).length === m.goals.length) {
+    insights.push({ icon: '🌟', text: '所有大道宏愿均已完成！是时候设立新的目标，继续攀登更高境界了。' });
+  } else {
+    insights.push({ icon: '📈', text: '目标进度正常推进中，继续保持。建议每周回顾一次里程碑完成情况。' });
+  }
+
+  // 追加一条通用建议
+  insights.push({ icon: '💡', text: '修行如逆水行舟，不进则退。建议每天早晨查看功课清单，晚上复盘当日修行成果。' });
+
+  var insightHtml = insights.map(function(item) {
+    return '<div class="insight-card"><span style="font-size:18px;margin-right:8px">' + item.icon + '</span><span style="font-size:13px;color:var(--text)">' + item.text + '</span></div>';
+  }).join('');
+
+  c.innerHTML = periodBtns + summaryCards +
+    buildBarChart(barData, period==='week'?'📊 本周 vs 上周 每日修炼对比':'📊 周期修炼对比', 'cyan') +
+    buildRadarChart(radarData, '🛡️ 六维属性增长雷达图', 100) +
+    '<div class="section-title">🧠 修行洞察</div>' + insightHtml +
+    '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadReview()">🔄 刷新</button></div>';
 }
 
 /* =================================================================================
@@ -734,15 +1708,18 @@ async function loadTasks(filterArg) {
     window._taskCats = cats;
 
     var freqMap = {0:'单次',1:'每日',2:'每周',3:'每月',4:'每年',5:'无限'};
+    var typeMap = {0:'📋普通', 1:'⚠️惩罚'};
     var statusMap = {0:'⏳ 进行中', 1:'✅ 已完成'};
 
     var rows = tasks.map(function(t) {
+      var coinStr = t.coin||0;
+      if (t.rewardcoinvariable) coinStr += '±' + t.rewardcoinvariable;
       return '<tr>' +
         '<td><input type="checkbox" class="batch-check task-check" value="' + t.id + '" onchange="updateBatchBar(\'tasks\')"></td>' +
         '<td>' + (t.id||'') + '</td>' +
-        '<td>' + (statusMap[t.done]||'?') + ' <strong>' + (t.title||'?') + '</strong></td>' +
+        '<td>' + (t.isfrozen ? '❄️ ' : '') + (statusMap[t.done]||'?') + ' <strong>' + (t.title||'?') + '</strong></td>' +
         '<td><span class="badge badge-cyan">' + (freqMap[t.frequency]||t.frequency) + '</span></td>' +
-        '<td>' + (t.coin||0) + '</td>' +
+        '<td>' + coinStr + '</td>' +
         '<td>' + (t.exp||0) + '</td>' +
         '<td>' + (t.priority ? '<span class="badge" style="background:' + ['','#4caf50','#56b6c2','#a78bfa','#e0556a'][t.priority] + '">⚠️LV' + t.priority + '</span>' : '-') + '</td>' +
         '<td><span class="badge" style="background:' + ['','#56b6c2','#a78bfa','#c4b5fd','#e09040'][t.difficulty||1] + '">💀LV' + (t.difficulty||1) + '</span></td>' +
@@ -750,6 +1727,8 @@ async function loadTasks(filterArg) {
         '<td><span class="badge badge-purple">' + (t.category_name||'-') + '</span></td>' +
         '<td>' +
           '<button class="btn btn-cyan btn-sm" onclick="editTask(' + t.id + ')">✏️</button>' +
+          (t.isfrozen ? '<button class="btn btn-sm" style="background:#56b6c2" onclick="freezeTask(' + t.id + ',false)">🔓</button>' : '<button class="btn btn-sm" style="background:#e09040" onclick="freezeTask(' + t.id + ',true)">❄️</button>') +
+          '<button class="btn btn-sm" style="background:var(--purple)" onclick="toggleSubtasks(' + t.id + ')">📋 子任务</button>' +
           '<button class="btn btn-danger btn-sm" onclick="deleteTask(' + t.id + ')">🗑️</button>' +
         '</td>' +
       '</tr>';
@@ -774,6 +1753,7 @@ async function loadTasks(filterArg) {
         '<span class="filter-tag' + (filter==='all'?' active':'') + '" onclick="loadTasks(\'all\')">全部</span>' +
         '<span class="filter-tag' + (filter==='active'?' active':'') + '" onclick="loadTasks(\'active\')">进行中</span>' +
         '<span class="filter-tag' + (filter==='done'?' active':'') + '" onclick="loadTasks(\'done\')">已完成</span>' +
+        '<span class="filter-tag' + (filter==='frozen'?' active':'') + '" onclick="loadTasks(\'frozen\')">❄️ 已冻结</span>' +
         '<span style="margin-left:12px;color:var(--text2);font-size:11px">共 ' + tasks.length + ' 条</span>' +
         '<span style="margin-left:auto;color:var(--text2);font-size:11px">📋 模板：</span>' +
         '<button class="btn btn-sm btn-purple" onclick="loadTemplatesIntoTaskPage()">📥 载入模板</button>' +
@@ -887,12 +1867,17 @@ function showAddTask() {
   showModal('➕ 新建任务',
     '<div class="form-group"><label>任务名称</label><input id="f_title" placeholder="如：吞吐灵气"></div>' +
     '<div class="form-row">' +
-      '<div class="form-group"><label>频率</label><select id="f_freq"><option value="1">每日</option><option value="2">每周</option><option value="3">每月</option><option value="5">无限</option><option value="0">单次</option></select></div>' +
-      '<div class="form-group"><label>目标次数</label><input id="f_count" type="number" value="1"></div>' +
+      '<div class="form-group"><label>任务类型</label><select id="f_type"><option value="0">📋 普通任务</option><option value="1">⚠️ 惩罚任务</option></select></div>' +
+      '<div class="form-group"><label>频率</label><select id="f_freq"><option value="1">每日</option><option value="2">每周</option><option value="3">每月</option><option value="4">每年</option><option value="5">无限</option><option value="0">单次</option></select></div>' +
     '</div>' +
     '<div class="form-row">' +
-      '<div class="form-group"><label>💎 金币奖励</label><input id="f_coin" type="number" value="0"></div>' +
-      '<div class="form-group"><label>✨ 经验奖励</label><input id="f_exp" type="number" value="0"></div>' +
+      '<div class="form-group"><label>目标次数</label><input id="f_count" type="number" value="1"></div>' +
+      '<div class="form-group"><label>🎁 商品奖励</label><div id="f_rewards" style="margin-bottom:4px"></div><button class="btn btn-sm btn-cyan" onclick="addRewardRow()">➕ 添加奖励商品</button></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="0"></div>' +
+      '<div class="form-group"><label>浮动±</label><input id="f_coin_var" type="number" value="0" placeholder="随机浮动范围" style="width:80px"></div>' +
+      '<div class="form-group"><label>✨ 经验</label><input id="f_exp" type="number" value="0"></div>' +
     '</div>' +
     '<div class="form-row">' +
       '<div class="form-group"><label>⚠️ 重要程度</label><div id="f_priority" class="lvl-group">' +
@@ -908,10 +1893,26 @@ function showAddTask() {
         '<span class="lvl-btn" data-v="4" onclick="setLvl(this,\'f_difficulty\')">LV4</span>' +
       '</div></div>' +
     '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>开始时间</label><input id="f_start_time" type="datetime-local"></div>' +
+      '<div class="form-group"><label>截止时间</label><input id="f_end_time" type="datetime-local"></div>' +
+    '</div>' +
     '<div class="form-group"><label>📊 关联属性 (1-3个，完成获得经验)</label><div id="f_attrs" style="display:flex;flex-wrap:wrap;gap:2px">' + attrBoxes + '</div></div>' +
     '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
-    '<div class="form-group"><label>🎁 商品奖励</label><div id="f_rewards" style="margin-bottom:4px"></div><button class="btn btn-sm btn-cyan" onclick="addRewardRow()">➕ 添加奖励商品</button></div>' +
     '<div class="form-group"><label>备注</label><textarea id="f_note"></textarea></div>' +
+    '<details class="advanced-settings" style="margin-top:8px"><summary style="cursor:pointer;color:var(--cyan);font-size:13px">⚙️ 高级设置</summary>' +
+      '<div style="padding:10px;background:var(--bg);border-radius:6px;margin-top:6px">' +
+        '<div class="form-row" style="margin-bottom:8px">' +
+          '<div class="form-group"><label>💰 金币惩罚系数</label><input id="f_cpf" type="number" step="0.1" min="0" max="10" value="0" placeholder="0=不惩罚"></div>' +
+          '<div class="form-group"><label>✨ 经验惩罚系数</label><input id="f_epf" type="number" step="0.1" min="0" max="10" value="0" placeholder="0=不惩罚"></div>' +
+        '</div>' +
+        '<div style="display:flex;gap:16px;flex-wrap:wrap">' +
+          '<label style="display:flex;align-items:center;gap:4px;color:var(--text2);font-size:12px;cursor:pointer"><input type="checkbox" id="f_ebb"> 🧠 艾宾浩斯记忆</label>' +
+          '<label style="display:flex;align-items:center;gap:4px;color:var(--text2);font-size:12px;cursor:pointer"><input type="checkbox" id="f_ovd"> ⚡ 处理逾期</label>' +
+          '<label style="display:flex;align-items:center;gap:4px;color:var(--text2);font-size:12px;cursor:pointer"><input type="checkbox" id="f_aui"> 📦 完成自动使用物品</label>' +
+        '</div>' +
+      '</div>' +
+    '</details>' +
     '<div class="modal-actions">' +
       '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
       '<button class="btn btn-primary" onclick="addTask()">创建</button>' +
@@ -920,6 +1921,8 @@ function showAddTask() {
 }
 
 function addTask() {
+  // 获取任务类型
+  var tasktype = parseInt(document.getElementById('f_type').value) || 0;
   // 获取重要程度
   var prio = document.getElementById('f_priority').querySelector('.lvl-btn.active');
   var difficulty = document.getElementById('f_difficulty').querySelector('.lvl-btn.active');
@@ -943,9 +1946,11 @@ function addTask() {
 
   var data = {
     title: document.getElementById('f_title').value,
+    tasktype: parseInt(document.getElementById('f_type').value) || 0,
     frequency: parseInt(document.getElementById('f_freq').value),
     target_count: parseInt(document.getElementById('f_count').value),
     coin: parseInt(document.getElementById('f_coin').value),
+    rewardcoinvariable: parseInt(document.getElementById('f_coin_var').value) || 0,
     exp: parseInt(document.getElementById('f_exp').value),
     category_id: parseInt(document.getElementById('f_cat').value) || 0,
     note: document.getElementById('f_note').value,
@@ -957,6 +1962,18 @@ function addTask() {
     attr3: attrNames[2],
     item_rewards: itemRewards
   };
+  // 时间字段
+  var stEl = document.getElementById('f_start_time');
+  var etEl = document.getElementById('f_end_time');
+  if (stEl && stEl.value) data.start_time = Date.parse(stEl.value);
+  if (etEl && etEl.value) data.end_time = Date.parse(etEl.value);
+  if (data.end_time && data.start_time && data.end_time - data.start_time < 86400000) data.end_time = data.start_time + 86400000;
+  // 惩罚系数 + 高级
+  var cpf = document.getElementById('f_cpf'); if (cpf) data.coin_punishment_factor = parseFloat(cpf.value) || 0;
+  var epf = document.getElementById('f_epf'); if (epf) data.exp_punishment_factor = parseFloat(epf.value) || 0;
+  var ebb = document.getElementById('f_ebb'); data.enable_ebbinghaus = (ebb && ebb.checked) ? 1 : 0;
+  var ovd = document.getElementById('f_ovd'); data.ishandleoverdue = (ovd && ovd.checked) ? 1 : 0;
+  var aui = document.getElementById('f_aui'); data.auto_use_items = (aui && aui.checked);
   if (!data.title) return toast('请输入任务名称', 'error');
   api('/api/tasks/add', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
@@ -1026,19 +2043,34 @@ function editTask(id) {
       return '<option value="' + c.id + '"' + (c.id===t.categoryid?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
     }).join('');
     var freqSel = function(v) {
-      return [0,1,2,3,5].map(function(f) {
-        return '<option value="' + f + '"' + (f==v?' selected':'') + '>' + {0:'单次',1:'每日',2:'每周',3:'每月',5:'无限'}[f] + '</option>';
+      return [0,1,2,3,4,5].map(function(f) {
+        return '<option value="' + f + '"' + (f==v?' selected':'') + '>' + {0:'单次',1:'每日',2:'每周',3:'每月',4:'每年',5:'无限'}[f] + '</option>';
       }).join('');
+    };
+    // 时间戳转 datetime-local
+    var fmtDT = function(ts) {
+      if (!ts || ts <= 0) return '';
+      var d = new Date(ts);
+      var pad = function(n) { return n < 10 ? '0'+n : ''+n; };
+      return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    };
+    var typeSel = function(v) {
+      return '<option value="0"' + ((v||0)===0?' selected':'') + '>📋 普通任务</option><option value="1"' + (v===1?' selected':'') + '>⚠️ 惩罚任务</option>';
     };
 
     showModal('✏️ 编辑任务 #' + id,
       '<div class="form-group"><label>任务名称</label><input id="f_title" value="' + escAttr(t.title||'') + '"></div>' +
       '<div class="form-row">' +
+        '<div class="form-group"><label>任务类型</label><select id="f_type">' + typeSel(t.tasktype) + '</select></div>' +
         '<div class="form-group"><label>频率</label><select id="f_freq">' + freqSel(t.frequency) + '</select></div>' +
+      '</div>' +
+      '<div class="form-row">' +
         '<div class="form-group"><label>目标次数</label><input id="f_count" type="number" value="' + (t.target_count||1) + '"></div>' +
+        '<div class="form-group"><label>🎁 商品奖励</label><div id="f_rewards" style="margin-bottom:4px"></div><button class="btn btn-sm btn-cyan" onclick="addRewardRow()">➕ 添加奖励商品</button></div>' +
       '</div>' +
       '<div class="form-row">' +
         '<div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="' + (t.coin||0) + '"></div>' +
+        '<div class="form-group"><label>浮动±</label><input id="f_coin_var" type="number" value="' + (t.rewardcoinvariable||0) + '" placeholder="随机浮动范围" style="width:80px"></div>' +
         '<div class="form-group"><label>✨ 经验</label><input id="f_exp" type="number" value="' + (t.exp||0) + '"></div>' +
       '</div>' +
       '<div class="form-row">' +
@@ -1055,11 +2087,27 @@ function editTask(id) {
           '<span class="lvl-btn" data-v="4" onclick="setLvl(this,\'f_difficulty\')">LV4</span>' +
         '</div></div>' +
       '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>开始时间</label><input id="f_start_time" type="datetime-local" value="' + fmtDT(t.starttime) + '"></div>' +
+        '<div class="form-group"><label>截止时间</label><input id="f_end_time" type="datetime-local" value="' + fmtDT(t.endtime) + '"></div>' +
+      '</div>' +
       '<div class="form-group"><label>📊 关联属性 (1-3个)</label><div id="f_attrs" style="display:flex;flex-wrap:wrap;gap:2px">' +
         (window._attrBoxesHTML || getAttrBoxesHTML()) + '</div></div>' +
       '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
-      '<div class="form-group"><label>🎁 商品奖励</label><div id="f_rewards" style="margin-bottom:4px"></div><button class="btn btn-sm btn-cyan" onclick="addRewardRow()">➕ 添加奖励商品</button></div>' +
       '<div class="form-group"><label>备注</label><textarea id="f_note">' + escHtml(t.note||'') + '</textarea></div>' +
+      '<details class="advanced-settings" style="margin-top:8px"><summary style="cursor:pointer;color:var(--cyan);font-size:13px">⚙️ 高级设置</summary>' +
+        '<div style="padding:10px;background:var(--bg);border-radius:6px;margin-top:6px">' +
+          '<div class="form-row" style="margin-bottom:8px">' +
+            '<div class="form-group"><label>💰 金币惩罚系数</label><input id="f_cpf" type="number" step="0.1" min="0" max="10" value="' + ((t.extrainfo_obj||{}).coinPunishmentFactor||0) + '" placeholder="0=不惩罚"></div>' +
+            '<div class="form-group"><label>✨ 经验惩罚系数</label><input id="f_epf" type="number" step="0.1" min="0" max="10" value="' + ((t.extrainfo_obj||{}).expPunishmentFactor||0) + '" placeholder="0=不惩罚"></div>' +
+          '</div>' +
+          '<div style="display:flex;gap:16px;flex-wrap:wrap">' +
+            '<label style="display:flex;align-items:center;gap:4px;color:var(--text2);font-size:12px;cursor:pointer"><input type="checkbox" id="f_ebb"' + (t.enableebbinghausmode?' checked':'') + '> 🧠 艾宾浩斯记忆</label>' +
+            '<label style="display:flex;align-items:center;gap:4px;color:var(--text2);font-size:12px;cursor:pointer"><input type="checkbox" id="f_ovd"' + (t.ishandleoverdue?' checked':'') + '> ⚡ 处理逾期</label>' +
+            '<label style="display:flex;align-items:center;gap:4px;color:var(--text2);font-size:12px;cursor:pointer"><input type="checkbox" id="f_aui"' + ((t.extrainfo_obj||{}).autoUseItems?' checked':'') + '> 📦 完成自动使用物品</label>' +
+          '</div>' +
+        '</div>' +
+      '</details>' +
       '<div class="modal-actions">' +
         '<button class="btn btn-purple btn-sm" onclick="saveAsTemplate()">📋 保存为模板</button>' +
         '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
@@ -1117,19 +2165,188 @@ function updateTask(id) {
     frequency: parseInt(document.getElementById('f_freq').value),
     target_count: parseInt(document.getElementById('f_count').value),
     coin: parseInt(document.getElementById('f_coin').value),
+    rewardcoinvariable: parseInt(document.getElementById('f_coin_var').value) || 0,
     exp: parseInt(document.getElementById('f_exp').value),
     category_id: parseInt(document.getElementById('f_cat').value) || 0,
     note: document.getElementById('f_note').value,
+    tasktype: parseInt(document.getElementById('f_type').value) || 0,
     priority: prio ? parseInt(prio.getAttribute('data-v')) : 0,
     difficulty: difficulty ? parseInt(difficulty.getAttribute('data-v')) : 1,
     skill_ids: skillIds,
     attr1: attrNames[0], attr2: attrNames[1], attr3: attrNames[2],
     item_rewards: itemRewards
   };
+  // 时间字段
+  var stEl = document.getElementById('f_start_time');
+  var etEl = document.getElementById('f_end_time');
+  if (stEl && stEl.value) data.start_time = Date.parse(stEl.value);
+  if (etEl && etEl.value) {
+    data.end_time = Date.parse(etEl.value);
+    if (data.start_time && data.end_time - data.start_time < 86400000) data.end_time = data.start_time + 86400000;
+  }
+  // 惩罚系数
+  var cpf = document.getElementById('f_cpf');
+  var epf = document.getElementById('f_epf');
+  if (cpf) data.coin_punishment_factor = parseFloat(cpf.value) || 0;
+  if (epf) data.exp_punishment_factor = parseFloat(epf.value) || 0;
+  // 艾宾浩斯 + 逾期处理
+  var ebb = document.getElementById('f_ebb');
+  var ovd = document.getElementById('f_ovd');
+  if (ebb) data.enable_ebbinghaus = ebb.checked ? 1 : 0;
+  if (ovd) data.ishandleoverdue = ovd.checked ? 1 : 0;
+  // autoUseItems
+  var aui = document.getElementById('f_aui');
+  if (aui) data.auto_use_items = aui.checked;
+
   api('/api/tasks/update', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
     loadTasks();
     toast('✅ 已更新');
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+// ============================================================
+// 子任务管理 (P1)
+// ============================================================
+
+function toggleSubtasks(taskId) {
+  var panel = document.getElementById('subtask_panel_' + taskId);
+  if (panel) { panel.remove(); return; }
+  // 插入展开行
+  var btn = event ? event.target : null;
+  var tr = btn ? btn.closest('tr') : null;
+  if (!tr) return;
+  var newRow = document.createElement('tr');
+  newRow.id = 'subtask_panel_' + taskId;
+  newRow.innerHTML = '<td colspan="11"><div class="subtask-container" style="padding:12px 16px;background:var(--bg3);border-radius:6px"><div class="loading"><div class="spinner"></div></div></div></td>';
+  tr.after(newRow);
+  loadSubtasks(taskId);
+}
+
+function loadSubtasks(taskId) {
+  var container = document.querySelector('#subtask_panel_' + taskId + ' .subtask-container');
+  if (!container) return;
+  api('/api/tasks/' + taskId + '/subtasks').then(function(subs) {
+    var statusMap = {0: '⏳ 待完成', 1: '✅ 已完成', 2: '❌ 已放弃'};
+    var rows = subs.map(function(s) {
+      return '<tr>' +
+        '<td>' + (s.content||'?') + '</td>' +
+        '<td><span class="badge" style="background:' + {0:'#1e3a5f',1:'#4caf50',2:'#e0556a'}[s.taskstatus] + '">' + (statusMap[s.taskstatus]||s.taskstatus) + '</span></td>' +
+        '<td>' + (s.rewardcoin?s.rewardcoin+'🪙':'') + (s.rewardcoinvariable?'±'+s.rewardcoinvariable:'') + '</td>' +
+        '<td>' + (s.expreward||0) + '✨</td>' +
+        '<td>' + (s.itemname||'-') + (s.shopitemamount?'×'+s.shopitemamount:'') + '</td>' +
+        '<td>' +
+          '<button class="btn btn-cyan btn-sm" onclick="editSubtask(' + taskId + ',' + s.id + ')">✏️</button>' +
+          '<button class="btn btn-danger btn-sm" onclick="deleteSubtask(' + taskId + ',' + s.id + ')">🗑️</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+    container.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+        '<strong>📋 子任务 <span style="color:var(--text2);font-weight:normal">共 ' + subs.length + ' 条</span></strong>' +
+        '<button class="btn btn-sm btn-primary" onclick="showAddSubtask(' + taskId + ')">➕ 添加子任务</button>' +
+      '</div>' +
+      '<table class="data-table" style="margin:0"><thead><tr>' +
+        '<th>名称</th><th>状态</th><th>🪙</th><th>✨</th><th>商品</th><th>操作</th>' +
+      '</tr></thead><tbody>' + (rows || '<tr><td colspan="6" class="empty">暂无子任务</td></tr>') + '</tbody></table>';
+  }).catch(function(e) {
+    container.innerHTML = '<div class="empty">❌ ' + e.message + '</div>';
+  });
+}
+
+function showAddSubtask(taskId) {
+  showModal('➕ 添加子任务',
+    '<div class="form-group"><label>名称</label><input id="st_content" placeholder="子任务名称"></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>🪙 金币</label><input id="st_coin" type="number" value="0"></div>' +
+      '<div class="form-group"><label>浮动±</label><input id="st_coinvar" type="number" value="0"></div>' +
+      '<div class="form-group"><label>✨ 经验</label><input id="st_exp" type="number" value="0"></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>商品 ID</label><input id="st_item" type="number" value="0"></div>' +
+      '<div class="form-group"><label>数量</label><input id="st_itemamt" type="number" value="0"></div>' +
+      '<div class="form-group"><label>排序</label><input id="st_order" type="number" value="0"></div>' +
+    '</div>' +
+    '<div class="modal-actions">' +
+      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+      '<button class="btn btn-primary" onclick="addSubtask(' + taskId + ')">添加</button>' +
+    '</div>'
+  );
+}
+
+function addSubtask(taskId) {
+  var data = {
+    content: document.getElementById('st_content').value,
+    rewardcoin: parseInt(document.getElementById('st_coin').value) || 0,
+    rewardcoinvariable: parseInt(document.getElementById('st_coinvar').value) || 0,
+    expreward: parseInt(document.getElementById('st_exp').value) || 0,
+    shopitemmodelid: parseInt(document.getElementById('st_item').value) || 0,
+    shopitemamount: parseInt(document.getElementById('st_itemamt').value) || 0,
+    orderincategory: parseInt(document.getElementById('st_order').value) || 0
+  };
+  if (!data.content) return toast('请输入子任务名称', 'error');
+  closeModal();
+  api('/api/tasks/' + taskId + '/subtasks/add', { method: 'POST', body: JSON.stringify(data) }).then(function(r) {
+    toast('✅ 已添加 #' + r.id);
+    loadSubtasks(taskId);
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function editSubtask(taskId, subId) {
+  api('/api/tasks/' + taskId + '/subtasks').then(function(subs) {
+    var s = subs.find(function(x) { return x.id === subId; });
+    if (!s) return toast('未找到子任务', 'error');
+    showModal('✏️ 编辑子任务 #' + subId,
+      '<div class="form-group"><label>名称</label><input id="st_content" value="' + escAttr(s.content||'') + '"></div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>状态</label><select id="st_status">' +
+          '<option value="0"' + (s.taskstatus===0?' selected':'') + '>⏳ 待完成</option>' +
+          '<option value="1"' + (s.taskstatus===1?' selected':'') + '>✅ 已完成</option>' +
+          '<option value="2"' + (s.taskstatus===2?' selected':'') + '>❌ 已放弃</option>' +
+        '</select></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>🪙 金币</label><input id="st_coin" type="number" value="' + (s.rewardcoin||0) + '"></div>' +
+        '<div class="form-group"><label>浮动±</label><input id="st_coinvar" type="number" value="' + (s.rewardcoinvariable||0) + '"></div>' +
+        '<div class="form-group"><label>✨ 经验</label><input id="st_exp" type="number" value="' + (s.expreward||0) + '"></div>' +
+      '</div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>商品 ID</label><input id="st_item" type="number" value="' + (s.shopitemmodelid||0) + '"></div>' +
+        '<div class="form-group"><label>数量</label><input id="st_itemamt" type="number" value="' + (s.shopitemamount||0) + '"></div>' +
+        '<div class="form-group"><label>排序</label><input id="st_order" type="number" value="' + (s.orderincategory||0) + '"></div>' +
+      '</div>' +
+      '<div class="modal-actions">' +
+        '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+        '<button class="btn btn-primary" onclick="updateSubtask2(' + taskId + ',' + subId + ')">保存</button>' +
+      '</div>'
+    );
+  });
+}
+
+function updateSubtask2(taskId, subId) {
+  var data = {
+    id: subId,
+    content: document.getElementById('st_content').value,
+    taskstatus: parseInt(document.getElementById('st_status').value),
+    rewardcoin: parseInt(document.getElementById('st_coin').value) || 0,
+    rewardcoinvariable: parseInt(document.getElementById('st_coinvar').value) || 0,
+    expreward: parseInt(document.getElementById('st_exp').value) || 0,
+    shopitemmodelid: parseInt(document.getElementById('st_item').value) || 0,
+    shopitemamount: parseInt(document.getElementById('st_itemamt').value) || 0,
+    orderincategory: parseInt(document.getElementById('st_order').value) || 0
+  };
+  closeModal();
+  api('/api/subtasks/update', { method: 'POST', body: JSON.stringify(data) }).then(function() {
+    toast('✅ 已更新');
+    loadSubtasks(taskId);
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function deleteSubtask(taskId, subId) {
+  if (!confirm('确定删除子任务 #' + subId + '？')) return;
+  api('/api/subtasks/delete', { method: 'POST', body: JSON.stringify({id: subId}) }).then(function() {
+    toast('🗑️ 已删除');
+    loadSubtasks(taskId);
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
@@ -1138,6 +2355,20 @@ function deleteTask(id) {
   api('/api/tasks/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadTasks();
     toast('🗑️ 已删除');
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function freezeTask(id, freeze) {
+  api('/api/tasks/update', { method: 'POST', body: JSON.stringify({id: id, isfrozen: freeze}) }).then(function() {
+    loadTasks();
+    toast(freeze ? '❄️ 已冻结' : '🔓 已解冻');
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function freezeTask(id, freeze) {
+  api('/api/tasks/update', { method: 'POST', body: JSON.stringify({id: id, isfrozen: freeze}) }).then(function() {
+    loadTasks();
+    toast(freeze ? '❄️ 已冻结' : '🔓 已解冻');
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
@@ -1415,18 +2646,21 @@ function achFilterCat() {
 function showAddAchievement() {
   api('/api/categories/achievements').then(function(cats) {
     var opts = cats.map(function(c) { return '<option value="' + c.id + '">' + (c.name||c.categoryname) + '</option>'; }).join('');
-    showAchievementForm('➕ 新建成就', '', 0, 100, '', '', opts);
-  }).catch(function() { showAchievementForm('➕ 新建成就', '', 0, 100, '', '', ''); });
+    showAchievementForm('➕ 新建成就', '', 0, 100, 0, '', '', opts);
+  }).catch(function() { showAchievementForm('➕ 新建成就', '', 0, 100, 0, '', '', ''); });
 }
-function showAchievementForm(title, name, catId, coin, icon, desc, catOpts) {
+function showAchievementForm(title, name, catId, coin, exp, icon, desc, catOpts) {
   showModal(title,
     '<div class="form-group"><label>成就名称</label><input id="f_name" value="' + escAttr(name) + '" placeholder="如：筑基"></div>' +
     '<div class="form-row">' +
       '<div class="form-group"><label>分类</label>' + (catOpts ? '<select id="f_cat">' + catOpts + '</select>' : '<input id="f_catid" type="number" value="' + catId + '">') + '</div>' +
-      '<div class="form-group"><label>💎 金币奖励</label><input id="f_coin" type="number" value="' + coin + '"></div>' +
+      '<div class="form-group"><label>🪙 金币奖励</label><input id="f_coin" type="number" value="' + coin + '"></div>' +
     '</div>' +
-    '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(icon) + '" placeholder="https://... 或 lifeup_sample_*.png"></div>' +
-    '<div class="form-group"><label>描述/条件</label><textarea id="f_desc" placeholder="如：本源等级达到3级">' + escHtml(desc) + '</textarea></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>✨ 经验值</label><input id="f_exp" type="number" value="' + (exp||0) + '"></div>' +
+      '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(icon) + '" placeholder="https://..."></div>' +
+    '</div>' +
+    '<div class="form-group"><label>描述</label><textarea id="f_desc" placeholder="如：本源等级达到3级">' + escHtml(desc) + '</textarea></div>' +
     '<div class="modal-actions">' +
       '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
       '<button class="btn btn-primary" id="achSubmitBtn" onclick="addAchievement()">创建</button>' +
@@ -1438,7 +2672,8 @@ function addAchievement() {
   var data = {
     name: document.getElementById('f_name').value,
     category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0,
-    coin: parseInt(document.getElementById('f_coin').value),
+    coin: parseInt(document.getElementById('f_coin').value) || 0,
+    exp: parseInt(document.getElementById('f_exp').value) || 0,
     icon: document.getElementById('f_icon').value,
     description: document.getElementById('f_desc').value,
     type: 0
@@ -1463,12 +2698,16 @@ function editAchievement(id) {
         '<div class="form-group"><label>成就名称</label><input id="f_name" value="' + escAttr(a.name||'') + '"></div>' +
         '<div class="form-row">' +
           '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
-          '<div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="' + (a.coin||0) + '"></div>' +
+          '<div class="form-group"><label>🪙 金币</label><input id="f_coin" type="number" value="' + (a.coin||0) + '"></div>' +
         '</div>' +
-        '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(a.icon||'') + '"></div>' +
+        '<div class="form-row">' +
+          '<div class="form-group"><label>✨ 经验值</label><input id="f_exp" type="number" value="' + (a.exp||0) + '"></div>' +
+          '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(a.icon||'') + '"></div>' +
+        '</div>' +
         '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(a.description||'') + '</textarea></div>' +
         '<div class="modal-actions">' +
           '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+          '<button class="btn" style="background:var(--purple);color:#fff" onclick="closeModal();manageConditions(' + id + ')">🔗 条件管理</button>' +
           '<button class="btn btn-primary" onclick="updateAchievement(' + id + ')">保存</button>' +
         '</div>'
       );
@@ -1489,7 +2728,8 @@ function updateAchievement(id) {
     id: id,
     name: document.getElementById('f_name').value,
     category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0,
-    coin: parseInt(document.getElementById('f_coin').value),
+    coin: parseInt(document.getElementById('f_coin').value) || 0,
+    exp: parseInt(document.getElementById('f_exp').value) || 0,
     icon: document.getElementById('f_icon').value,
     description: document.getElementById('f_desc').value
   };
@@ -1505,6 +2745,96 @@ function deleteAchievement(id) {
   api('/api/achievements/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadAchievements();
     toast('🗑️ 已删除');
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+// ─── 条件管理 ──────────────────────────────────────────
+
+var COND_TYPE_MAP = {
+  0:'手动触发',1:'完成指定任务次数',2:'连续完成任务',3:'完成任务总次数',
+  4:'连续使用天数',5:'属性达到等级',6:'累计番茄数',7:'累计金币数',
+  8:'当前金币数',9:'使用天数',10:'本源等级',11:'购买商品次数',
+  12:'使用商品次数',13:'合成数量',14:'商品拥有数量',15:'人生等级',
+  16:'ATM存款',17:'今日新增金币',18:'累计专注时长',19:'社区赞数'
+};
+
+function manageConditions(achId) {
+  api('/api/achievements/' + achId + '/conditions').then(function(data) {
+    var conds = data.conditions || [];
+    var achName = conds.length > 0 ? conds[0].achievement_name : '成就 #' + achId;
+
+    var typeOpts = Object.keys(COND_TYPE_MAP).map(function(k) {
+      return '<option value="' + k + '">' + COND_TYPE_MAP[k] + '</option>';
+    }).join('');
+
+    var condHtml = conds.map(function(c) {
+      var pct = c.targetvalues > 0 ? Math.round(c.currentvalue / c.targetvalues * 100) : 0;
+      return '<div class="form-group" style="border:1px solid var(--border);border-radius:6px;padding:10px;margin-bottom:8px">' +
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+          '<select id="ctype_' + c.id + '" style="flex:1;min-width:140px;padding:6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px">' +
+            typeOpts.replace('value="' + c.conditiontype + '"', 'value="' + c.conditiontype + '" selected') +
+          '</select>' +
+          '<span style="color:var(--text2);font-size:11px">目标:</span>' +
+          '<input id="ctarget_' + c.id + '" type="number" value="' + c.targetvalues + '" style="width:70px;padding:4px 6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px">' +
+          '<span style="color:var(--text2);font-size:11px">关联ID:</span>' +
+          '<input id="crelated_' + c.id + '" type="number" value="' + (c.relatedid||0) + '" style="width:70px;padding:4px 6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px">' +
+          '<span style="font-size:11px;color:var(--purple)">当前:' + (c.currentvalue||0) + '/' + (c.targetvalues||1) + ' (' + pct + '%)</span>' +
+          '<button class="btn btn-danger btn-sm" onclick="saveCondition(' + c.id + ',' + achId + ')">💾</button>' +
+          '<button class="btn btn-sm" style="background:var(--bg3);color:var(--red);border:1px solid var(--red)" onclick="removeCondition(' + c.id + ',' + achId + ')">✕</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    showModal('🔗 解锁条件 — ' + escHtml(achName),
+      '<div style="margin-bottom:8px;color:var(--text2);font-size:12px">' + conds.length + ' 个条件 (AND 逻辑，全满足才解锁)</div>' +
+      (condHtml || '<div class="empty" style="padding:16px">暂无解锁条件</div>') +
+      '<hr style="border-color:var(--border);margin:12px 0">' +
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
+        '<span style="color:var(--text2);font-size:12px">新增条件:</span>' +
+        '<select id="newCType" style="padding:6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px">' + typeOpts + '</select>' +
+        '<span style="color:var(--text2);font-size:11px">目标值:</span>' +
+        '<input id="newCTarget" type="number" value="1" style="width:70px;padding:4px 6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px">' +
+        '<span style="color:var(--text2);font-size:11px">关联ID:</span>' +
+        '<input id="newCRelated" type="number" value="0" style="width:70px;padding:4px 6px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px">' +
+        '<button class="btn btn-primary btn-sm" onclick="addCondition(' + achId + ')">➕ 添加</button>' +
+      '</div>' +
+      '<div class="modal-actions" style="margin-top:12px">' +
+        '<button class="btn btn-cyan" onclick="closeModal()">关闭</button>' +
+      '</div>',
+      true
+    );
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function saveCondition(condId, achId) {
+  var data = {
+    conditiontype: parseInt(document.getElementById('ctype_' + condId).value) || 1,
+    targetvalues: parseInt(document.getElementById('ctarget_' + condId).value) || 1,
+    relatedid: parseInt(document.getElementById('crelated_' + condId).value) || 0
+  };
+  api('/api/conditions/' + condId, { method: 'POST', body: JSON.stringify(data) }).then(function() {
+    toast('✅ 条件已更新');
+    manageConditions(achId);
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function removeCondition(condId, achId) {
+  if (!confirm('确定删除此条件？')) return;
+  api('/api/conditions/' + condId + '/delete', { method: 'POST' }).then(function() {
+    toast('🗑️ 条件已删除');
+    manageConditions(achId);
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+function addCondition(achId) {
+  var data = {
+    conditiontype: parseInt(document.getElementById('newCType').value) || 1,
+    targetvalues: parseInt(document.getElementById('newCTarget').value) || 1,
+    relatedid: parseInt(document.getElementById('newCRelated').value) || 0
+  };
+  api('/api/achievements/' + achId + '/conditions', { method: 'POST', body: JSON.stringify(data) }).then(function() {
+    toast('✅ 条件已添加');
+    manageConditions(achId);
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
@@ -1675,22 +3005,25 @@ async function loadSynthesis() {
         if (label) calcBadge = '<span class="calc-badge ' + calcStatus + '">' + label + '</span>';
       }
       var inputs = (r.inputs||[]).map(function(inp) {
-        return '<span style="background:var(--bg);padding:2px 8px;border-radius:4px;font-size:11px">' +
-          (inp.amount||1) + 'x ' + (inp.item_name||'?') + '</span>';
-      }).join(' ');
+        return '<span class="synth-flow-pill input">' +
+          (inp.amount||1) + '× ' + (inp.item_name||'?') + '</span>';
+      }).join('');
       var outputs = (r.outputs||[]).map(function(out) {
-        return '<span style="background:rgba(212,168,67,0.15);padding:2px 8px;border-radius:4px;font-size:11px;color:var(--gold)">' +
-          (out.amount||1) + 'x ' + (out.item_name||'?') + '</span>';
-      }).join(' ');
+        return '<span class="synth-flow-pill output">' +
+          (out.amount||1) + '× ' + (out.item_name||'?') + '</span>';
+      }).join('');
       return '<div class="stat-card synth-card' + borderClass + '" style="text-align:left;padding:14px">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
           '<strong style="font-size:13px;color:var(--text)">' + (r.title||'?') + '</strong>' +
           '<span class="badge badge-cyan">' + (r.categoryname||'-') + '</span>' +
         '</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">' +
-          inputs + ' <span style="color:var(--cyan)">➜</span> ' + outputs +
+        '<div class="synth-flow">' +
+          '<div class="synth-flow-group">' + inputs + '</div>' +
+          '<span class="synth-flow-arrow">⟶</span>' +
+          '<div class="synth-flow-group">' + outputs + '</div>' +
         '</div>' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">' +
+          '<span style="font-size:10px;color:var(--text2)">' + (r.note||'') + '</span>' +
           (calcMode ? calcBadge : '') +
           '<div style="margin-left:auto">' +
             '<button class="btn btn-cyan btn-xs" onclick="editSynthesis(' + r.id + ')">✏️</button>' +
@@ -1859,25 +3192,61 @@ async function loadHistory() {
       });
     }
 
+    // Stats
+    var today = new Date().toISOString().slice(0,10);
+    var weekAgo = new Date(Date.now()-7*86400000).toISOString().slice(0,10);
+    var monthAgo = new Date(Date.now()-30*86400000).toISOString().slice(0,10);
+    var todayTask = 0, todayItem = 0, weekTask = 0, weekItem = 0, monthTask = 0, monthItem = 0;
+    events.forEach(function(e){
+      var d = (e.time||'').slice(0,10);
+      if (d === today) { if (e.type==='task') todayTask++; else todayItem++; }
+      if (d >= weekAgo) { if (e.type==='task') weekTask++; else weekItem++; }
+      if (d >= monthAgo) { if (e.type==='task') monthTask++; else monthItem++; }
+    });
+
+    // Group by date
+    var groups = {};
+    events.forEach(function(e){
+      var d = (e.time||'').slice(0,10);
+      if (!groups[d]) groups[d] = [];
+      groups[d].push(e);
+    });
+    var dates = Object.keys(groups).sort().reverse();
+
     var taskCount = 0, itemCount = 0;
-    var items = events.map(function(e) {
-      var icon = e.type === 'task' ? '✅' : '📦';
-      var body;
-      if (e.type === 'task') { taskCount++;
-        body = '<strong>' + (e.name||'?') + '</strong> 完成 ×' + (e.count||1) +
-               ' | 奖励 🪙' + (e.coin||0) + ' ✨' + (e.exp||0);
-      } else { itemCount++;
-        var dir = e.is_decrease ? '消耗' : '获得';
-        body = '<strong>' + (e.name||'?') + '</strong> ' + dir + ' ' + (e.change||0) + ' 件';
-        if (e.desc) body += ' <span style="color:var(--text2);font-size:11px">(' + e.desc + ')</span>';
-      }
-      return '<div class="timeline-item">' +
-        '<div class="timeline-time">' + (e.time||'') + '</div>' +
-        '<div class="timeline-body">' + icon + ' ' + body + '</div>' +
+    var items = dates.map(function(d) {
+      var dayEvents = groups[d];
+      var rows = dayEvents.map(function(e) {
+        var tm = (e.time||'').slice(11,16);
+        var cls = 'timeline-item type-' + e.type + (e.is_decrease ? ' decrease' : '');
+        var icon = e.type === 'task' ? '✅' : '📦';
+        var body;
+        if (e.type === 'task') { taskCount++;
+          body = '<strong>' + (e.name||'?') + '</strong> ×' + (e.count||1) +
+                 ' <span style="color:var(--gold);font-size:10px">🪙' + (e.coin||0) + ' ✨' + (e.exp||0) + '</span>';
+        } else { itemCount++;
+          var dir = e.is_decrease ? '<span style="color:var(--orange)">−' : '<span style="color:var(--green)">+';
+          body = '<strong>' + (e.name||'?') + '</strong> ' + dir + (e.change||0) + '</span> 件';
+          if (e.desc) body += ' <span style="color:var(--text2);font-size:10px">· ' + e.desc + '</span>';
+        }
+        return '<div class="' + cls + '">' +
+          '<div class="timeline-time">' + tm + '</div>' +
+          '<div class="timeline-body">' + icon + ' ' + body + '</div>' +
+        '</div>';
+      }).join('');
+      return '<div class="timeline-group">' +
+        '<div class="timeline-date-header">📅 ' + d + ' (' + dayEvents.length + ')</div>' +
+        rows +
       '</div>';
     }).join('');
 
     c.innerHTML =
+      '<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">' +
+        '<div class="stat-card" style="padding:10px"><div style="font-size:10px;color:var(--text2)">🌅 今天</div><div style="font-size:20px;font-weight:700;color:var(--green)">' + todayTask + '</div><div style="font-size:10px;color:var(--text2)">任务</div></div>' +
+        '<div class="stat-card" style="padding:10px"><div style="font-size:10px;color:var(--text2)">📦 今天</div><div style="font-size:20px;font-weight:700;color:var(--cyan)">' + todayItem + '</div><div style="font-size:10px;color:var(--text2)">物品变动</div></div>' +
+        '<div class="stat-card" style="padding:10px"><div style="font-size:10px;color:var(--text2)">📆 7天</div><div style="font-size:20px;font-weight:700;color:var(--purple)">' + weekTask + ' 🎯</div><div style="font-size:10px;color:var(--text2)">' + weekItem + ' 📦</div></div>' +
+        '<div class="stat-card" style="padding:10px"><div style="font-size:10px;color:var(--text2)">📊 30天</div><div style="font-size:20px;font-weight:700;color:var(--gold)">' + monthTask + ' 🎯</div><div style="font-size:10px;color:var(--text2)">' + monthItem + ' 📦</div></div>' +
+      '</div>' +
       '<div class="btn-group" style="flex-wrap:wrap;align-items:center">' +
         '<button class="btn btn-cyan btn-sm" onclick="loadHistory()">🔄 刷新</button>' +
         '<label style="color:var(--text2);font-size:11px;margin-left:8px">从</label>' +
@@ -1997,45 +3366,90 @@ function savePool(id, count) {
  *  PAGE 10: Achievement Progress — 成就进度
  * ================================================================================= */
 async function loadAchProgress() {
+  var catId = pageStates.achprogress ? pageStates.achprogress.category : '';
+  var statusFilter = pageStates.achprogress ? pageStates.achprogress.status : '';
   var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
     var data = await api('/api/achievements/progress');
     var achs = data.achievements || [];
+    var cats = await api('/api/categories/achievements').catch(function(){ return []; });
+    var catMap = {}; cats.forEach(function(c){ catMap[c.id] = c.name||c.categoryname||c.id; });
     var statusMap = {0:'未完成', 1:'已完成', 2:'已领取'};
 
-    var rows = achs.map(function(a) {
-      var progBar = '';
-      if (a.current_total !== undefined && a.target_total > 0) {
-        progBar = '<div class="progress-bar" style="margin-top:4px"><div class="progress-fill cyan" style="width:' + (a.total_progress||0) + '%"></div></div>' +
-                  '<div style="font-size:10px;color:var(--text2)">' + (a.current_total||0) + '/' + (a.target_total||0) + '</div>';
-      } else if (a.progress !== undefined && a.progress > 0) {
-        progBar = '<div class="progress-bar" style="margin-top:4px"><div class="progress-fill cyan" style="width:' + (a.progress||0) + '%"></div></div>';
-      }
+    // Filters
+    if (catId) achs = achs.filter(function(a){ return String(a.categoryid) === String(catId); });
+    if (statusFilter) achs = achs.filter(function(a){ return a.achievementstatus === parseInt(statusFilter); });
 
-      var statusColor = a.achievementstatus >= 1 ? 'green' : 'red';
-      return '<div class="stat-card" style="text-align:left;padding:12px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
-          '<span style="font-size:13px;font-weight:600">' + (a.content||'?') + '</span>' +
-          '<span class="badge badge-' + statusColor + '">' + (statusMap[a.achievementstatus]||a.achievementstatus) + '</span>' +
+    // Group by category
+    var groups = {};
+    achs.forEach(function(a) {
+      var cKey = a.categoryid || 0;
+      if (!groups[cKey]) groups[cKey] = { name: catMap[cKey] || ('分类 ' + cKey), items: [] };
+      groups[cKey].items.push(a);
+    });
+
+    // Render
+    var maxBarW = 280; // px for 100%
+    var catHtml = Object.keys(groups).map(function(ck) {
+      var g = groups[ck];
+      var done = g.items.filter(function(a){ return a.achievementstatus>=1; }).length;
+      var rows = g.items.map(function(a) {
+        var pct = a.total_progress || 0;
+        var pctClass = pct >= 100 ? 'gold' : (pct >= 50 ? 'cyan' : 'muted');
+        var filler = pct > 0 ?
+          '<div class="ach-bar-fill" style="width:' + Math.min(pct,100) + '%"></div>' +
+          '<div class="ach-bar-text">' + (a.current_total||0) + ' / ' + (a.target_total||0) + '</div>' :
+          '<div class="ach-bar-text" style="color:var(--text2);text-shadow:none">—</div>';
+        var conds = (a.conditions||[]).length;
+        var doneClass = a.achievementstatus >= 1 ? ' done' : '';
+        return '<div class="ach-row' + doneClass + '">' +
+          '<div class="ach-name" title="' + escAttr(a.content||'') + '">' + (a.content||'?') + '</div>' +
+          '<div class="ach-bar-wrap">' + filler + '</div>' +
+          '<div class="ach-pct ' + pctClass + '">' + pct + '%</div>' +
+          '<div class="ach-conds">' + (conds ? conds + '条件' : '') + '</div>' +
+        '</div>';
+      }).join('');
+      return '<div class="ach-cat-group">' +
+        '<div class="ach-cat-header">' +
+          g.name + ' <span class="cat-count">' + done + '/' + g.items.length + ' 完成</span>' +
         '</div>' +
-        '<div style="font-size:11px;color:var(--text2);margin-bottom:4px">' + (a.description||'') + '</div>' +
-        '<div style="font-size:11px;color:var(--text2)">分类: ' + (a.categoryname||'-') + ' | 奖励: 🪙' + (a.rewardcoin||0) + '</div>' +
-        progBar +
+        '<div style="display:flex;flex-direction:column;gap:4px">' +
+          (rows || '<div class="empty" style="padding:12px">该分类暂无成就</div>') +
+        '</div>' +
       '</div>';
     }).join('');
 
+    // Category filter options
+    var catOpts = '<option value="">全部分类</option>' + cats.map(function(c) {
+      return '<option value="' + c.id + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + (c.name||c.categoryname||c.id) + '</option>';
+    }).join('');
+
     c.innerHTML =
-      '<div class="btn-group">' +
+      '<div class="btn-group" style="align-items:center;flex-wrap:wrap">' +
         '<button class="btn btn-cyan btn-sm" onclick="loadAchProgress()">🔄 刷新</button>' +
-        '<span style="color:var(--text2);font-size:12px">已完成 ' + (data.completed||0) + '/' + (data.total||achs.length) + '</span>' +
+        '<span style="color:var(--text2);font-size:12px;margin:0 8px">分类：</span>' +
+        '<select id="apCatFilter" onchange="apFilterChange()" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px">' + catOpts + '</select>' +
+        '<span style="color:var(--text2);font-size:12px;margin:0 4px 0 12px">状态：</span>' +
+        '<select id="apStatusFilter" onchange="apFilterChange()" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px">' +
+          '<option value=""' + (statusFilter===''?' selected':'') + '>全部</option>' +
+          '<option value="0"' + (statusFilter==='0'?' selected':'') + '>🕐 未完成</option>' +
+          '<option value="1"' + (statusFilter==='1'?' selected':'') + '>✅ 已完成</option>' +
+          '<option value="2"' + (statusFilter==='2'?' selected':'') + '>🎁 已领取</option>' +
+        '</select>' +
+        '<span style="color:var(--text2);font-size:12px;margin-left:8px">已完成 ' + (data.completed||0) + '/' + (data.total||achs.length) + '</span>' +
       '</div>' +
-      '<div class="stats-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">' +
-        (rows || '<div class="empty">暂无成就进度</div>') +
-      '</div>';
+      '<div class="ach-matrix">' + (catHtml || '<div class="empty">暂无成就进度</div>') + '</div>';
   } catch(e) {
     c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
   }
+}
+
+function apFilterChange() {
+  if (!pageStates.achprogress) pageStates.achprogress = {};
+  pageStates.achprogress.category = document.getElementById('apCatFilter').value;
+  pageStates.achprogress.status = document.getElementById('apStatusFilter').value;
+  loadAchProgress();
 }
 
 /* =================================================================================
@@ -2370,13 +3784,18 @@ function escAttr(s) {
 }
 
 /* =================================================================================
- *  Auto-load on Startup
+ *  Auto-load on Startup + Drag-Drop Setup
  * ================================================================================= */
 window.addEventListener('DOMContentLoaded', function() {
+  // 初始化拖拽
+  setupDragDrop();
+  // 加载历史记录缓存
+  refreshHistory();
+
   if (IS_DESKTOP) {
     try {
       window.pywebview.api.get_last_path().then(function(path) {
-        if (path) _loadBackup(path, true);
+        if (path) _loadBackup(path, true).then(function() { refreshHistory(); }).catch(function(){});
       });
     } catch(e) { /* first run */ }
     return;
@@ -2384,8 +3803,398 @@ window.addEventListener('DOMContentLoaded', function() {
   var saved = localStorage.getItem('lifeup_backup_path') || DEFAULT_PATH;
   var inp = document.getElementById('pathInput');
   if (inp) inp.value = saved;
+  refreshHistory();
   _loadBackup(saved, true).catch(function() { /* server not running */ });
 });
+
+// ====== Mock Data ======
+var _mockHabits = [];
+var _mockDailyCheck = {};
+var _mockFocusSessions = [];
+var _mockActiveTimer = null;
+var _quickHabitsCache = null;
+
+function getMockCultivationData() {
+  var now = new Date();
+  var today = now.getDay() || 7;
+  var dayOfMonth = now.getDate();
+  var daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+
+  var todayKey = now.toISOString().slice(0,10);
+  if (!_mockDailyCheck[todayKey]) {
+    _mockDailyCheck[todayKey] = { habitsDone: 0, totalHabits: 7, focusMin: 0, exp: 0 };
+  }
+  var td = _mockDailyCheck[todayKey];
+
+  var weeklyExp = [];
+  for (var i = 6; i >= 0; i--) {
+    var d = new Date(now); d.setDate(d.getDate() - i);
+    var k = d.toISOString().slice(0,10);
+    var exp = _mockDailyCheck[k] ? _mockDailyCheck[k].exp : Math.floor(Math.random() * 200) + 50;
+    weeklyExp.push({ label: (d.getMonth()+1)+'/'+d.getDate(), value: exp });
+  }
+
+  if (_mockHabits.length === 0) {
+    _mockHabits = [
+      { id:1, name:'晨起吐纳', cat:'晨修', icon:'🌅', streak:23, monthlyDone:18, monthlyTotal:daysInMonth, expReward:30 },
+      { id:2, name:'日诵经卷', cat:'日课', icon:'📖', streak:45, monthlyDone:20, monthlyTotal:daysInMonth, expReward:50 },
+      { id:3, name:'行气周天', cat:'日课', icon:'🌀', streak:12, monthlyDone:15, monthlyTotal:daysInMonth, expReward:80 },
+      { id:4, name:'锻体炼骨', cat:'日课', icon:'💪', streak:8, monthlyDone:12, monthlyTotal:daysInMonth, expReward:60 },
+      { id:5, name:'打坐冥想', cat:'晨修', icon:'🧘', streak:31, monthlyDone:22, monthlyTotal:daysInMonth, expReward:40 },
+      { id:6, name:'月下悟道', cat:'晚课', icon:'🌙', streak:5, monthlyDone:8, monthlyTotal:daysInMonth, expReward:100 },
+      { id:7, name:'丹房值守', cat:'晚课', icon:'⚗️', streak:3, monthlyDone:6, monthlyTotal:daysInMonth, expReward:70 }
+    ];
+  }
+  var totalHabits = _mockHabits.length;
+
+  if (_mockFocusSessions.length === 0) {
+    var types = ['打坐修炼','研读功法','炼丹制器','斩妖除魔'];
+    for (var fi = 0; fi < 8; fi++) {
+      var fd = new Date(now); fd.setDate(fd.getDate() - Math.floor(Math.random()*14));
+      _mockFocusSessions.push({
+        date: fd.toISOString().slice(0,10),
+        type: types[Math.floor(Math.random()*4)],
+        duration: [15,30,45,60,90][Math.floor(Math.random()*5)],
+        expEarned: Math.floor(Math.random()*150)+50
+      });
+    }
+    _mockFocusSessions.sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+  }
+
+  var todayFocusMin = _mockFocusSessions.filter(function(s){ return s.date===todayKey; }).reduce(function(s,v){ return s+v.duration; }, 0);
+  var todayExp = _mockFocusSessions.filter(function(s){ return s.date===todayKey; }).reduce(function(s,v){ return s+v.expEarned; }, 0) + td.exp;
+  var habitDoneToday = Math.min(td.habitsDone || Math.floor(Math.random()*5)+2, totalHabits);
+
+  var timeDist = [
+    { label: '闭关修炼', value: todayFocusMin || 45, color: '#d4a843' },
+    { label: '日常功课', value: Math.floor(Math.random()*30)+20, color: '#56b6c2' },
+    { label: '研读功法', value: Math.floor(Math.random()*25)+10, color: '#a78bfa' },
+    { label: '其他修行', value: Math.floor(Math.random()*15)+5, color: '#8b949e' }
+  ];
+
+  var hourDist = [];
+  for (var h = 0; h < 24; h++) {
+    var v = 0;
+    if (h >= 5 && h <= 7) v = Math.floor(Math.random()*3)+2;
+    if (h >= 19 && h <= 22) v = Math.floor(Math.random()*4)+1;
+    if (h >= 12 && h <= 14) v = Math.floor(Math.random()*2);
+    hourDist.push({ hour: h, value: v });
+  }
+
+  var goals = [
+    { id:1, title:'筑基圆满', desc:'六维属性全部达到 Lv.10', progress:78, deadline: '2026-07-15', milestones:[
+      {name:'体质 Lv.5',done:true},{name:'神识 Lv.5',done:true},{name:'灵力 Lv.8',done:true},
+      {name:'全属性 Lv.10',done:false},{name:'突破筑基',done:false}
+    ]},
+    { id:2, title:'百卷藏经', desc:'累计阅读经文 100 卷（当前73卷）', progress:73, deadline: '2026-12-31', milestones:[
+      {name:'10卷',done:true},{name:'30卷',done:true},{name:'50卷',done:true},{name:'80卷',done:false},{name:'100卷',done:false}
+    ]},
+    { id:3, title:'连续修炼百天', desc:'保持每日修炼不间断达到100天', progress:45, deadline: '2026-08-10', milestones:[
+      {name:'7天',done:true},{name:'21天',done:true},{name:'30天',done:true},{name:'60天',done:false},{name:'100天',done:false}
+    ]},
+    { id:4, title:'丹道初成', desc:'成功炼制 50 炉丹药', progress:62, deadline: '2026-06-28', milestones:[
+      {name:'10炉',done:true},{name:'25炉',done:true},{name:'40炉',done:false},{name:'50炉',done:false}
+    ]}
+  ];
+
+  return {
+    dailyCompletion: Math.round(habitDoneToday/totalHabits*100),
+    todayFocusMin: todayFocusMin,
+    todayExp: todayExp,
+    pendingTasks: totalHabits - habitDoneToday,
+    perfectDays: Math.floor(Math.random()*8)+10,
+    daysInMonth: daysInMonth,
+    habits: _mockHabits,
+    totalHabits: totalHabits,
+    habitDoneToday: habitDoneToday,
+    quickHabits: (_quickHabitsCache || (_quickHabitsCache = _mockHabits.slice(0,3).map(function(h){ return {name:h.name,icon:h.icon,done: false,id:h.id}; }))),
+    weeklyExp: weeklyExp,
+    timeDistribution: timeDist,
+    hourDistribution: hourDist,
+    focusSessions: _mockFocusSessions,
+    goals: goals,
+    lastWeekFocus: Math.floor(Math.random()*300)+200,
+    lastMonthFocus: Math.floor(Math.random()*1200)+800,
+    lastWeekExp: Math.floor(Math.random()*800)+400,
+    lastMonthExp: Math.floor(Math.random()*3000)+1500,
+    weekFocusMin: Math.floor(Math.random()*400)+300,
+    monthFocusMin: Math.floor(Math.random()*1500)+1200,
+    weekExp: Math.floor(Math.random()*1000)+500,
+    monthExp: Math.floor(Math.random()*4000)+2000,
+    weekGoals: Math.floor(Math.random()*3)+1,
+    monthGoals: Math.floor(Math.random()*5)+3,
+    lastWeekGoals: Math.floor(Math.random()*3),
+    lastMonthGoals: Math.floor(Math.random()*4)+1,
+    lastWeekHabits: Math.floor(Math.random()*18)+12,
+    weekHabits: Math.floor(Math.random()*22)+15,
+    lastMonthHabits: Math.floor(Math.random()*60)+40,
+    monthHabits: Math.floor(Math.random()*70)+50
+  };
+}
+
+function formatMinutes(min) {
+  if (min >= 60) return Math.floor(min/60) + 'h ' + (min%60) + 'm';
+  return min + 'm';
+}
+
+// ====== SVG Charts ======
+
+function buildLineChart(data, title, color) {
+  if (!data || data.length === 0) return '<div class="chart-container"><h4>' + title + '</h4><div class="empty">暂无数据</div></div>';
+  var W = 400, H = 180, padL = 40, padR = 10, padT = 20, padB = 30;
+  var maxV = Math.max.apply(null, data.map(function(d){return d.value;})) || 1;
+  var chartW = W - padL - padR;
+  var chartH = H - padT - padB;
+  var points = data.map(function(d, i) {
+    var x = padL + (i / (data.length-1)) * chartW;
+    var y = padT + chartH - (d.value / maxV) * chartH;
+    return x + ',' + y;
+  }).join(' ');
+  var dots = data.map(function(d, i) {
+    var x = padL + (i / (data.length-1)) * chartW;
+    var y = padT + chartH - (d.value / maxV) * chartH;
+    return '<circle cx="' + x + '" cy="' + y + '" r="3" fill="var(--' + color + ')"><title>' + d.label + ': ' + d.value + '</title></circle>';
+  }).join('');
+  var labels = data.map(function(d, i) {
+    var x = padL + (i / (data.length-1)) * chartW;
+    return '<text x="' + x + '" y="' + (H-6) + '" text-anchor="middle" font-size="10" fill="var(--text2)">' + d.label + '</text>';
+  }).join('');
+  var maxLabel = '<text x="' + (padL-4) + '" y="' + (padT+4) + '" text-anchor="end" font-size="10" fill="var(--text2)">' + maxV + '</text>';
+  return '<div class="chart-container"><h4>' + title + '</h4>' +
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;max-width:500px">' +
+    '<polyline points="' + points + '" fill="none" stroke="var(--' + color + ')" stroke-width="2" stroke-linejoin="round"/>' +
+    dots + labels + maxLabel +
+    '</svg></div>';
+}
+
+function buildRingChart(data, title) {
+  if (!data || data.length === 0) return '<div class="chart-container"><h4>' + title + '</h4><div class="empty">暂无数据</div></div>';
+  var total = data.reduce(function(s,d){return s+d.value;}, 0) || 1;
+  var R = 50, cx = 70, cy = 70, sw = 12;
+  var circumference = 2 * Math.PI * R;
+  var offset = -0.25;
+  var slices = '';
+  var legend = '';
+  var runningAngle = offset;
+  var colors = ['#d4a843','#56b6c2','#a78bfa','#e0556a','#4caf50','#e09040'];
+  data.forEach(function(d, i) {
+    var pct = d.value / total;
+    var dashLen = pct * circumference;
+    var dashGap = circumference - dashLen;
+    var dashOffset = -runningAngle * circumference;
+    slices += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="' + (d.color||colors[i%colors.length]) + '" stroke-width="' + sw + '" stroke-dasharray="' + dashLen + ' ' + dashGap + '" stroke-dashoffset="' + dashOffset + '" stroke-linecap="round"/>';
+    runningAngle += pct;
+    legend += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);margin-top:4px"><span style="width:10px;height:10px;border-radius:2px;background:' + (d.color||colors[i%colors.length]) + '"></span>' + d.label + ' ' + Math.round(pct*100) + '%</div>';
+  });
+  var centerText = total === 0 ? '--' : formatMinutes(total);
+  return '<div class="chart-container"><h4>' + title + '</h4>' +
+    '<div style="display:flex;align-items:center;gap:20px">' +
+    '<svg viewBox="0 0 140 140" style="width:140px;height:140px">' + slices +
+    '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dy="0.35em" font-size="16" font-weight="700" fill="var(--gold)">' + centerText + '</text>' +
+    '</svg>' +
+    '<div style="flex:1">' + legend + '</div></div></div>';
+}
+
+function buildBarChart(data, title, color) {
+  if (!data || data.length === 0) return '<div class="chart-container"><h4>' + title + '</h4><div class="empty">暂无数据</div></div>';
+  var maxV = Math.max.apply(null, data.map(function(d){return d.value;})) || 1;
+  var bars = data.map(function(d) {
+    var h = Math.max((d.value/maxV)*100, 3);
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center">' +
+      '<span style="font-size:10px;color:var(--text2);margin-bottom:2px">' + d.value + '</span>' +
+      '<div class="bar" style="height:' + h + 'px;background:var(--' + (d.color||color) + ')" title="' + d.label + ': ' + d.value + '"></div>' +
+      '<span style="font-size:10px;color:var(--text2);margin-top:4px">' + d.label + '</span></div>';
+  }).join('');
+  return '<div class="chart-container"><h4>' + title + '</h4><div class="bar-chart">' + bars + '</div></div>';
+}
+
+function buildHeatmap(data, title, labels) {
+  if (!data || data.length === 0) return '<div class="chart-container"><h4>' + title + '</h4><div class="empty">暂无数据</div></div>';
+  var cells = data.map(function(d) {
+    var level = 0;
+    if (d.value >= 4) level = 4;
+    else if (d.value >= 3) level = 3;
+    else if (d.value >= 2) level = 2;
+    else if (d.value >= 1) level = 1;
+    if (d.value < 0) level = -1;
+    var colors = ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'];
+    if (level === -1) return '<div class="heatmap-cell" style="background:transparent"></div>';
+    return '<div class="heatmap-cell" style="background:' + colors[level] + '" title="' + d.date + ': ' + d.value + '个">' + d.label + '</div>';
+  }).join('');
+  return '<div class="chart-container"><h4>' + title + '</h4><div style="display:flex;gap:4px">' +
+    '<div style="display:flex;flex-direction:column;gap:2px;font-size:9px;color:var(--text2);padding-top:2px">' + (labels||['一','二','三','四','五','六','日']).map(function(l){return '<span>'+l+'</span>';}).join('') + '</div>' +
+    '<div class="heatmap">' + cells + '</div>' +
+    '</div><div style="display:flex;gap:2px;align-items:center;margin-top:6px;font-size:10px;color:var(--text2)"><span>少</span>' +
+    ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'].map(function(c){return '<span style="width:12px;height:12px;border-radius:2px;background:'+c+'"></span>';}).join('') +
+    '<span>多</span></div></div>';
+}
+
+function buildRadarChart(data, title, maxVal) {
+  if (!data || data.length === 0) return '<div class="chart-container"><h4>' + title + '</h4><div class="empty">暂无数据</div></div>';
+  var cx = 140, cy = 140, R = 110;
+  var n = data.length;
+  var step = (2 * Math.PI) / n;
+  var startAngle = -Math.PI / 2;
+
+  var grids = '';
+  for (var ring = 1; ring <= 4; ring++) {
+    var pts = [];
+    for (var i = 0; i < n; i++) {
+      var angle = startAngle + i * step;
+      var r = (R * ring) / 4;
+      pts.push((cx + r * Math.cos(angle)).toFixed(1) + ',' + (cy + r * Math.sin(angle)).toFixed(1));
+    }
+    grids += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="var(--border)" stroke-width="1"/>';
+  }
+
+  var axes = '';
+  data.forEach(function(d, i) {
+    var angle = startAngle + i * step;
+    var x = cx + R * Math.cos(angle);
+    var y = cy + R * Math.sin(angle);
+    axes += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="var(--border)" stroke-width="1"/>';
+    var lx = cx + (R+20) * Math.cos(angle);
+    var ly = cy + (R+20) * Math.sin(angle);
+    axes += '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle" dy="0.35em" font-size="11" fill="var(--text)">' + d.label + '</text>';
+  });
+
+  var dp = data.map(function(d, i) {
+    var angle = startAngle + i * step;
+    var r = (d.value / (maxVal||100)) * R;
+    var x = cx + r * Math.cos(angle);
+    var y = cy + r * Math.sin(angle);
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  });
+  var dataPoly = '<polygon points="' + dp.join(' ') + '" fill="rgba(167,139,250,0.25)" stroke="var(--purple)" stroke-width="2"/>';
+  var dots = data.map(function(d, i) {
+    var angle = startAngle + i * step;
+    var r = (d.value / (maxVal||100)) * R;
+    var x = cx + r * Math.cos(angle);
+    var y = cy + r * Math.sin(angle);
+    return '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="4" fill="var(--purple)"><title>' + d.label + ': ' + d.value + '</title></circle>';
+  }).join('');
+
+  return '<div class="chart-container"><h4>' + title + '</h4>' +
+    '<svg viewBox="0 0 280 280" style="width:100%;max-width:350px">' + grids + axes + dataPoly + dots + '</svg></div>';
+}
+
+// ====== Quick Habit Toggle ======
+function toggleQuickHabit(idx) {
+  var el = document.getElementById('qhab' + idx);
+  if (!_quickHabitsCache || !_quickHabitsCache[idx]) return;
+  var h = _quickHabitsCache[idx];
+  var wasDone = h.done;
+  h.done = !h.done;
+  var todayKey = new Date().toISOString().slice(0,10);
+  if (!wasDone && h.done) {
+    if (!_mockDailyCheck[todayKey]) _mockDailyCheck[todayKey] = { habitsDone: 0, totalHabits: 7, focusMin: 0, exp: 0 };
+    _mockDailyCheck[todayKey].habitsDone = (_mockDailyCheck[todayKey].habitsDone||0) + 1;
+    _mockDailyCheck[todayKey].exp = (_mockDailyCheck[todayKey].exp||0) + (_mockHabits[idx] ? _mockHabits[idx].expReward : 30);
+    toast('✅ ' + h.name + ' 打卡成功！+' + (_mockHabits[idx] ? _mockHabits[idx].expReward : 30) + ' EXP');
+  } else if (wasDone && !h.done) {
+    if (_mockDailyCheck[todayKey]) {
+      _mockDailyCheck[todayKey].habitsDone = Math.max(0, (_mockDailyCheck[todayKey].habitsDone||0) - 1);
+      _mockDailyCheck[todayKey].exp = Math.max(0, (_mockDailyCheck[todayKey].exp||0) - (_mockHabits[idx] ? _mockHabits[idx].expReward : 30));
+    }
+  }
+  loadDashboard();
+}
+
+// ====== Focus Timer ======
+var _focusTimerInterval = null;
+var _focusSeconds = 0;
+var _focusRunning = false;
+var _focusType = '打坐修炼';
+
+function startFocusTimer(type, minutes) {
+  _focusType = type;
+  _focusSeconds = minutes * 60;
+  _focusRunning = true;
+  clearInterval(_focusTimerInterval);
+  renderFocusTimerUI();
+  _focusTimerInterval = setInterval(function() {
+    if (!_focusRunning) return;
+    _focusSeconds--;
+    var display = document.getElementById('focusTimerDisplay');
+    if (display) {
+      var m = Math.floor(_focusSeconds / 60);
+      var s = _focusSeconds % 60;
+      display.textContent = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    }
+    if (_focusSeconds <= 0) {
+      stopFocusTimer();
+      completeFocusSession();
+    }
+  }, 1000);
+}
+
+function pauseFocusTimer() {
+  _focusRunning = false;
+  var btn = document.getElementById('focusPauseBtn');
+  if (btn) btn.textContent = '▶';
+}
+
+function resumeFocusTimer() {
+  _focusRunning = true;
+  var btn = document.getElementById('focusPauseBtn');
+  if (btn) btn.textContent = '⏸';
+}
+
+function stopFocusTimer() {
+  clearInterval(_focusTimerInterval);
+  _focusRunning = false;
+}
+
+function completeFocusSession() {
+  var typeMin = _focusType === '打坐修炼' ? 30 : 15;
+  var durationMin = Math.max(Math.floor((typeMin * 60 - Math.max(_focusSeconds, 0) + 60) / 60), 1);
+  var expEarned = durationMin * 5;
+  var todayKey = new Date().toISOString().slice(0,10);
+  _mockDailyCheck[todayKey].focusMin = (_mockDailyCheck[todayKey].focusMin||0) + durationMin;
+  _mockDailyCheck[todayKey].exp = (_mockDailyCheck[todayKey].exp||0) + expEarned;
+  _mockFocusSessions.unshift({
+    date: todayKey,
+    type: _focusType,
+    duration: durationMin,
+    expEarned: expEarned
+  });
+  _focusSeconds = 0;
+  toast('🧘 闭关结束！+' + expEarned + ' EXP');
+  loadFocus();
+}
+
+function renderFocusTimerUI() {
+  var m = Math.floor(_focusSeconds / 60);
+  var s = _focusSeconds % 60;
+  var display = document.getElementById('focusTimerDisplay');
+  if (display) display.textContent = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  var statusEl = document.getElementById('focusStatusText');
+  if (statusEl) statusEl.textContent = _focusRunning ? (_focusType + ' 进行中...') : '已暂停';
+}
+
+// ====== Goal Toggle ======
+function toggleGoalDetail(id) {
+  var el = document.getElementById('goalDetail' + id);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// ====== Review Period ======
+var _reviewPeriod = 'week';
+function setReviewPeriod(p) {
+  _reviewPeriod = p;
+  loadReview();
+}
+
+// Helper: trend arrow
+function trendArrow(current, previous) {
+  if (!previous || previous === 0) return '<span class="trend-flat">→</span>';
+  var pct = Math.round((current - previous) / previous * 100);
+  if (pct > 0) return '<span class="trend-up">↑ ' + pct + '%</span>';
+  if (pct < 0) return '<span class="trend-down">↓ ' + Math.abs(pct) + '%</span>';
+  return '<span class="trend-flat">→ 持平</span>';
+}
+
 </script>
 </body>
 </html>

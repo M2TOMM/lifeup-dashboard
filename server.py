@@ -101,13 +101,56 @@ def status():
 def open_backup():
     data = request.get_json()
     path = data.get('path', '')
-    if not path or not os.path.exists(path):
-        return jsonify({'error': f'文件不存在: {path}'}), 400
+    paths = data.get('paths', [])
+
+    # 批量加载模式
+    if paths:
+        results = []
+        errors = []
+        last_ok = None
+        for p in paths:
+            if not p or not os.path.exists(p):
+                errors.append({'path': p, 'error': f'文件不存在: {p}'})
+                continue
+            try:
+                load_backup(p)
+                last_ok = p
+                results.append({'path': p, 'ok': True})
+            except Exception as e:
+                errors.append({'path': p, 'error': str(e)})
+        msg = f'成功加载 {len(results)} 个文件'
+        if errors:
+            msg += f'，{len(errors)} 个失败'
+        return jsonify({
+            'ok': len(results) > 0,
+            'path': last_ok or path,
+            'results': results,
+            'errors': errors,
+            'message': msg
+        })
+
+    # 单文件模式
+    if not path:
+        return jsonify({'error': '请输入文件路径'}), 400
+    if not os.path.exists(path):
+        return jsonify({'error': f'文件不存在: {path}', 'suggestion': '请检查文件路径是否正确，文件是否已被移动或删除'}), 400
+    # 检查是否为 zip 文件
+    if not path.lower().endswith('.zip'):
+        return jsonify({'error': '仅支持 LifeUp 备份 ZIP 文件', 'suggestion': '请选择 .zip 格式的备份文件'}), 400
     try:
+        # 检查文件可读性
+        with open(path, 'rb') as f:
+            f.read(4)  # 读取 4 字节验证文件可读
         load_backup(path)
-        return jsonify({'ok': True, 'path': path})
+        return jsonify({'ok': True, 'path': path, 'filename': os.path.basename(path)})
+    except zipfile.BadZipFile:
+        return jsonify({'error': '文件已损坏，不是有效的 ZIP 文件', 'suggestion': '请重新从 LifeUp App 导出备份'}), 400
+    except FileNotFoundError as e:
+        return jsonify({'error': str(e), 'suggestion': '备份中缺少数据库文件，可能是不完整的备份'}), 400
+    except PermissionError:
+        return jsonify({'error': '文件被占用，无法读取', 'suggestion': '请关闭其他正在使用该文件的程序后重试'}), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': f'加载失败: {str(e)}'}), 500
 
 @app.route('/api/save', methods=['POST'])
 def save():
@@ -225,31 +268,36 @@ def list_tasks():
     conn = get_db()
     try:
         cur = conn.cursor()
-        filter_type = request.args.get('filter', 'all')  # all, active, done
+        filter_type = request.args.get('filter', 'all')  # all, active, done, frozen
+        show_frozen = request.args.get('show_frozen', '0')  # 1=显示冻结
+        if filter_type == 'frozen': show_frozen = '1'  # frozen筛选自动显示冻结
         search = request.args.get('search', '').strip()
         cat_id = request.args.get('category_id', '')
-        status_cond = {'all': '1=1', 'active': 'taskstatus=0', 'done': 'taskstatus>=1'}.get(filter_type, '1=1')
+        status_cond = {'all': '1=1', 'active': 'taskstatus=0', 'done': 'taskstatus>=1', 'frozen': 't1.isfrozen=1'}.get(filter_type, '1=1')
+        frozen_cond = '' if show_frozen == '1' else 'AND t1.isfrozen=0'
         search_cond = 'AND (t1.content LIKE ? OR t1.remark LIKE ?)' if search else ''
         search_params = [f'%{search}%', f'%{search}%'] if search else []
         cat_cond = f'AND t1.categoryid={int(cat_id)}' if cat_id else ''
 
-        # 去重策略：进行中/全部 → 同名只保留最新；已完成 → 保留全部历史
+        # 去重策略：进行中/全部 → 同名只保留最新；已完成/冻结 → 保留全部历史
         dedup_sql = """
               AND t1.id = (
                 SELECT MAX(t2.id) FROM taskmodel t2
                 WHERE t2.content = t1.content
                   AND t2.isdeleterecord=0 AND t2.isfrozen=0
               )
-        """ if filter_type != 'done' else ""
+        """ if filter_type not in ('done', 'frozen') else ""
 
         cur.execute(f"""
             SELECT t1.id, t1.content as title, t1.taskfrequency as frequency, t1.rewardcoin as coin,
                    t1.expreward as exp, t1.remark as note, t1.taskstatus as done,
                    t1.currenttimes as done_count, t1.categoryid, t1.createdtime,
                    t1.updatedtime, t1.tagcolor, t1.taskdifficultydegree as difficulty,
-                   t1.isfrozen, t1.taskurgencydegree as priority, t1.groupid, t1.tasktype
+                   t1.isfrozen, t1.taskurgencydegree as priority, t1.groupid, t1.tasktype,
+                   t1.starttime, t1.endtime, t1.rewardcoinvariable,
+                   t1.extrainfo, t1.enableebbinghausmode, t1.ishandleoverdue
             FROM taskmodel t1
-            WHERE t1.isdeleterecord=0 AND t1.isfrozen=0 AND {status_cond} {search_cond} {cat_cond}
+            WHERE t1.isdeleterecord=0 {frozen_cond} AND {status_cond} {search_cond} {cat_cond}
             {dedup_sql}
             ORDER BY t1.taskurgencydegree DESC, t1.createdtime DESC
         """, search_params)
@@ -285,6 +333,11 @@ def list_tasks():
             linked_skills = skill_links.get(t['id'], [])
             t['skill_ids'] = linked_skills
             t['skill_names'] = [skill_names.get(sid, '?') for sid in linked_skills]
+            # 解析 extrainfo JSON
+            try:
+                t['extrainfo_obj'] = _json3.loads(t.get('extrainfo') or '{}')
+            except:
+                t['extrainfo_obj'] = {}
             # 商品奖励
             t['item_rewards'] = reward_links.get(t['id'], [])
 
@@ -305,11 +358,23 @@ def add_task():
                     (target_times,))
         target_id = cur.lastrowid
 
-        # 生成 extrainfo JSON（LifeUp 任务元数据，缺了会被跳过）
+        # 开始/截止时间
+        st = data.get('start_time', '')
+        et = data.get('end_time', '')
+        # 校验：endtime 至少 = starttime + 24h，否则 LifeUp 可能崩溃
+        if st and et:
+            try:
+                if int(et) - int(st) < 86400000:
+                    et = str(int(st) + 86400000)
+            except: pass
+
+        # 生成 extrainfo JSON（LifeUp 任务元数据）
+        coin_pf = float(data.get('coin_punishment_factor', 0))
+        exp_pf = float(data.get('exp_punishment_factor', 0))
         extrainfo = json.dumps({
-            "autoUseItems": False,
-            "coinPunishmentFactor": 0.0,
-            "expPunishmentFactor": 0.0,
+            "autoUseItems": bool(data.get('auto_use_items', False)),
+            "coinPunishmentFactor": coin_pf,
+            "expPunishmentFactor": exp_pf,
             "t_f_m": 1,
             "writeFeelings": False
         })
@@ -324,18 +389,18 @@ def add_task():
                 relatedattribute1, relatedattribute2, relatedattribute3,
                 teamrecordid, teamid, taskid, taskcountextraid,
                 lasttaskid, nexttaskid, groupid, orderincategory,
-                isusespecificexpiretime, isuserinputstarttime, starttime,
+                isusespecificexpiretime, isuserinputstarttime, starttime, endtime,
                 extrainfo, completereward
             ) VALUES (
                 ?, ?, ?, ?, ?,
                 0, 0, ?, ?, ?, 0,
                 0, ?, ?, ?, ?,
-                0, 0, ?, 0, 0,
-                ?, 0, 0,
+                0, 0, ?, 0, ?,
+                ?, 0, ?,
                 ?, ?, ?,
                 -1, -1, 0, -1,
                 0, 0, 0, 0,
-                0, 0, ?,
+                0, 0, ?, ?,
                 ?, ?
             )
         """, (
@@ -351,11 +416,15 @@ def add_task():
             0,
             target_id,
             data.get('tasktype', 0),
+            data.get('enable_ebbinghaus', 0),
             data.get('priority', 1),
+            data.get('ishandleoverdue', 0),
+            data.get('rewardcoinvariable', 0),
             data.get('attr1', ''),
             data.get('attr2', ''),
             data.get('attr3', ''),
-            now,
+            st if st else now,
+            et if et else (st if st else now),
             extrainfo,
             ''
         ))
@@ -393,7 +462,8 @@ def update_task():
         now = now_ms()
         cur.execute("""
             UPDATE taskmodel SET content=?, taskfrequency=?, rewardcoin=?, expreward=?,
-                remark=?, categoryid=?, updatedtime=?, taskdifficultydegree=?, tagcolor=?, taskurgencydegree=?
+                remark=?, categoryid=?, updatedtime=?, taskdifficultydegree=?, tagcolor=?,
+                taskurgencydegree=?, tasktype=?, rewardcoinvariable=?
             WHERE id=?
         """, (
             data.get('title'),
@@ -406,8 +476,51 @@ def update_task():
             data.get('difficulty', 1),
             data.get('tagcolor', 0),
             data.get('priority', 0),
+            data.get('tasktype', 0),
+            data.get('rewardcoinvariable', 0),
             data['id']
         ))
+        # 更新冻结状态
+        if 'isfrozen' in data:
+            cur.execute("UPDATE taskmodel SET isfrozen=? WHERE id=?",
+                       (1 if data['isfrozen'] else 0, data['id']))
+        # 更新开始/截止时间
+        if 'start_time' in data:
+            st = data['start_time']
+            et = data.get('end_time')
+            if st and et:
+                try:
+                    if int(et) - int(st) < 86400000:
+                        et = str(int(st) + 86400000)
+                except: pass
+            cur.execute("UPDATE taskmodel SET starttime=?, endtime=? WHERE id=?",
+                       (st, et, data['id']))
+        elif 'end_time' in data:
+            cur.execute("UPDATE taskmodel SET endtime=? WHERE id=?",
+                       (data['end_time'], data['id']))
+        # 更新惩罚系数（写入 extrainfo JSON）
+        if any(k in data for k in ('coin_punishment_factor', 'exp_punishment_factor', 'auto_use_items')):
+            cur.execute("SELECT extrainfo FROM taskmodel WHERE id=?", (data['id'],))
+            ei_row = cur.fetchone()
+            if ei_row and ei_row['extrainfo']:
+                try:
+                    ei = json.loads(ei_row['extrainfo']) if isinstance(ei_row['extrainfo'], str) else (ei_row['extrainfo'] or {})
+                except:
+                    ei = {}
+            else:
+                ei = {}
+            if 'coin_punishment_factor' in data:
+                ei['coinPunishmentFactor'] = float(data['coin_punishment_factor'])
+            if 'exp_punishment_factor' in data:
+                ei['expPunishmentFactor'] = float(data['exp_punishment_factor'])
+            if 'auto_use_items' in data:
+                ei['autoUseItems'] = bool(data['auto_use_items'])
+            cur.execute("UPDATE taskmodel SET extrainfo=? WHERE id=?", (json.dumps(ei), data['id']))
+        # 更新艾宾浩斯 & 逾期处理
+        if 'enable_ebbinghaus' in data:
+            cur.execute("UPDATE taskmodel SET enableebbinghausmode=? WHERE id=?", (data['enable_ebbinghaus'], data['id']))
+        if 'ishandleoverdue' in data:
+            cur.execute("UPDATE taskmodel SET ishandleoverdue=? WHERE id=?", (data['ishandleoverdue'], data['id']))
         # 更新 tasktarget
         if 'target_count' in data:
             cur.execute("UPDATE tasktargetmodel SET targettimes=? WHERE id=(SELECT tasktargetid FROM taskmodel WHERE id=?)",
@@ -455,6 +568,371 @@ def delete_task():
         cur.execute("UPDATE taskmodel SET isdeleterecord=1, updatedtime=? WHERE id=?", (now_ms(), data['id']))
         conn.commit()
         return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# ============================================================
+# 子任务 API (P1)
+# ============================================================
+
+@app.route('/api/tasks/<int:task_id>/subtasks', methods=['GET'])
+def list_subtasks(task_id):
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT s.*,
+                   CASE WHEN s.shopitemmodelid != 0 THEN i.itemname ELSE '' END as itemname
+            FROM subtaskmodel s
+            LEFT JOIN shopitemmodel i ON i.id = s.shopitemmodelid
+            WHERE s.taskmodelid = ?
+            ORDER BY s.orderincategory, s.id
+        """, (task_id,))
+        rows = cur.fetchall()
+        status_names = {0: '待完成', 1: '已完成', 2: '已放弃'}
+        return jsonify([{
+            'id': r[0], 'createtime': r[1], 'subtaskgroupid': r[2],
+            'shopitemamount': r[3], 'taskmodelid': r[4], 'content': r[5],
+            'shopitemmodelid': r[6], 'taskstatus': r[7], 'rewardcoin': r[8],
+            'expreward': r[9], 'rewardcoinvariable': r[10], 'orderincategory': r[11],
+            'updatetime': r[12], 'remindtime': r[13], 'endtime': r[14],
+            'itemname': r[15] if len(r) > 15 else '',
+            'status_name': status_names.get(r[7], str(r[7]))
+        } for r in rows])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/tasks/<int:task_id>/subtasks/add', methods=['POST'])
+def add_subtask(task_id):
+    data = request.get_json()
+    conn = get_db()
+    now = now_ms()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO subtaskmodel (
+                taskmodelid, content, taskstatus, rewardcoin, expreward,
+                rewardcoinvariable, shopitemmodelid, shopitemamount,
+                subtaskgroupid, orderincategory,
+                createtime, updatetime, remindtime, endtime
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            task_id,
+            data.get('content', '新子任务'),
+            data.get('taskstatus', 0),
+            data.get('rewardcoin', 0),
+            data.get('expreward', 0),
+            data.get('rewardcoinvariable', 0),
+            data.get('shopitemmodelid', 0),
+            data.get('shopitemamount', 0),
+            data.get('subtaskgroupid', 0),
+            data.get('orderincategory', 0),
+            now, now,
+            data.get('remindtime', 0),
+            data.get('endtime', 0)
+        ))
+        new_id = cur.lastrowid
+        conn.commit()
+        return jsonify({'ok': True, 'id': new_id})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/subtasks/update', methods=['POST'])
+def update_subtask():
+    data = request.get_json()
+    conn = get_db()
+    now = now_ms()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE subtaskmodel SET
+                content=?, taskstatus=?, rewardcoin=?, expreward=?,
+                rewardcoinvariable=?, shopitemmodelid=?, shopitemamount=?,
+                orderincategory=?, remindtime=?, endtime=?, updatetime=?
+            WHERE id=?
+        """, (
+            data.get('content', ''),
+            data.get('taskstatus', 0),
+            data.get('rewardcoin', 0),
+            data.get('expreward', 0),
+            data.get('rewardcoinvariable', 0),
+            data.get('shopitemmodelid', 0),
+            data.get('shopitemamount', 0),
+            data.get('orderincategory', 0),
+            data.get('remindtime', 0),
+            data.get('endtime', 0),
+            now,
+            data['id']
+        ))
+        conn.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/subtasks/delete', methods=['POST'])
+def delete_subtask():
+    data = request.get_json()
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM subtaskmodel WHERE id=?", (data['id'],))
+        conn.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# ============================================================
+# 清单/分组 API (P1)
+# ============================================================
+
+@app.route('/api/categories/groups', methods=['GET'])
+def list_groups():
+    """列出所有分组（categorymodel 用作清单容器）"""
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT c.id, c.categoryname, c.categorytype,
+                   COUNT(t.id) as task_count
+            FROM categorymodel c
+            LEFT JOIN taskmodel t ON t.categoryid = c.id AND t.isdeleterecord = 0
+            GROUP BY c.id
+            ORDER BY c.id
+        """)
+        rows = cur.fetchall()
+        return jsonify([{
+            'id': r[0], 'categoryname': r[1], 'categorytype': r[2],
+            'task_count': r[3]
+        } for r in rows])
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/tasks/group', methods=['POST'])
+def set_task_group():
+    """设置任务的 groupid（将同组任务关联，用于清单展示）"""
+    data = request.get_json()
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE taskmodel SET groupid=?, updatedtime=? WHERE id=?",
+                    (data.get('groupid', 0), now_ms(), data['id']))
+        conn.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/tasks/batch/freeze', methods=['POST'])
+def batch_freeze():
+    """批量冻结/解冻（按 groupid 或 id 列表）"""
+    data = request.get_json()
+    ids = data.get('ids', [])
+    groupid = data.get('groupid')
+    frozen = 1 if data.get('isfrozen') else 0
+    now = now_ms()
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        if groupid:
+            cur.execute("UPDATE taskmodel SET isfrozen=?, updatedtime=? WHERE groupid=? AND isdeleterecord=0",
+                        (frozen, now, groupid))
+            affected = cur.rowcount
+        elif ids:
+            placeholders = ','.join(['?'] * len(ids))
+            cur.execute(f"UPDATE taskmodel SET isfrozen=?, updatedtime=? WHERE id IN ({placeholders})",
+                        [frozen, now] + ids)
+            affected = cur.rowcount
+        else:
+            return jsonify({'error': '需要 ids 或 groupid'}), 400
+        conn.commit()
+        return jsonify({'ok': True, 'affected': affected})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# ============================================================
+# 任务统计 & 复制 API (P2)
+# ============================================================
+
+@app.route('/api/tasks/stats')
+def tasks_stats():
+    """任务概览统计"""
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        # 总数
+        cur.execute("SELECT COUNT(*) FROM taskmodel WHERE isdeleterecord=0")
+        total = cur.fetchone()[0]
+        # 进行中
+        cur.execute("SELECT COUNT(*) FROM taskmodel WHERE isdeleterecord=0 AND taskstatus=0")
+        active = cur.fetchone()[0]
+        # 已完成
+        cur.execute("SELECT COUNT(*) FROM taskmodel WHERE isdeleterecord=0 AND taskstatus=1")
+        done = cur.fetchone()[0]
+        # 冻结
+        cur.execute("SELECT COUNT(*) FROM taskmodel WHERE isdeleterecord=0 AND isfrozen=1")
+        frozen = cur.fetchone()[0]
+        # 逾期
+        cur.execute("SELECT COUNT(*) FROM taskmodel WHERE isdeleterecord=0 AND taskstatus=0 AND endtime>0 AND endtime < ?", (now_ms(),))
+        overdue = cur.fetchone()[0]
+        # 惩罚任务
+        cur.execute("SELECT COUNT(*) FROM taskmodel WHERE isdeleterecord=0 AND tasktype=30")
+        punishment = cur.fetchone()[0]
+        # 按频率分布
+        cur.execute("SELECT taskfrequency, COUNT(*) as cnt FROM taskmodel WHERE isdeleterecord=0 GROUP BY taskfrequency")
+        freq_dist = {r[0]: r[1] for r in cur.fetchall()}
+        # 按分类分布
+        cur.execute("""
+            SELECT c.categoryname, COUNT(t.id) as cnt
+            FROM categorymodel c
+            LEFT JOIN taskmodel t ON t.categoryid=c.id AND t.isdeleterecord=0
+            GROUP BY c.id
+            ORDER BY cnt DESC
+        """)
+        cat_dist = [{'category': r[0], 'count': r[1]} for r in cur.fetchall()]
+        # 总金币
+        cur.execute("SELECT COALESCE(SUM(rewardcoin),0) FROM taskmodel WHERE isdeleterecord=0")
+        total_coin = cur.fetchone()[0]
+
+        return jsonify({
+            'total': total, 'active': active, 'done': done,
+            'frozen': frozen, 'overdue': overdue, 'punishment': punishment,
+            'frequency_distribution': freq_dist,
+            'category_distribution': cat_dist,
+            'total_coin': total_coin
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/tasks/<int:task_id>/copy', methods=['POST'])
+def copy_task(task_id):
+    """深拷贝任务 + reward + skill 关联"""
+    conn = get_db()
+    now = now_ms()
+    try:
+        cur = conn.cursor()
+        # 读取原任务
+        cur.execute("SELECT * FROM taskmodel WHERE id=?", (task_id,))
+        src = cur.fetchone()
+        if not src:
+            return jsonify({'error': '任务不存在'}), 404
+        cols = [d[0] for d in cur.description]
+        src_dict = dict(zip(cols, src))
+
+        # 修改 title + 重置状态
+        data = request.get_json() or {}
+        new_title = data.get('title', (src_dict.get('content') or '任务') + ' (副本)')
+
+        cur.execute("""
+            INSERT INTO taskmodel (
+                content, taskfrequency, rewardcoin, expreward, remark,
+                taskstatus, currenttimes, categoryid, createdtime, updatedtime, isdeleterecord,
+                isfrozen, tagcolor, taskdifficultydegree, priority, tasktargetid,
+                userid, isshared, tasktype, isneedtoremake, enableebbinghausmode,
+                taskurgencydegree, ishandleoverdue, rewardcoinvariable,
+                relatedattribute1, relatedattribute2, relatedattribute3,
+                teamrecordid, teamid, taskid, taskcountextraid,
+                lasttaskid, nexttaskid, groupid, orderincategory,
+                isusespecificexpiretime, isuserinputstarttime, starttime, endtime,
+                extrainfo, completereward
+            ) VALUES (
+                ?, ?, ?, ?, ?,
+                0, 0, ?, ?, ?, 0,
+                ?, ?, ?, ?, ?,
+                0, 0, ?, 0, 0,
+                ?, 0, ?,
+                ?, ?, ?,
+                -1, -1, 0, -1,
+                0, 0, 0, 0,
+                0, 0, ?, ?,
+                ?, ?
+            )
+        """, (
+            new_title,
+            src_dict.get('taskfrequency', 1),
+            src_dict.get('rewardcoin', 0),
+            src_dict.get('expreward', 0),
+            src_dict.get('remark', ''),
+            src_dict.get('categoryid', 0),
+            now, now,
+            src_dict.get('isfrozen', 0),
+            src_dict.get('tagcolor', 0),
+            src_dict.get('taskdifficultydegree', 1),
+            src_dict.get('priority', 1),
+            src_dict.get('tasktargetid', 0),
+            src_dict.get('tasktype', 0),
+            src_dict.get('taskurgencydegree', 0),
+            src_dict.get('rewardcoinvariable', 0),
+            src_dict.get('relatedattribute1', ''),
+            src_dict.get('relatedattribute2', ''),
+            src_dict.get('relatedattribute3', ''),
+            now, now,
+            src_dict.get('extrainfo', ''),
+            src_dict.get('completereward', '')
+        ))
+        new_id = cur.lastrowid
+
+        # 复制 item rewards
+        cur.execute("SELECT * FROM taskrewardmodel WHERE taskmodelid=?", (task_id,))
+        for rw in cur.fetchall():
+            rw_cols = [d[0] for d in cur.description]
+            rw_dict = dict(zip(rw_cols, rw))
+            cur.execute(
+                "INSERT INTO taskrewardmodel (taskmodelid, shopitemmodelid, amount, createtime, updatetime) VALUES (?, ?, ?, ?, ?)",
+                (new_id, rw_dict['shopitemmodelid'], rw_dict.get('amount', 1), now, now))
+
+        # 复制 skill 关联（表名 taskmodel_skillids）
+        cur.execute("SELECT skillids FROM taskmodel_skillids WHERE taskmodel_id=?", (task_id,))
+        skill_ids = [r[0] for r in cur.fetchall()]
+        for sid in skill_ids:
+            cur.execute("INSERT INTO taskmodel_skillids (taskmodel_id, skillids) VALUES (?, ?)", (new_id, sid))
+
+        # 复制子任务
+        cur.execute("SELECT * FROM subtaskmodel WHERE taskmodelid=?", (task_id,))
+        for sub in cur.fetchall():
+            sub_cols = [d[0] for d in cur.description]
+            sub_dict = dict(zip(sub_cols, sub))
+            cur.execute("""
+                INSERT INTO subtaskmodel (
+                    taskmodelid, content, taskstatus, rewardcoin, expreward,
+                    rewardcoinvariable, shopitemmodelid, shopitemamount,
+                    subtaskgroupid, orderincategory,
+                    createtime, updatetime, remindtime, endtime
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                new_id,
+                sub_dict.get('content', ''),
+                sub_dict.get('taskstatus', 0),
+                sub_dict.get('rewardcoin', 0),
+                sub_dict.get('expreward', 0),
+                sub_dict.get('rewardcoinvariable', 0),
+                sub_dict.get('shopitemmodelid', 0),
+                sub_dict.get('shopitemamount', 0),
+                sub_dict.get('subtaskgroupid', 0),
+                sub_dict.get('orderincategory', 0),
+                now, now,
+                sub_dict.get('remindtime', 0),
+                sub_dict.get('endtime', 0)
+            ))
+
+        conn.commit()
+        return jsonify({'ok': True, 'id': new_id, 'title': new_title})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
@@ -588,7 +1066,7 @@ def list_achievements():
         cat_cond = f'AND categoryid={int(cat_id)}' if cat_id else ''
         cur.execute(f"""
             SELECT id, content as name, description, type, categoryid, rewardcoin as coin,
-                   icon, achievementstatus, currentvalue, progress,
+                   expreward as exp, icon, achievementstatus, currentvalue, progress,
                    createtime, finishtime, updatetime, isgotreward, targetcompletetime
             FROM userachievementmodel
             WHERE isdelete = 0 {search_cond} {cat_cond}
@@ -616,7 +1094,7 @@ def add_achievement():
             INSERT INTO userachievementmodel (content, description, type, categoryid, rewardcoin,
                 icon, achievementstatus, currentvalue, progress, createtime, updatetime,
                 isdelete, isgotreward, rewardcoinvariable, orderincategory, expreward)
-            VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ?, 0, 0, 0, 0, 0)
+            VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0, ?, ?, 0, 0, 0, 0, ?)
         """, (
             data.get('name', '新成就'),
             data.get('description', ''),
@@ -624,7 +1102,8 @@ def add_achievement():
             data.get('category_id', 0),
             data.get('coin', 0),
             data.get('icon', ''),
-            now, now
+            now, now,
+            data.get('exp', 0)
         ))
         conn.commit()
         return jsonify({'ok': True, 'id': cur.lastrowid})
@@ -642,7 +1121,7 @@ def update_achievement():
         now = now_ms()
         cur.execute("""
             UPDATE userachievementmodel SET content=?, description=?, type=?, categoryid=?,
-                rewardcoin=?, icon=?, updatetime=?
+                rewardcoin=?, expreward=?, icon=?, updatetime=?
             WHERE id=?
         """, (
             data.get('name'),
@@ -650,6 +1129,7 @@ def update_achievement():
             data.get('type', 0),
             data.get('category_id', 0),
             data.get('coin', 0),
+            data.get('exp', 0),
             data.get('icon', ''),
             now,
             data['id']
@@ -681,8 +1161,149 @@ def system_achievements():
     conn = get_db()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM achievementinfomodel ORDER BY achievementtype, levelnumber")
+        cur.execute("""
+            SELECT ai.*,
+                   CASE ai.eventtype
+                       WHEN 0 THEN '手动触发'
+                       WHEN 1 THEN '完成指定任务次数'
+                       WHEN 2 THEN '连续完成任务'
+                       WHEN 3 THEN '完成任务总次数'
+                       WHEN 4 THEN '连续使用天数'
+                       WHEN 5 THEN '属性达到等级'
+                       WHEN 6 THEN '累计番茄数'
+                       WHEN 7 THEN '累计金币数'
+                       WHEN 8 THEN '当前金币数'
+                       WHEN 10 THEN '本源等级'
+                       WHEN 11 THEN '购买商品次数'
+                       WHEN 12 THEN '使用商品次数'
+                       WHEN 13 THEN '合成数量'
+                       WHEN 14 THEN '商品拥有数量'
+                       WHEN 15 THEN '人生等级'
+                       ELSE 'type' || ai.eventtype
+                   END as eventtype_name
+            FROM achievementinfomodel ai
+            ORDER BY ai.achievementtype, ai.levelnumber
+        """)
         return jsonify([dict(r) for r in cur.fetchall()])
+    finally:
+        conn.close()
+
+# ─── 成就条件管理 ──────────────────────────────────────────
+
+CONDITION_TYPE_MAP = {
+    0: '手动触发', 1: '完成指定任务次数', 2: '连续完成任务',
+    3: '完成任务总次数', 4: '连续使用天数', 5: '属性达到等级',
+    6: '累计番茄数', 7: '累计金币数', 8: '当前金币数',
+    9: '使用天数', 10: '本源等级', 11: '购买商品次数',
+    12: '使用商品次数', 13: '合成数量', 14: '商品拥有数量',
+    15: '人生等级', 16: 'ATM存款', 17: '今日新增金币',
+    18: '累计专注时长', 19: '社区赞数'
+}
+
+@app.route('/api/achievements/<int:ach_id>/conditions')
+def list_achievement_conditions(ach_id):
+    """查询某成就的所有解锁条件"""
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT uc.*, ua.content as achievement_name
+            FROM unlockconditionmodel uc
+            JOIN userachievementmodel ua ON uc.userachievementid = ua.id
+            WHERE uc.userachievementid = ? AND uc.isdel = 0
+            ORDER BY uc.id
+        """, (ach_id,))
+        conds = []
+        for r in cur.fetchall():
+            d = dict(r)
+            d['conditiontype_name'] = CONDITION_TYPE_MAP.get(d.get('conditiontype'), f'未知({d.get("conditiontype")})')
+            try:
+                ri = json.loads(d.get('relatedinfos', '{}') or '{}')
+                d['relatedinfos_parsed'] = ri
+                d['unlocked_times'] = ri.get('unlockedTimes', 0)
+            except:
+                d['relatedinfos_parsed'] = {}
+                d['unlocked_times'] = 0
+            conds.append(d)
+        return jsonify({'achievement_id': ach_id, 'conditions': conds, 'count': len(conds)})
+    finally:
+        conn.close()
+
+@app.route('/api/achievements/<int:ach_id>/conditions', methods=['POST'])
+def add_achievement_condition(ach_id):
+    """为成就添加解锁条件"""
+    data = request.get_json()
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        now = now_ms()
+        relatedinfos = json.dumps({
+            'ignoreValue': data.get('ignore_value', 0),
+            'lastUnlockTaskId': 0,
+            'unlockedTimes': 0
+        })
+        cur.execute("""
+            INSERT INTO unlockconditionmodel
+            (userachievementid, conditiontype, targetvalues, currentvalue, progress,
+             relatedid, relatedids, relatedinfos, createtime, updatetime, isdel)
+            VALUES (?, ?, ?, 0, 0, ?, '', ?, ?, ?, 0)
+        """, (
+            ach_id,
+            data.get('conditiontype', 1),
+            data.get('targetvalues', 1),
+            data.get('relatedid', 0),
+            relatedinfos,
+            now, now
+        ))
+        conn.commit()
+        return jsonify({'ok': True, 'id': cur.lastrowid})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/conditions/<int:cond_id>', methods=['POST'])
+def update_condition(cond_id):
+    """编辑成就条件"""
+    data = request.get_json()
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        now = now_ms()
+        cur.execute("""
+            UPDATE unlockconditionmodel
+            SET conditiontype=?, targetvalues=?, currentvalue=?, relatedid=?,
+                progress=?, updatetime=?
+            WHERE id=?
+        """, (
+            data.get('conditiontype', 1),
+            data.get('targetvalues', 1),
+            data.get('currentvalue', 0),
+            data.get('relatedid', 0),
+            data.get('progress', 0),
+            now,
+            cond_id
+        ))
+        conn.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/conditions/<int:cond_id>/delete', methods=['POST'])
+def delete_condition(cond_id):
+    """删除成就条件"""
+    data = request.get_json()
+    conn = get_db()
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE unlockconditionmodel SET isdel=1, updatetime=? WHERE id=?",
+                    (now_ms(), cond_id))
+        conn.commit()
+        return jsonify({'ok': True})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
 
@@ -1258,8 +1879,8 @@ def achievements_progress():
 
         cur.execute("""
             SELECT ua.id, ua.content, ua.description, ua.type, ua.categoryid,
-                   ua.rewardcoin, ua.icon, ua.achievementstatus, ua.currentvalue,
-                   ua.progress, ua.createtime, ua.finishtime,
+                   ua.rewardcoin, ua.expreward, ua.icon, ua.achievementstatus,
+                   ua.currentvalue, ua.progress, ua.createtime, ua.finishtime,
                    uac.categoryname
             FROM userachievementmodel ua
             LEFT JOIN userachcategorymodel uac ON ua.categoryid = uac.id
@@ -1269,20 +1890,32 @@ def achievements_progress():
         user_achs = [dict(r) for r in cur.fetchall()]
 
         cur.execute("""
-            SELECT id, title, desc_lpcolumn, achievementid, hasfinished, isgotreward
-            FROM achievementmodel
+            SELECT ai.*,
+                   CASE ai.eventtype
+                       WHEN 0 THEN '手动触发' WHEN 1 THEN '完成指定任务次数'
+                       WHEN 2 THEN '连续完成任务' WHEN 3 THEN '完成任务总次数'
+                       WHEN 4 THEN '连续使用天数' WHEN 5 THEN '属性达到等级'
+                       WHEN 6 THEN '累计番茄数' WHEN 7 THEN '累计金币数'
+                       WHEN 8 THEN '当前金币数' WHEN 10 THEN '本源等级'
+                       WHEN 11 THEN '购买商品次数' WHEN 12 THEN '使用商品次数'
+                       WHEN 13 THEN '合成数量' WHEN 14 THEN '商品拥有数量'
+                       WHEN 15 THEN '人生等级' ELSE 'type' || ai.eventtype
+                   END as eventtype_name
+            FROM achievementinfomodel ai
+            ORDER BY ai.achievementtype, ai.levelnumber
         """)
         sys_achs = [dict(r) for r in cur.fetchall()]
 
         cur.execute("""
             SELECT id, userachievementid, currentvalue, targetvalues, conditiontype,
-                   progress, relatedinfos, relatedids
+                   progress, relatedinfos, relatedids, relatedid
             FROM unlockconditionmodel
             WHERE isdel = 0
         """)
         conditions = {}
         for r in cur.fetchall():
             cond = dict(r)
+            cond['conditiontype_name'] = CONDITION_TYPE_MAP.get(cond.get('conditiontype'), f'未知({cond.get("conditiontype")})')
             ua_id = cond['userachievementid']
             if ua_id not in conditions:
                 conditions[ua_id] = []
@@ -1392,6 +2025,10 @@ def batch_tasks():
             cur.execute(f"UPDATE taskmodel SET taskstatus=1, updatedtime=? WHERE id IN ({ph})", [now] + ids)
         elif action == 'delete':
             cur.execute(f"UPDATE taskmodel SET isdeleterecord=1, updatedtime=? WHERE id IN ({ph})", [now] + ids)
+        elif action == 'freeze':
+            cur.execute(f"UPDATE taskmodel SET isfrozen=1, updatedtime=? WHERE id IN ({ph})", [now] + ids)
+        elif action == 'unfreeze':
+            cur.execute(f"UPDATE taskmodel SET isfrozen=0, updatedtime=? WHERE id IN ({ph})", [now] + ids)
         conn.commit()
         return jsonify({'ok': True, 'affected': cur.rowcount})
     except Exception as e:
@@ -1521,9 +2158,9 @@ def api_load():
             cur = conn.cursor()
             cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = [r[0] for r in cur.fetchall()]
-            cur.execute("SELECT goldcoin FROM usermodel LIMIT 1")
-            coin = cur.fetchone()
-            return jsonify({'ok': True, 'tables': len(tables), 'coin': coin[0] if coin else 0})
+            cur.execute("SELECT nickname, userid FROM usermodel LIMIT 1")
+            userinfo = cur.fetchone()
+            return jsonify({'ok': True, 'tables': len(tables), 'user': userinfo['nickname'] if userinfo else '未命名'})
         finally:
             conn.close()
     except Exception as e:
