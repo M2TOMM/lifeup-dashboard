@@ -4655,16 +4655,15 @@ def batch_items():
         conn.execute('BEGIN IMMEDIATE')
         cur = conn.cursor()
         ensure_batch_targets_exist(cur, 'shopitemmodel', ids, '商品')
-        now = now_ms()
         ph = ','.join('?' * len(ids))
         if action == 'disable':
-            cur.execute(f"UPDATE shopitemmodel SET purchasable=0, updatetime=? WHERE id IN ({ph})", [now] + ids)
+            cur.execute(f"UPDATE shopitemmodel SET isdisablepurchase=1 WHERE id IN ({ph})", ids)
         elif action == 'enable':
-            cur.execute(f"UPDATE shopitemmodel SET purchasable=1, updatetime=? WHERE id IN ({ph})", [now] + ids)
+            cur.execute(f"UPDATE shopitemmodel SET isdisablepurchase=0 WHERE id IN ({ph})", ids)
         elif action == 'price':
-            cur.execute(f"UPDATE shopitemmodel SET price=?, updatetime=? WHERE id IN ({ph})", [price, now] + ids)
+            cur.execute(f"UPDATE shopitemmodel SET price=? WHERE id IN ({ph})", [price] + ids)
         elif action == 'delete':
-            cur.execute(f"UPDATE shopitemmodel SET isdel=1, updatetime=? WHERE id IN ({ph})", [now] + ids)
+            cur.execute(f"UPDATE shopitemmodel SET isdel=1 WHERE id IN ({ph})", ids)
         conn.commit()
         return jsonify({'ok': True, 'affected': cur.rowcount})
     except BatchValidationError as exc:

@@ -31,8 +31,7 @@ class BatchValidationTests(unittest.TestCase):
                 CREATE TABLE shopitemmodel (
                     id INTEGER PRIMARY KEY,
                     price INTEGER NOT NULL,
-                    purchasable INTEGER NOT NULL,
-                    updatetime INTEGER NOT NULL,
+                    isdisablepurchase INTEGER NOT NULL,
                     isdel INTEGER NOT NULL
                 );
                 """
@@ -48,8 +47,8 @@ class BatchValidationTests(unittest.TestCase):
             conn.executemany(
                 """
                 INSERT INTO shopitemmodel
-                    (id, price, purchasable, updatetime, isdel)
-                VALUES (?, 100, 1, 100, 0)
+                    (id, price, isdisablepurchase, isdel)
+                VALUES (?, 100, 1, 0)
                 """,
                 [(1,), (2,), (3,)],
             )
@@ -89,7 +88,7 @@ class BatchValidationTests(unittest.TestCase):
         try:
             return conn.execute(
                 """
-                SELECT id, price, purchasable, updatetime, isdel
+                SELECT id, price, isdisablepurchase, isdel
                 FROM shopitemmodel ORDER BY id
                 """
             ).fetchall()
@@ -319,8 +318,8 @@ class BatchValidationTests(unittest.TestCase):
 
     def test_item_batch_supported_actions_update_expected_fields(self):
         cases = (
-            ("disable", "purchasable", 1, 0),
-            ("enable", "purchasable", 0, 1),
+            ("disable", "isdisablepurchase", 0, 1),
+            ("enable", "isdisablepurchase", 1, 0),
             ("delete", "isdel", 0, 1),
         )
         for action, column, before_value, expected in cases:
@@ -333,7 +332,7 @@ class BatchValidationTests(unittest.TestCase):
                 )
                 self.assertEqual(response.status_code, 200, response.get_json())
                 self.assertEqual(response.get_json()["affected"], 1)
-                column_index = {"purchasable": 2, "isdel": 4}[column]
+                column_index = {"isdisablepurchase": 2, "isdel": 3}[column]
                 self.assertEqual(self.item_rows()[0][column_index], expected)
 
 

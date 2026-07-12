@@ -932,6 +932,8 @@ const DIRECT_FILE_MODE = typeof location !== 'undefined' && location.protocol ==
 const API_BASE = '';
 const IS_DESKTOP = !!(window.pywebview && window.pywebview.api);
 const DEFAULT_PATH = 'C:\\Users\\USER\\Nutstore\\1\\LifeUp\\LifeupBackup.zip';
+const MAX_LOCAL_BATCH_SIZE = 200;
+const MAX_LOCAL_ITEM_PRICE = 2147483647;
 
 // ====== Page State (search persistence) ======
 const pageStates = {
@@ -1205,10 +1207,25 @@ function clearAllChecks() {
 function getSelectedIds() {
   return Array.from(document.querySelectorAll('.batch-check:checked')).map(function(c) { return parseInt(c.value); });
 }
+function validateLocalBatchIds(ids) {
+  if (ids.length === 0) {
+    toast('请至少选择一项', 'error');
+    return false;
+  }
+  if (ids.length > MAX_LOCAL_BATCH_SIZE) {
+    toast('单次最多处理 ' + MAX_LOCAL_BATCH_SIZE + ' 项', 'error');
+    return false;
+  }
+  if (ids.some(function(id) { return !Number.isInteger(id) || id <= 0; })) {
+    toast('选择项包含无效 ID，请刷新页面后重试', 'error');
+    return false;
+  }
+  return true;
+}
 function batchAction(type, action) {
   if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量修改', 'error');
   var ids = getSelectedIds();
-  if (ids.length === 0) return toast('请至少选择一项', 'error');
+  if (!validateLocalBatchIds(ids)) return;
   if (action === 'delete' && !confirm('确定删除选中的 ' + ids.length + ' 项吗？此操作不可撤销。')) return;
   // freeze/unfreeze 使用专用端点
   if (action === 'freeze' || action === 'unfreeze') {
@@ -1231,15 +1248,19 @@ function batchAction(type, action) {
 function batchPriceDialog() {
   if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量改价', 'error');
   var ids = getSelectedIds();
-  if (ids.length === 0) return toast('请至少选择一项', 'error');
-  showModal('💰 批量改价', '<div class="form-group"><label>新价格</label><input id="f_batchprice" type="number" value="0" style="font-size:18px"></div><div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doBatchPrice()">确认修改 ' + ids.length + ' 件商品</button></div>');
+  if (!validateLocalBatchIds(ids)) return;
+  showModal('💰 批量改价', '<div class="form-group"><label>新价格</label><input id="f_batchprice" type="number" min="0" max="2147483647" step="1" value="0" style="font-size:18px"></div><div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doBatchPrice()">确认修改 ' + ids.length + ' 件商品</button></div>');
   setTimeout(function() { var inp = document.getElementById('f_batchprice'); if (inp) inp.focus(); }, 100);
 }
 function doBatchPrice() {
   if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量改价', 'error');
-  var price = parseInt(document.getElementById('f_batchprice').value);
   var ids = getSelectedIds();
-  if (isNaN(price)) return toast('请输入有效价格', 'error');
+  if (!validateLocalBatchIds(ids)) return;
+  var rawPrice = document.getElementById('f_batchprice').value.trim();
+  var price = Number(rawPrice);
+  if (rawPrice === '' || !Number.isInteger(price) || price < 0 || price > MAX_LOCAL_ITEM_PRICE) {
+    return toast('请输入 0～' + MAX_LOCAL_ITEM_PRICE + ' 之间的整数价格', 'error');
+  }
   closeModal();
   api('/api/items/batch', { method: 'POST', body: JSON.stringify({ ids: ids, action: 'price', price: price }) }).then(function(r) {
     toast('✅ 已更新 ' + (r.affected || ids.length) + ' 件商品价格为 ' + price);
