@@ -47,6 +47,8 @@ SNAPSHOT_FILENAME_PATTERN = re.compile(r'^snapshot-([0-9a-f]{32})\.zip$')
 SNAPSHOT_COMMENT_PREFIX = b'LIFEUP_DASHBOARD_SNAPSHOT_V1\n'
 MAX_SNAPSHOT_NAME_LENGTH = 100
 MAX_SNAPSHOT_LIST_LIMIT = 200
+MAX_BATCH_SIZE = 200
+MAX_ITEM_PRICE = 2_147_483_647
 MAX_BACKUP_ARCHIVE_BYTES = 512 * 1024 * 1024
 MAX_BACKUP_EXPANDED_BYTES = 1024 * 1024 * 1024
 MAX_BACKUP_MEMBER_BYTES = 512 * 1024 * 1024
@@ -74,6 +76,10 @@ class BackupExportError(RuntimeError):
 
 class SnapshotError(BackupExportError):
     """Stable API error for managed snapshot operations."""
+
+
+class BatchValidationError(ValueError):
+    """Client supplied an invalid local batch operation."""
 
 
 def _export_error_details(exc):
@@ -1001,6 +1007,36 @@ def get_db():
     conn = sqlite3.connect(STATE['db_path'])
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def validate_batch_request(data, allowed_actions, resource_name):
+    if not isinstance(data, dict):
+        raise BatchValidationError('请求内容必须是 JSON 对象')
+
+    action = data.get('action')
+    if action not in allowed_actions:
+        allowed = '、'.join(sorted(allowed_actions))
+        raise BatchValidationError(f'不支持的批量操作；允许的 action：{allowed}')
+
+    ids = data.get('ids')
+    if not isinstance(ids, list) or not ids:
+        raise BatchValidationError(f'请选择至少一个{resource_name}')
+    if len(ids) > MAX_BATCH_SIZE:
+        raise BatchValidationError(f'单次最多处理 {MAX_BATCH_SIZE} 个{resource_name}')
+    if any(type(item_id) is not int or item_id <= 0 for item_id in ids):
+        raise BatchValidationError('ids 必须是正整数列表')
+    if len(set(ids)) != len(ids):
+        raise BatchValidationError('ids 不能包含重复项')
+
+    return ids, action
+
+
+def validate_batch_price(price):
+    if type(price) is not int or not 0 <= price <= MAX_ITEM_PRICE:
+        raise BatchValidationError(
+            f'price 必须是 0～{MAX_ITEM_PRICE} 之间的整数'
+        )
+    return price
 
 
 def request_data_source():
@@ -4513,11 +4549,15 @@ def card_collection():
 
 @app.route('/api/tasks/batch', methods=['POST'])
 def batch_tasks():
-    data = request.get_json()
-    ids = data.get('ids', [])
-    action = data.get('action', 'disable')
-    if not ids:
-        return jsonify({'error': '请选择至少一个任务'}), 400
+    data = request.get_json(silent=True)
+    try:
+        ids, action = validate_batch_request(
+            data,
+            {'disable', 'enable', 'delete', 'freeze', 'unfreeze'},
+            '任务',
+        )
+    except BatchValidationError as exc:
+        return jsonify({'error': str(exc)}), 400
 
     conn = get_db()
     try:
@@ -4544,12 +4584,16 @@ def batch_tasks():
 
 @app.route('/api/items/batch', methods=['POST'])
 def batch_items():
-    data = request.get_json()
-    ids = data.get('ids', [])
-    action = data.get('action', 'disable')
-    price = data.get('price')
-    if not ids:
-        return jsonify({'error': '请选择至少一个商品'}), 400
+    data = request.get_json(silent=True)
+    try:
+        ids, action = validate_batch_request(
+            data,
+            {'disable', 'enable', 'delete', 'price'},
+            '商品',
+        )
+        price = validate_batch_price(data.get('price')) if action == 'price' else None
+    except BatchValidationError as exc:
+        return jsonify({'error': str(exc)}), 400
 
     conn = get_db()
     try:
@@ -4560,7 +4604,7 @@ def batch_items():
             cur.execute(f"UPDATE shopitemmodel SET purchasable=0, updatetime=? WHERE id IN ({ph})", [now] + ids)
         elif action == 'enable':
             cur.execute(f"UPDATE shopitemmodel SET purchasable=1, updatetime=? WHERE id IN ({ph})", [now] + ids)
-        elif action == 'price' and price is not None:
+        elif action == 'price':
             cur.execute(f"UPDATE shopitemmodel SET price=?, updatetime=? WHERE id IN ({ph})", [price, now] + ids)
         elif action == 'delete':
             cur.execute(f"UPDATE shopitemmodel SET isdel=1, updatetime=? WHERE id IN ({ph})", [now] + ids)
