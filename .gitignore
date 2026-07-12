@@ -6,6 +6,18 @@ __pycache__/
 # Archives
 _archive/
 
+# Generated LifeUp backup exports (may contain private user data)
+exports/
+
+# Managed workspace copies, snapshots, and restores (contain private user data)
+workspaces/
+
+# Local temporary logs and verification artifacts
+work/
+
+# Local Cloud LifeUp settings
+lifeup_cloud_config.json
+
 # Dist (keep the root dist EXEs)
 dist/*.spec
 

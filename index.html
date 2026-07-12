@@ -7,18 +7,20 @@
 <style>
 /* ========== Theme Variables ========== */
 :root {
-  --bg: #0a0e17; --bg2: #111827; --bg3: #1a2332; --border: #1e3a5f;
-  --text: #c9d1d9; --text2: #8b949e; --gold: #d4a843; --gold2: #f0c060;
-  --cyan: #56b6c2; --cyan2: #7acfd6; --red: #e0556a; --green: #4caf50;
-  --purple: #a78bfa; --purple2: #c4b5fd; --orange: #e09040;
-  --radius: 8px; --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --bg: #edf3f5; --bg2: #f7fafb; --bg3: #ffffff; --panel: #ffffff;
+  --border: #dbe5e8; --border2: #b8c7cc;
+  --text: #151a1f; --text2: #68747c; --gold: #151a1f; --gold2: #2c3338;
+  --cyan: #5d7580; --cyan2: #78909a; --red: #c94b57; --green: #2f8f62;
+  --purple: #55636b; --purple2: #20272c; --orange: #bd7539;
+  --radius: 8px; --shadow: 0 22px 55px rgba(25,35,40,0.12);
 }
 body.light-mode {
-  --bg: #f0f2f5; --bg2: #fff; --bg3: #fafafa; --border: #d0d5dd;
-  --text: #1a1a2e; --text2: #6b7280; --gold: #b8860b; --gold2: #d4a843;
-  --cyan: #0891b2; --cyan2: #06b6d4; --red: #dc2626; --green: #16a34a;
-  --purple: #7c3aed; --purple2: #8b5cf6; --orange: #ea580c;
-  --shadow: 0 4px 24px rgba(0,0,0,0.1);
+  --bg: #edf3f5; --bg2: #f7fafb; --bg3: #ffffff; --panel: #ffffff;
+  --border: #dbe5e8; --border2: #b8c7cc;
+  --text: #151a1f; --text2: #68747c; --gold: #151a1f; --gold2: #2c3338;
+  --cyan: #5d7580; --cyan2: #78909a; --red: #c94b57; --green: #2f8f62;
+  --purple: #55636b; --purple2: #20272c; --orange: #bd7539;
+  --shadow: 0 22px 55px rgba(25,35,40,0.12);
 }
 
 /* ========== Reset & Base ========== */
@@ -31,36 +33,87 @@ body {
 
 /* ========== Sidebar ========== */
 .sidebar {
-  width: 220px; background: var(--bg2); border-right: 1px solid var(--border);
-  display: flex; flex-direction: column; padding: 6px 0; flex-shrink: 0; overflow-y: auto;
+  width: 264px; background: #fbfcfd;
+  border-right: 1px solid #d8e0e4;
+  display: flex; flex-direction: column; padding: 18px 12px 12px; flex-shrink: 0; overflow-y: auto;
+  box-shadow: 8px 0 28px rgba(40,55,65,0.06);
+  transition: width .18s ease, padding .18s ease;
 }
 .sidebar-title {
-  padding: 6px 20px 14px; font-size: 18px; font-weight: 700;
-  background: linear-gradient(135deg, var(--gold), var(--orange));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px;
+  position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 4px 4px 22px; font-size: 17px; font-weight: 850;
+  color: #1f2529; letter-spacing: .01em; line-height: 1.25;
+}
+.sidebar-title small {
+  display: block; margin-top: 4px; color: #7b878e; font-size: 11px;
+  font-weight: 600; letter-spacing: 0; -webkit-text-fill-color: currentColor;
+}
+.sidebar-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.sidebar-mark {
+  width: 50px; height: 50px; border-radius: 15px; background: #20262b; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  font-size: 25px; box-shadow: 0 12px 24px rgba(32,38,43,.16);
+}
+.sidebar-brand-copy { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-toggle {
+  position: absolute; right: -29px; top: 23px; width: 38px; height: 38px;
+  border: 1px solid #e2e8eb; border-radius: 999px; background: #fff; color: #20262b;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  font-size: 23px; line-height: 1; box-shadow: 0 10px 24px rgba(30,42,50,.12); z-index: 5;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.sidebar-toggle:hover { background: #f2f5f6; border-color: #cfd8dc; transform: translateX(-1px); }
+.sidebar nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-section-title {
+  padding: 16px 10px 7px; color: #98a3a9; font-size: 10px;
+  letter-spacing: .12em; text-transform: uppercase; font-weight: 850;
 }
 .nav-item {
-  padding: 9px 20px; cursor: pointer; display: flex; align-items: center; gap: 10px;
-  font-size: 13px; color: var(--text2); transition: all 0.15s; border-left: 3px solid transparent;
+  margin: 1px 0; padding: 11px 12px; cursor: pointer; display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: #6a747b; transition: color 0.15s, background .15s, border-color .15s, box-shadow .15s;
+  border: 1px solid transparent; border-radius: 12px; min-height: 46px; font-weight: 680;
+  white-space: nowrap;
 }
-.nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
-.nav-item.active { color: var(--gold); border-left-color: var(--gold); background: rgba(212,168,67,0.08); }
-.nav-icon { font-size: 16px; width: 22px; text-align: center; }
+.nav-item:hover { color: #20262b; background: #f0f3f4; border-color: #e5ecef; }
+.nav-item.active {
+  color: #171c21; border-color: #e1e7ea; background: #eef1f2;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.58);
+}
+.nav-icon {
+  font-size: 18px; width: 28px; height: 28px; border-radius: 9px; text-align: center;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  filter: grayscale(.2);
+}
+.nav-item.active .nav-icon { background: #fff; filter: grayscale(0); }
+.sidebar.collapsed { width: 90px; padding: 18px 16px 12px; overflow-x: visible; }
+.sidebar.collapsed .sidebar-title { justify-content: center; padding-bottom: 22px; }
+.sidebar.collapsed .sidebar-brand { justify-content: center; }
+.sidebar.collapsed .sidebar-brand-copy,
+.sidebar.collapsed .nav-section-title,
+.sidebar.collapsed .history-section { display: none !important; }
+.sidebar.collapsed .sidebar-toggle { right: -25px; }
+.sidebar.collapsed .sidebar-toggle .sidebar-toggle-icon { transform: rotate(180deg); display: inline-block; }
+.sidebar.collapsed .nav-item {
+  width: 56px; height: 56px; padding: 0; justify-content: center; gap: 0; font-size: 0; border-radius: 14px;
+}
+.sidebar.collapsed .nav-icon { font-size: 21px; width: 34px; height: 34px; }
 
 /* ========== Main Layout ========== */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .header {
-  padding: 10px 24px; background: var(--bg2); border-bottom: 1px solid var(--border);
-  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; flex-wrap: wrap; gap: 8px;
+  padding: 12px 24px; background: rgba(247,250,251,.96); border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; flex-wrap: wrap; gap: 10px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.03);
 }
-.header h2 { font-size: 16px; font-weight: 600; color: var(--cyan); white-space: nowrap; }
+.header h2 { font-size: 17px; font-weight: 800; color: #151a1f; white-space: nowrap; letter-spacing: .01em; }
+.header-title-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; min-width: 0; }
 .conn-status { display: flex; align-items: center; gap: 8px; font-size: 12px; flex-wrap: wrap; }
 .conn-dot { width: 8px; height: 8px; border-radius: 50%; }
 .conn-dot.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
 .conn-dot.offline { background: var(--red); }
 .file-path {
   background: var(--bg3); border: 1px solid var(--border); color: var(--text2);
-  padding: 4px 10px; border-radius: 4px; font-size: 11px; max-width: 260px;
+  padding: 5px 10px; border-radius: 6px; font-size: 11px; max-width: 260px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace;
 }
 .theme-toggle {
@@ -68,17 +121,37 @@ body {
   padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 16px; line-height: 1;
 }
 .theme-toggle:hover { color: var(--gold); border-color: var(--gold); }
+.source-switch {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+}
+.source-switch-label { color: var(--text2); font-size: 11px; padding: 0 4px; }
+.source-switch-btn {
+  background: transparent; border: 0; border-radius: 4px; color: var(--text2);
+  cursor: pointer; font-size: 11px; font-weight: 700; padding: 4px 9px;
+}
+.source-switch-btn.active.local { background: #151a1f; color: #fff; }
+.source-switch-btn.active.cloud { background: #151a1f; color: #fff; }
+.source-mode-note {
+  display: inline-flex; align-items: center; gap: 6px; color: var(--text2);
+  font-size: 11px; max-width: 360px;
+}
+.source-page-note {
+  margin-bottom: 12px; padding: 10px 12px; background: rgba(98,198,178,0.08);
+  border: 1px solid rgba(98,198,178,0.25); border-radius: 8px;
+  color: var(--text2); font-size: 12px;
+}
 
 /* ========== Content ========== */
-.content { flex: 1; overflow-y: auto; padding: 24px; padding-bottom: 60px; }
+.content { flex: 1; overflow-y: auto; padding: 22px 26px 64px; }
 
 /* ========== Stats Grid ========== */
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .stat-card {
-  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px; text-align: center; transition: transform 0.15s;
+  background: var(--bg3); border: 1px solid rgba(219,229,232,.85); border-radius: var(--radius);
+  padding: 16px; text-align: center; transition: transform 0.15s, border-color .15s, background .15s;
 }
-.stat-card:hover { transform: translateY(-2px); }
+.stat-card:hover { transform: translateY(-2px); border-color: var(--border2); }
 .stat-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
 .stat-value { font-size: 28px; font-weight: 700; }
 .stat-value.gold { color: var(--gold); }
@@ -87,26 +160,70 @@ body {
 .stat-value.green { color: var(--green); }
 .stat-value.red { color: var(--red); }
 
+/* ========== Dashboard Cockpit ========== */
+.dashboard-status {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 14px; padding: 10px 12px; background: rgba(98,198,178,0.08);
+  border: 1px solid rgba(98,198,178,0.25); border-radius: 8px; color: var(--text2); font-size: 12px;
+}
+.dashboard-warning {
+  margin-bottom: 14px; padding: 10px 12px; border: 1px solid rgba(216,137,74,.35);
+  background: rgba(216,137,74,.08); color: var(--orange); border-radius: 8px; font-size: 12px;
+}
+.dashboard-intro {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end;
+  margin: 10px 0 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(143,154,146,.18);
+}
+.dashboard-kicker { color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+.dashboard-title { margin-top: 5px; color: var(--text); font-size: 26px; font-weight: 850; line-height: 1.2; }
+.dashboard-subtitle { margin-top: 7px; color: var(--text2); font-size: 12px; line-height: 1.6; }
+.dashboard-streak {
+  min-width: 220px; padding: 12px 14px; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; text-align: right;
+}
+.dashboard-streak strong { color: var(--gold); font-size: 22px; }
+.dashboard-card {
+  position: relative; overflow: hidden; text-align: left; min-height: 126px;
+  background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0)), var(--bg3);
+}
+.dashboard-card::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--cyan);
+}
+.dashboard-card.gold::before { background: var(--gold); }
+.dashboard-card.purple::before { background: var(--purple); }
+.dashboard-card .stat-label { font-size: 12px; font-weight: 700; color: var(--text2); }
+.dashboard-card .stat-value { margin-top: 8px; font-size: 30px; line-height: 1; }
+.dashboard-card .card-sub { margin-top: 10px; color: var(--text2); font-size: 11px; line-height: 1.55; }
+.dashboard-section-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 20px;
+}
+.dashboard-list-panel {
+  flex: 1; min-width: 0; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px;
+}
+.dashboard-list-panel .section-title { margin-top: 0; }
+.dashboard-task-panel { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: left; }
+
 /* ========== Tables ========== */
 .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .data-table th {
-  background: var(--bg2); padding: 10px 12px; text-align: left; font-weight: 600;
-  color: var(--cyan); border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 1;
+  background: #f4f8f9; padding: 10px 12px; text-align: left; font-weight: 700;
+  color: #38444b; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1;
 }
-.data-table td { padding: 8px 12px; border-bottom: 1px solid rgba(30,58,95,0.3); vertical-align: middle; }
-.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+.data-table td { padding: 8px 12px; border-bottom: 1px solid rgba(219,229,232,0.78); vertical-align: middle; }
+.data-table tr:hover td { background: #f6fafb; }
 .data-table input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; accent-color: var(--cyan); }
 
 /* ========== Buttons ========== */
 .btn {
-  padding: 6px 14px; border: none; border-radius: 4px; cursor: pointer;
+  padding: 6px 14px; border: none; border-radius: 6px; cursor: pointer;
   font-size: 12px; font-weight: 600; transition: all 0.2s;
   display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
 }
-.btn-primary { background: var(--gold); color: #000; }
-.btn-primary:hover { background: var(--gold2); }
-.btn-cyan { background: var(--cyan); color: #000; }
-.btn-cyan:hover { background: var(--cyan2); }
+.btn-primary { background: #151a1f; color: #fff; }
+.btn-primary:hover { background: #2c3338; }
+.btn-cyan { background: #dfe8eb; color: #151a1f; }
+.btn-cyan:hover { background: #cfdbdf; }
 .btn-danger { background: transparent; border: 1px solid var(--red); color: var(--red); }
 .btn-danger:hover { background: var(--red); color: #fff; }
 .btn-green { background: var(--green); color: #fff; }
@@ -124,37 +241,199 @@ body {
 }
 .modal-overlay.show { display: flex; }
 .modal {
-  background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
   padding: 24px; width: 560px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: var(--shadow);
 }
-.modal h3 { color: var(--gold); margin-bottom: 16px; font-size: 16px; }
+.modal h3 { color: var(--text); margin-bottom: 16px; font-size: 16px; }
 .modal.wide { width: 720px; }
 
 /* ========== Forms ========== */
 .form-group { margin-bottom: 12px; }
 .form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; }
 .form-group input, .form-group select, .form-group textarea {
-  width: 100%; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border);
-  border-radius: 4px; color: var(--text); font-size: 13px; font-family: inherit;
+  width: 100%; padding: 8px 10px; background: #f8fbfc; border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-size: 13px; font-family: inherit;
 }
 .form-group textarea { resize: vertical; min-height: 60px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.switch-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+  background: #f8fbfc; margin-bottom: 12px;
+}
+.switch-row-main { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.switch-row-icon { font-size: 18px; width: 24px; text-align: center; }
+.switch-row-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.switch-row-sub { margin-top: 2px; font-size: 11px; color: var(--text2); line-height: 1.45; }
+.switch-control { position: relative; display: inline-flex; align-items: center; flex-shrink: 0; }
+.switch-control input { position: absolute; opacity: 0; pointer-events: none; }
+.switch-slider {
+  width: 42px; height: 24px; border-radius: 999px; background: #cfd8dc;
+  border: 1px solid #b7c3c8; transition: all .18s ease; position: relative;
+}
+.switch-slider::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+  border-radius: 50%; background: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,.22);
+  transition: transform .18s ease;
+}
+.switch-control input:checked + .switch-slider { background: #151a1f; border-color: #151a1f; }
+.switch-control input:checked + .switch-slider::after { transform: translateX(18px); }
+.limit-builder {
+  border: 1px solid var(--border); border-radius: 8px; background: #f8fbfc;
+  padding: 12px; margin-bottom: 12px;
+}
+.limit-builder-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px;
+}
+.limit-builder-title { font-size: 13px; font-weight: 800; color: var(--text); }
+.limit-add-wrap { position: relative; }
+.limit-menu {
+  display: none; position: absolute; right: 0; top: calc(100% + 6px); width: 210px;
+  background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow);
+  z-index: 130; padding: 6px;
+}
+.limit-menu.show { display: grid; gap: 2px; }
+.limit-menu button {
+  border: 0; background: transparent; color: var(--text); text-align: left;
+  padding: 9px 10px; border-radius: 6px; cursor: pointer; font-size: 13px;
+}
+.limit-menu button:hover { background: #edf4f6; }
+.limit-list { display: grid; gap: 8px; }
+.limit-card {
+  border: 1px solid var(--border); border-radius: 8px; background: #fff; padding: 10px;
+}
+.limit-card-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px;
+}
+.limit-card-title { font-size: 13px; font-weight: 800; color: var(--text); }
+.limit-card-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.limit-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: end; }
+.limit-card-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.limit-empty { font-size: 12px; color: var(--text2); padding: 8px 0; }
+.limit-advanced summary { cursor: pointer; color: var(--text2); font-size: 12px; margin-bottom: 8px; }
+@media (max-width: 640px) {
+  .limit-builder-head { align-items: stretch; flex-direction: column; }
+  .limit-add-wrap .btn { width: 100%; justify-content: center; }
+  .limit-menu { left: 0; right: auto; width: 100%; }
+  .limit-card-grid,
+  .limit-card-grid.three { grid-template-columns: 1fr; }
+}
+.effect-panel {
+  text-align: left; padding: 12px; margin-bottom: 12px;
+  background: #f8fbfc; border: 1px solid var(--border); border-radius: 8px;
+}
+.effect-hint { font-size: 11px; color: var(--text2); line-height: 1.5; margin: -2px 0 10px; }
+.skill-picker {
+  display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 10px; margin-bottom: 10px;
+}
+.skill-chip {
+  min-width: 70px; border: 1px solid var(--border); border-radius: 8px; background: #fff;
+  color: var(--text2); cursor: pointer; padding: 8px 8px 7px; text-align: center;
+  transition: border-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+.skill-chip.active { border-color: #151a1f; color: var(--text); box-shadow: 0 0 0 2px rgba(21,26,31,.12); }
+.skill-chip img {
+  width: 34px; height: 34px; display: block; margin: 0 auto 5px; object-fit: cover;
+  border-radius: 50%; background: #edf2f4;
+}
+.skill-chip .skill-fallback {
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 5px; border-radius: 50%; background: #edf2f4; color: var(--text2); font-size: 16px;
+}
+.skill-chip span { display: block; font-size: 12px; white-space: nowrap; }
+.effect-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.effect-radio {
+  display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border);
+  border-radius: 8px; background: #fff; cursor: pointer; font-weight: 700; font-size: 13px;
+}
+.effect-radio input { width: 16px; height: 16px; accent-color: var(--cyan); }
+.effect-mark {
+  width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center;
+  justify-content: center; color: #fff; font-size: 18px; font-weight: 800;
+}
+.effect-mark.add { background: #1aa7d9; }
+.effect-mark.decrease { background: #e6698d; }
+.inline-check { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 8px 0; }
+.inline-check input { width: 16px; height: 16px; accent-color: var(--cyan); }
+.effect-random-fields { display: none; }
+.effect-random-fields.show { display: block; }
+.lootbox-add-bar {
+  padding: 10px; margin-bottom: 12px; border: 1px solid var(--border);
+  border-radius: 8px; background: #fff;
+}
+.lootbox-list { display: grid; gap: 8px; }
+.lootbox-entry {
+  padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: #fff;
+}
+.lootbox-entry-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px;
+}
+.lootbox-entry-name { font-weight: 700; font-size: 13px; color: var(--text); }
+.lootbox-entry-id { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.lootbox-entry-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: end; }
+.lootbox-fixed-control {
+  display: flex; align-items: center; gap: 8px; height: 36px; font-size: 12px; color: var(--text);
+}
+.lootbox-fixed-control input { width: 16px; height: 16px; accent-color: var(--cyan); }
+.synthesis-config { display: grid; gap: 12px; }
+.synthesis-flow-editor {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 14px; align-items: center; justify-items: center;
+}
+.synthesis-card {
+  width: 100%; min-height: 154px; border: 1px solid var(--border); border-radius: 8px;
+  background: #fff; padding: 12px; display: grid; gap: 10px; align-content: center;
+}
+.synthesis-card.readonly { background: #f4f8f9; color: var(--text2); }
+.synthesis-card.selectable { cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease; }
+.synthesis-card.selectable:hover { border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(86,182,194,.12); }
+.synthesis-card-main { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
+.synthesis-card-icon {
+  width: 42px; height: 42px; border-radius: 8px; background: #edf2f4;
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  color: var(--text2); font-size: 20px; overflow: hidden;
+}
+.synthesis-card-icon img { width: 100%; height: 100%; object-fit: cover; }
+.synthesis-card-name { font-size: 13px; font-weight: 800; color: var(--text); line-height: 1.3; word-break: break-word; }
+.synthesis-card-sub { font-size: 11px; color: var(--text2); text-align: center; }
+.synthesis-card.readonly .synthesis-card-name { color: var(--text2); }
+.synthesis-card .form-group { margin-bottom: 0; }
+.synthesis-arrow { display: grid; gap: 4px; justify-items: center; color: var(--text2); font-size: 11px; }
+.synthesis-arrow-icon { font-size: 28px; line-height: 1; color: var(--gold); }
+.synthesis-target-picker {
+  display: none; border: 1px solid var(--border); border-radius: 8px; background: #fff; padding: 10px;
+}
+.synthesis-target-picker.show { display: grid; gap: 8px; }
+.synthesis-target-results { display: grid; gap: 6px; max-height: 180px; overflow-y: auto; }
+.synthesis-target-option {
+  display: flex; align-items: center; gap: 9px; width: 100%; text-align: left;
+  border: 1px solid var(--border); border-radius: 8px; background: #f8fbfc;
+  padding: 7px 9px; cursor: pointer; color: var(--text);
+}
+.synthesis-target-option:hover { border-color: var(--cyan); background: #fff; }
+.synthesis-target-option-name { font-size: 12px; font-weight: 800; }
+.synthesis-target-option-meta { font-size: 11px; color: var(--text2); margin-top: 1px; }
+@media (max-width: 640px) {
+  .synthesis-flow-editor { grid-template-columns: 1fr; }
+  .synthesis-arrow { transform: rotate(90deg); margin: -2px 0; }
+  .synthesis-arrow span:not(.synthesis-arrow-icon) { display: none; }
+}
 
 /* ========== Tabs ========== */
 .tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
 .tab {
   padding: 6px 16px; background: var(--bg3); border: 1px solid var(--border);
-  border-radius: 4px; cursor: pointer; font-size: 12px; color: var(--text2); transition: all 0.2s;
+  border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--text2); transition: all 0.2s;
 }
-.tab.active { background: var(--gold); color: #000; border-color: var(--gold); }
+.tab.active { background: #151a1f; color: #fff; border-color: #151a1f; }
 .tab:hover:not(.active) { color: var(--text); border-color: var(--cyan); }
 
 /* ========== Search ========== */
 .search-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
 .search-input {
-  padding: 7px 12px; background: var(--bg); border: 1px solid var(--border);
-  border-radius: 4px; color: var(--text); font-size: 13px; width: 260px; outline: none;
+  padding: 7px 12px; background: #ffffff; border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-size: 13px; width: 260px; outline: none;
 }
 .search-input:focus { border-color: var(--cyan); }
 .search-input::placeholder { color: var(--text2); }
@@ -166,16 +445,16 @@ body {
   padding: 3px 10px; border-radius: 12px; font-size: 11px; cursor: pointer; transition: all 0.2s;
   background: var(--bg3); color: var(--text2); border: 1px solid var(--border);
 }
-.filter-tag.active { background: var(--cyan); color: #000; border-color: var(--cyan); }
+.filter-tag.active { background: #151a1f; color: #fff; border-color: #151a1f; }
 .filter-tag:hover:not(.active) { border-color: var(--gold); color: var(--text); }
 
 /* ========== Badges ========== */
 .badge {
-  display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;
+  display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700;
 }
-.badge-cyan { background: rgba(86,182,194,0.2); color: var(--cyan); }
-.badge-gold { background: rgba(212,168,67,0.2); color: var(--gold); }
-.badge-purple { background: rgba(167,139,250,0.2); color: var(--purple); }
+.badge-cyan { background: #e1eaed; color: #35454d; }
+.badge-gold { background: #e8edf0; color: #151a1f; }
+.badge-purple { background: #e7ecef; color: #4b5860; }
 .badge-red { background: rgba(224,85,106,0.2); color: var(--red); }
 .badge-green { background: rgba(76,175,80,0.2); color: var(--green); }
 .badge-orange { background: rgba(224,144,64,0.2); color: var(--orange); }
@@ -354,18 +633,31 @@ body {
 /* ========== Responsive ========== */
 @media (max-width: 768px) {
   body { flex-direction: column; }
-  .sidebar { width: 100%; flex-direction: row; overflow-x: auto; padding: 8px; flex-shrink: 0; height: auto; }
+  .sidebar, .sidebar.collapsed {
+    width: 100%; flex-direction: row; overflow-x: auto; overflow-y: hidden;
+    padding: 8px; flex-shrink: 0; height: auto; box-shadow: none; border-right: 0; border-bottom: 1px solid var(--border);
+  }
   .sidebar-title { display: none; }
-  .nav-item { border-left: none; border-bottom: 2px solid transparent; padding: 8px 10px; font-size: 11px; gap: 4px; }
-  .nav-item.active { border-left-color: transparent; border-bottom-color: var(--gold); }
+  .sidebar nav { flex-direction: row; gap: 4px; }
+  .nav-section-title { display: none; }
+  .sidebar.collapsed .nav-item,
+  .nav-item { width: auto; height: auto; padding: 8px 10px; font-size: 11px; gap: 6px; min-height: 38px; border-radius: 10px; }
+  .sidebar.collapsed .nav-icon,
+  .nav-icon { font-size: 15px; width: 22px; height: 22px; }
+  .history-section { display: none !important; }
+  .header { align-items: flex-start; }
+  .source-mode-note { max-width: 100%; }
   .batch-bar { left: 0; }
   .search-input { width: 180px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .card-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-intro { grid-template-columns: 1fr; }
+  .dashboard-streak { text-align: left; min-width: 0; }
+  .chart-row-flex { flex-direction: column; }
 }
 
 /* ========== Section Header ========== */
-.section-title { font-size: 15px; color: var(--purple2); margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.section-title { font-size: 13px; color: var(--text); margin: 22px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); font-weight: 800; letter-spacing: .04em; }
 
 /* ========== Drop Zone ========== */
 .drop-zone {
@@ -387,23 +679,23 @@ body {
 
 /* ========== History Panel ========== */
 .history-section {
-  margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border);
+  margin-top: auto; padding-top: 12px; border-top: 1px solid #e4ebee;
 }
 .history-section h4 {
-  font-size: 12px; color: var(--text2); margin-bottom: 8px; padding: 0 20px;
+  font-size: 12px; color: #7c878e; margin-bottom: 8px; padding: 0 8px;
   display: flex; justify-content: space-between; align-items: center;
 }
 .history-section h4 .history-clear {
   font-size: 10px; color: var(--red); cursor: pointer; padding: 2px 8px;
-  border: 1px solid var(--red); border-radius: 3px; transition: all 0.15s;
+  border: 1px solid rgba(201,75,87,.45); border-radius: 6px; transition: all 0.15s;
 }
 .history-section h4 .history-clear:hover { background: var(--red); color: #fff; }
 .history-item {
-  padding: 7px 20px; cursor: pointer; font-size: 11px; color: var(--text2);
+  padding: 8px 9px; cursor: pointer; font-size: 11px; color: #6f7b83;
   display: flex; align-items: center; gap: 8px; transition: all 0.15s;
-  border-left: 3px solid transparent;
+  border: 1px solid transparent; border-radius: 10px;
 }
-.history-item:hover { color: var(--text); background: rgba(255,255,255,0.03); border-left-color: var(--cyan); }
+.history-item:hover { color: var(--text); background: #f0f3f4; border-color: #e3eaed; }
 .history-item-icon { font-size: 13px; flex-shrink: 0; }
 .history-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; }
 .history-item-time { font-size: 10px; color: var(--text2); flex-shrink: 0; }
@@ -413,7 +705,7 @@ body {
 }
 .history-item:hover .history-item-remove { opacity: 0.6; }
 .history-item-remove:hover { opacity: 1 !important; color: var(--red); }
-.history-empty { padding: 8px 20px; font-size: 11px; color: var(--text2); font-style: italic; }
+.history-empty { padding: 8px 10px; font-size: 11px; color: var(--text2); font-style: italic; }
 
 /* ========== Quick-load buttons in modal ========== */
 .quick-load-row {
@@ -516,24 +808,38 @@ body {
 
 <!-- ========== Sidebar ========== -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-title">☯ 诸天万界</div>
+  <div class="sidebar-title">
+    <div class="sidebar-brand">
+      <span class="sidebar-mark">☯</span>
+      <span class="sidebar-brand-copy">诸天万界<small>LifeUp 进度与备份控制台</small></span>
+    </div>
+    <button class="sidebar-toggle" type="button" onclick="toggleSidebar()" title="折叠侧栏" aria-label="折叠侧栏">
+      <span class="sidebar-toggle-icon">‹</span>
+    </button>
+  </div>
   <nav>
-    <div class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span> 修行总览</div>
+    <div class="nav-section-title">总览</div>
+    <div class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span> 目标控制台</div>
     <div class="nav-item" data-page="daily"><span class="nav-icon">📿</span> 日常功课</div>
     <div class="nav-item" data-page="focus"><span class="nav-icon">🧘</span> 闭关修炼</div>
     <div class="nav-item" data-page="goals"><span class="nav-icon">🌟</span> 大道宏愿</div>
     <div class="nav-item" data-page="review"><span class="nav-icon">📜</span> 道行复盘</div>
+    <div class="nav-section-title">管理</div>
     <div class="nav-item" data-page="tasks"><span class="nav-icon">📋</span> 任务管理</div>
+    <div class="nav-item" data-page="cloud"><span class="nav-icon">☁️</span> 手机连接/新增任务</div>
     <div class="nav-item" data-page="items"><span class="nav-icon">🏪</span> 商店管理</div>
     <div class="nav-item" data-page="achievements"><span class="nav-icon">🏆</span> 成就管理</div>
+    <div class="nav-section-title">资源</div>
     <div class="nav-item" data-page="skills"><span class="nav-icon">⚔️</span> 属性面板</div>
     <div class="nav-item" data-page="inventory"><span class="nav-icon">🎒</span> 背包物品</div>
     <div class="nav-item" data-page="synthesis"><span class="nav-icon">🔮</span> 合成配方</div>
-    <div class="nav-item" data-page="history"><span class="nav-icon">📜</span> 活动记录</div>
     <div class="nav-item" data-page="pools"><span class="nav-icon">🎰</span> 卡池管理</div>
-    <div class="nav-item" data-page="achprogress"><span class="nav-icon">📈</span> 成就进度</div>
     <div class="nav-item" data-page="collection"><span class="nav-icon">🃏</span> 卡牌图鉴</div>
+    <div class="nav-section-title">分析</div>
+    <div class="nav-item" data-page="history"><span class="nav-icon">📜</span> 活动记录</div>
+    <div class="nav-item" data-page="achprogress"><span class="nav-icon">📈</span> 成就进度</div>
     <div class="nav-item" data-page="economy"><span class="nav-icon">📊</span> 经济看板</div>
+    <div class="nav-section-title">系统</div>
     <div class="nav-item" data-page="snapshots"><span class="nav-icon">📸</span> 快照管理</div>
     <div class="nav-item" data-page="realms"><span class="nav-icon">🌌</span> 位面切换</div>
   </nav>
@@ -547,13 +853,17 @@ body {
 <!-- ========== Main Area ========== -->
 <div class="main">
   <header class="header">
-    <h2 id="pageTitle">📊 修行总览</h2>
+    <div class="header-title-row">
+      <h2 id="pageTitle">📊 目标控制台</h2>
+      <div id="globalSourceSwitch" class="source-switch" aria-label="数据源切换"></div>
+      <span id="sourceModeNote" class="source-mode-note"></span>
+    </div>
     <div class="conn-status">
       <span class="file-path" id="filePath" title="">未加载存档</span>
       <div class="conn-dot offline" id="connDot"></div>
       <span id="connText" style="font-size:11px;color:var(--text2)">未加载</span>
       <button class="btn btn-cyan btn-sm" onclick="showOpenDialog()">📂 打开存档</button>
-      <button class="btn btn-green btn-sm" id="saveBtn" onclick="saveBackup()" disabled>💾 保存</button>
+      <button class="btn btn-green btn-sm" id="saveBtn" onclick="saveBackup()" disabled>💾 导出备份</button>
       <button class="theme-toggle" onclick="toggleTheme()" title="切换主题" id="themeBtn">🌙</button>
     </div>
   </header>
@@ -618,6 +928,7 @@ body {
  * ================================================================================= */
 
 // ====== Constants ======
+const DIRECT_FILE_MODE = typeof location !== 'undefined' && location.protocol === 'file:';
 const API_BASE = '';
 const IS_DESKTOP = !!(window.pywebview && window.pywebview.api);
 const DEFAULT_PATH = 'C:\\Users\\USER\\Nutstore\\1\\LifeUp\\LifeupBackup.zip';
@@ -634,7 +945,82 @@ const pageStates = {
 };
 let currentBatchType = 'tasks';
 let currentPage = 'dashboard';
+let itemEffectSkillCache = null;
+let itemEffectItemCache = null;
+let purchaseLimitTaskCache = null;
+let purchaseLimitAchievementCache = null;
+let lootboxEntrySeq = 0;
 let currentSort = { col: null, asc: true };
+let dataSource = localStorage.getItem('lifeup_data_source') || 'local';
+
+function setDataSource(source, reload) {
+  dataSource = source === 'cloud' ? 'cloud' : 'local';
+  localStorage.setItem('lifeup_data_source', dataSource);
+  updateDataSourceUI();
+  hideBatchBar();
+  if (reload !== false) loadCurrentPage();
+}
+function updateDataSourceUI() {
+  var switchEl = document.getElementById('globalSourceSwitch');
+  var noteEl = document.getElementById('sourceModeNote');
+  var cloudActive = dataSource === 'cloud';
+  if (switchEl) {
+    switchEl.innerHTML =
+      '<span class="source-switch-label">数据源</span>' +
+      '<button class="source-switch-btn local' + (!cloudActive ? ' active' : '') + '" onclick="setDataSource(\'local\')">本地备份</button>' +
+      '<button class="source-switch-btn cloud' + (cloudActive ? ' active' : '') + '" onclick="setDataSource(\'cloud\')">手机云人升</button>';
+  }
+  if (noteEl) {
+    noteEl.innerHTML = cloudActive
+      ? '<span class="badge badge-cyan">实时只读</span><span>读取手机实时数据；当前只允许新增任务。</span>'
+      : '<span class="badge badge-purple">备份编辑</span><span>编辑工作副本，保存后导出备份。</span>';
+  }
+}
+function sourceQuery() {
+  return dataSource === 'cloud' ? 'source=cloud' : '';
+}
+function addSourceParam(qs) {
+  if (dataSource !== 'cloud') return qs;
+  return qs ? qs + '&source=cloud' : 'source=cloud';
+}
+function sourceBanner(kind) {
+  if (dataSource !== 'cloud') return '';
+  return '<div class="source-page-note">当前查看的是手机云人升实时' + kind + '数据；此页只读，不会编辑或删除手机里的' + kind + '。</div>';
+}
+function cloudReadOnlyGuard(action) {
+  if (dataSource !== 'cloud') return false;
+  toast('手机云人升模式下已有数据只读，不能' + action, 'error');
+  return true;
+}
+function isCloudReadOnlyWrite(path, opts) {
+  if (dataSource !== 'cloud') return false;
+  var method = String((opts && opts.method) || 'GET').toUpperCase();
+  if (method === 'GET' || method === 'HEAD') return false;
+  return /^\/api\/(?:tasks|items|achievements|subtasks|conditions|synthesis|pools|snapshots)(?:[/?]|$)/.test(path) ||
+    /^\/api\/save(?:[/?]|$)/.test(path);
+}
+updateDataSourceUI();
+
+// ====== Sidebar Shell ======
+function applySidebarState(collapsed) {
+  var sidebar = document.getElementById('sidebar');
+  var toggle = sidebar ? sidebar.querySelector('.sidebar-toggle') : null;
+  if (!sidebar) return;
+  sidebar.classList.toggle('collapsed', !!collapsed);
+  if (toggle) {
+    var label = collapsed ? '展开侧栏' : '折叠侧栏';
+    toggle.title = label;
+    toggle.setAttribute('aria-label', label);
+  }
+}
+function toggleSidebar() {
+  var sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  var collapsed = !sidebar.classList.contains('collapsed');
+  localStorage.setItem('lifeup_sidebar_collapsed', collapsed ? '1' : '0');
+  applySidebarState(collapsed);
+}
+applySidebarState(localStorage.getItem('lifeup_sidebar_collapsed') === '1');
 
 // ====== Sort Helper ======
 function sortData(rows, col, asc) {
@@ -660,16 +1046,39 @@ function sortClick(col) {
 
 // ====== API Helper ======
 async function api(path, opts = {}) {
+  if (isCloudReadOnlyWrite(path, opts)) {
+    throw new Error('手机云人升模式下已有数据只读；请切回本地备份编辑，或到“手机连接/新增任务”页新增任务。');
+  }
   const url = API_BASE + path;
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-LifeUp-Data-Source': dataSource,
+    ...(opts.headers || {})
+  };
   const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-    ...opts
+    ...opts,
+    headers
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || `HTTP ${res.status}`);
+    const requestError = new Error(err.error || `HTTP ${res.status}`);
+    requestError.suggestion = err.suggestion || '';
+    requestError.details = err.errors || [];
+    throw requestError;
   }
   return res.json();
+}
+async function apiWithTimeout(path, timeoutMs, opts = {}) {
+  var controller = new AbortController();
+  var timer = setTimeout(function() { controller.abort(); }, timeoutMs);
+  try {
+    return await api(path, Object.assign({}, opts, { signal: controller.signal }));
+  } catch (e) {
+    if (e && e.name === 'AbortError') throw new Error('云端连接超时');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // ====== Toast ======
@@ -720,8 +1129,15 @@ document.querySelectorAll('.nav-item').forEach(function(item) {
   });
 });
 
+function activateNav(page) {
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.classList.toggle('active', item.dataset.page === page);
+  });
+}
+
 var pageTitles = {
-  dashboard:'📊 修行总览', daily:'📿 日常功课', focus:'🧘 闭关修炼', goals:'🌟 大道宏愿', review:'📜 道行复盘',
+  cloud:'☁️ 手机连接/新增任务',
+  dashboard:'📊 目标控制台', daily:'📿 日常功课', focus:'🧘 闭关修炼', goals:'🌟 大道宏愿', review:'📜 道行复盘',
   tasks:'📋 任务管理', items:'🏪 商店管理',
   achievements:'🏆 成就管理', skills:'⚔️ 属性面板', inventory:'🎒 背包物品',
   synthesis:'🔮 合成配方', history:'📜 活动记录', pools:'🎰 卡池管理',
@@ -731,7 +1147,9 @@ var pageTitles = {
 
 function loadPage(page) {
   currentPage = page;
+  activateNav(page);
   document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+  updateDataSourceUI();
   hideBatchBar();
   loadCurrentPage();
 }
@@ -739,6 +1157,7 @@ function loadPage(page) {
 function loadCurrentPage() {
   var page = currentPage;
   var loaders = {
+    cloud: loadCloud,
     dashboard: loadDashboard, daily: loadDaily, focus: loadFocus, goals: loadGoals, review: loadReview,
     tasks: loadTasks, items: loadItems,
     achievements: loadAchievements, skills: loadSkills, inventory: loadInventory,
@@ -751,6 +1170,10 @@ function loadCurrentPage() {
 
 // ====== Batch Bar ======
 function updateBatchBar(type) {
+  if (dataSource === 'cloud') {
+    hideBatchBar();
+    return;
+  }
   currentBatchType = type;
   var checks = document.querySelectorAll('.batch-check:checked');
   var count = checks.length;
@@ -783,6 +1206,7 @@ function getSelectedIds() {
   return Array.from(document.querySelectorAll('.batch-check:checked')).map(function(c) { return parseInt(c.value); });
 }
 function batchAction(type, action) {
+  if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量修改', 'error');
   var ids = getSelectedIds();
   if (ids.length === 0) return toast('请至少选择一项', 'error');
   if (action === 'delete' && !confirm('确定删除选中的 ' + ids.length + ' 项吗？此操作不可撤销。')) return;
@@ -805,12 +1229,14 @@ function batchAction(type, action) {
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 function batchPriceDialog() {
+  if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量改价', 'error');
   var ids = getSelectedIds();
   if (ids.length === 0) return toast('请至少选择一项', 'error');
   showModal('💰 批量改价', '<div class="form-group"><label>新价格</label><input id="f_batchprice" type="number" value="0" style="font-size:18px"></div><div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doBatchPrice()">确认修改 ' + ids.length + ' 件商品</button></div>');
   setTimeout(function() { var inp = document.getElementById('f_batchprice'); if (inp) inp.focus(); }, 100);
 }
 function doBatchPrice() {
+  if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量改价', 'error');
   var price = parseInt(document.getElementById('f_batchprice').value);
   var ids = getSelectedIds();
   if (isNaN(price)) return toast('请输入有效价格', 'error');
@@ -865,7 +1291,7 @@ function renderQuickOpenModal() {
     // 手动输入路径
     '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">' +
     '<p style="font-size:12px;color:var(--text2);margin-bottom:8px">或手动输入文件路径：</p>' +
-    '<div class="form-group"><input id="f_openpath" value="' + saved.replace(/\\/g,'\\\\').replace(/"/g,'&quot;') + '" style="font-family:Consolas,monospace" placeholder="ZIP 文件路径"></div>' +
+    '<div class="form-group"><input id="f_openpath" value="' + escAttr(saved) + '" style="font-family:Consolas,monospace" placeholder="ZIP 文件路径"></div>' +
     '<p style="font-size:10px;color:var(--text2);margin-bottom:8px">💡 提示：也支持拖拽文件到窗口，或按 Ctrl+O 快速打开</p>' +
     '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doOpenBackup()">📂 加载</button></div>' +
     '</div>'
@@ -876,7 +1302,7 @@ function renderQuickOpenModal() {
 function openNativeFileDialog(multi) {
   closeModal();
   if (!IS_DESKTOP) {
-    showOpenDialog();
+    openBrowserFileDialog(!!multi);
     return;
   }
   multi = !!multi;
@@ -900,6 +1326,63 @@ function openNativeFileDialog(multi) {
   }, 150);
 }
 
+function openBrowserFileDialog(multi) {
+  if (DIRECT_FILE_MODE) {
+    showDirectFileModeHelp();
+    return;
+  }
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.zip,application/zip';
+  input.multiple = !!multi;
+  input.style.display = 'none';
+  input.onchange = function() {
+    var files = Array.from(input.files || []);
+    input.remove();
+    if (files.length) uploadBrowserBackups(files);
+  };
+  document.body.appendChild(input);
+  input.click();
+}
+
+async function uploadBrowserBackups(files) {
+  var invalid = files.filter(function(file) { return !/\.zip$/i.test(file.name || ''); });
+  if (invalid.length) return toast('只支持选择 LifeUp ZIP 备份文件', 'error');
+  updateLoadStatus('正在复制到安全工作区...', null);
+  var form = new FormData();
+  files.forEach(function(file) { form.append('files', file, file.name); });
+  try {
+    var response = await fetch('/api/open-upload', { method: 'POST', body: form });
+    var payload = await response.json().catch(function() { return { error: response.statusText }; });
+    if (!response.ok) {
+      var uploadError = new Error(payload.error || ('HTTP ' + response.status));
+      uploadError.suggestion = payload.suggestion || '';
+      throw uploadError;
+    }
+    applyLoadedStatus({ loaded: true, backup_path: payload.path, filename: payload.filename });
+    toast('✅ 已加载 ' + (payload.count || 1) + ' 个备份工作副本，原文件不会被覆盖');
+    if (payload.errors && payload.errors.length) toast('⚠️ 另有 ' + payload.errors.length + ' 个文件加载失败', 'error');
+    return payload;
+  } catch(err) {
+    var preserved = await restoreLoadedWorkspaceAfterFailure();
+    if (!preserved) updateLoadStatus('加载失败', 'offline');
+    showLoadError(
+      err.message || '上传失败',
+      err.suggestion || '请确认本地服务正在运行，并通过 http://127.0.0.1:5000 打开本页面',
+      preserved
+    );
+    toast('❌ ' + (err.message || '上传失败'), 'error');
+    throw err;
+  }
+}
+
+function showDirectFileModeHelp() {
+  var message = '当前是直接打开的 HTML 文件，浏览器无法连接存档后端。请启动本地服务后访问 http://127.0.0.1:5000/。';
+  updateLoadStatus('需要本地服务', 'offline');
+  showLoadError(message, '不要继续使用 file:// 页面；启动服务后，选择文件会弹出系统文件窗口并自动创建工作副本');
+  toast('⚠️ 请通过本地服务地址打开面板', 'error');
+}
+
 function quickLoadFromHistory(idx) {
   var history = getHistory();
   if (idx >= 0 && idx < history.length) {
@@ -916,10 +1399,13 @@ function doOpenBackup() {
 }
 
 function _loadBackup(path, silent) {
+  if (DIRECT_FILE_MODE) {
+    showDirectFileModeHelp();
+    return Promise.reject(new Error('当前是 file:// 页面，请改用 http://127.0.0.1:5000/'));
+  }
   updateLoadStatus('加载中...', null);
   return api('/api/open', { method: 'POST', body: JSON.stringify({ path: path }) }).then(function(res) {
-    updateLoadStatus('已加载', 'online');
-    document.getElementById('saveBtn').disabled = false;
+    applyLoadedStatus({ loaded: true, backup_path: path, filename: res.filename });
     // 持久化
     localStorage.setItem('lifeup_backup_path', path);
     if (IS_DESKTOP) {
@@ -929,13 +1415,17 @@ function _loadBackup(path, silent) {
     if (!IS_DESKTOP) { addToLocalHistory(path); }
     // 桌面版刷新历史缓存
     if (IS_DESKTOP) { refreshHistory(); }
-    loadCurrentPage();
     if (!silent) toast('✅ 存档加载成功 — ' + (res.filename || path.split('\\').pop()));
-  }).catch(function(err) {
-    updateLoadStatus('加载失败', 'offline');
+  }).catch(async function(err) {
+    var preserved = await restoreLoadedWorkspaceAfterFailure();
+    if (!preserved) updateLoadStatus('加载失败', 'offline');
     if (!silent) {
       var msg = err.message || '未知错误';
-      showLoadError(msg, '请检查文件路径是否正确，或尝试重新导出备份');
+      showLoadError(
+        msg,
+        err.suggestion || '请检查文件路径是否正确，或尝试重新导出备份',
+        preserved
+      );
       toast('❌ ' + msg, 'error');
     }
     throw err;
@@ -988,11 +1478,47 @@ function updateLoadStatus(text, status) {
   else dot.className = 'conn-dot';
 }
 
-function showLoadError(errorMsg, suggestion) {
+function applyLoadedStatus(status) {
+  if (!status || !status.loaded) return false;
+  updateLoadStatus('已加载', 'online');
+  document.getElementById('saveBtn').disabled = false;
+  var filePath = document.getElementById('filePath');
+  if (filePath) {
+    filePath.textContent = status.filename || status.backup_path || '已加载存档';
+    filePath.title = status.backup_path || '';
+  }
+  if (status.backup_path) {
+    localStorage.setItem('lifeup_backup_path', status.backup_path);
+    if (!IS_DESKTOP) addToLocalHistory(status.backup_path);
+  }
+  loadCurrentPage();
+  return true;
+}
+
+async function restoreLoadedWorkspaceAfterFailure() {
+  try {
+    var status = await api('/api/status');
+    if (status && status.loaded) return applyLoadedStatus(status);
+  } catch(e) {}
+  return false;
+}
+
+function showLoadError(errorMsg, suggestion, preserveCurrentPage) {
   var html = '<div class="error-detail">' +
     '<strong>⚠️ ' + escAttr(errorMsg) + '</strong>' +
     (suggestion ? '<div class="error-suggestion">💡 ' + escAttr(suggestion) + '</div>' : '') +
     '</div>';
+  if (preserveCurrentPage) {
+    showModal('⚠️ 新备份未加载',
+      html +
+      '<p style="font-size:12px;color:var(--text2);margin-top:12px">当前工作副本仍保持加载，可以继续使用，不会丢失现有页面数据。</p>' +
+      '<div class="modal-actions">' +
+      '<button class="btn btn-cyan" onclick="closeModal()">返回当前工作区</button>' +
+      '<button class="btn btn-primary" onclick="closeModal();showOpenDialog()">📂 重新选择文件</button>' +
+      '</div>'
+    );
+    return;
+  }
   var c = document.getElementById('content');
   c.innerHTML = '<div class="empty" style="padding: 80px 40px">' +
     '<div class="empty-icon">❌</div>' +
@@ -1176,15 +1702,29 @@ function loadByPath() {
 }
 
 function saveBackup() {
+  if (cloudReadOnlyGuard('导出本地备份')) return;
   var btn = document.getElementById('saveBtn');
-  btn.disabled = true; btn.textContent = '保存中...';
-  api('/api/save', { method: 'POST', body: JSON.stringify({}) }).then(function() {
-    toast('💾 存档已保存！请在手机端恢复备份');
-    btn.textContent = '💾 已保存';
-    setTimeout(function() { btn.disabled = false; btn.textContent = '💾 保存'; }, 1500);
+  btn.disabled = true; btn.textContent = '导出校验中...';
+  return api('/api/save', { method: 'POST', body: JSON.stringify({}) }).then(function(result) {
+    var bytes = Number(result.size || 0);
+    var sizeText = bytes >= 1024 * 1024
+      ? (bytes / (1024 * 1024)).toFixed(2).replace(/\.00$/, '') + ' MB'
+      : (bytes >= 1024 ? (bytes / 1024).toFixed(2).replace(/\.00$/, '') + ' KB' : bytes + ' B');
+    var integrityOk = result.integrity &&
+      result.integrity.archive === 'ok' && result.integrity.database === 'ok';
+    var details = [
+      '💾 导出成功',
+      result.path || '未知路径',
+      sizeText,
+      result.generated_at || '未知时间',
+      integrityOk ? 'ZIP/SQLite 校验通过' : '校验结果未知'
+    ];
+    toast(details.join(' · '));
+    btn.textContent = '💾 已导出';
+    setTimeout(function() { btn.disabled = false; btn.textContent = '💾 导出备份'; }, 2500);
   }).catch(function(err) {
-    toast('❌ 保存失败: ' + err.message, 'error');
-    btn.disabled = false; btn.textContent = '💾 保存';
+    toast('❌ 导出失败: ' + err.message, 'error');
+    btn.disabled = false; btn.textContent = '💾 导出备份';
   });
 }
 
@@ -1196,75 +1736,115 @@ document.addEventListener('keydown', function(e) {
 });
 
 /* =================================================================================
- *  PAGE 1: Dashboard — 修行总览
+ *  PAGE 1: Dashboard — 长期目标进度控制台
  * ================================================================================= */
+function dashboardNum(value) {
+  value = Number(value || 0);
+  return isFinite(value) ? value.toLocaleString() : '0';
+}
+function dashboardPct(value) {
+  value = Number(value || 0);
+  if (!isFinite(value)) value = 0;
+  return Math.max(0, Math.min(100, value));
+}
+function dashboardCard(label, value, sub, color, page) {
+  return '<div class="stat-card dashboard-card ' + (color || '') + '" onclick="loadPage(\'' + page + '\')" style="cursor:pointer">' +
+    '<div class="stat-label">' + label + '</div>' +
+    '<div class="stat-value ' + (color || '') + '">' + value + '</div>' +
+    '<div class="card-sub">' + sub + '</div>' +
+  '</div>';
+}
+function dashboardProgressBar(value, color) {
+  return '<div class="progress-bar" style="margin-top:8px"><div class="progress-fill ' + (color || 'cyan') + '" style="width:' + dashboardPct(value) + '%"></div></div>';
+}
+function dashboardMiniList(rows, emptyText) {
+  rows = rows || [];
+  if (!rows.length) return '<div class="empty" style="padding:18px">' + emptyText + '</div>';
+  return rows.map(function(row) {
+    var progress = dashboardPct(row.progress);
+    return '<div style="padding:10px 0;border-bottom:1px solid rgba(148,163,184,.16)">' +
+      '<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline">' +
+        '<strong style="font-size:13px;color:var(--text)">' + escHtml(row.name || '?') + '</strong>' +
+        '<span style="font-size:12px;color:var(--cyan)">' + progress.toFixed(1) + '%</span>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--text2);margin-top:2px">' + escHtml(row.category_name || '-') + (row.updated_date ? ' | 更新 ' + escHtml(row.updated_date) : '') + '</div>' +
+      dashboardProgressBar(progress, progress >= 70 ? 'gold' : 'cyan') +
+    '</div>';
+  }).join('');
+}
+async function fetchDashboardOverview() {
+  var source = dataSource === 'cloud' ? 'cloud' : 'local';
+  return api('/api/dashboard/overview?source=' + source);
+}
 async function loadDashboard() {
   var c = document.getElementById('content');
-  c.innerHTML = '<div class="loading"><div class="spinner"></div><p>加载中...</p></div>';
+  c.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在汇总长期目标...</p></div>';
   try {
-    var d = await api('/api/dashboard');
-    var m = getMockCultivationData();
+    var d = await fetchDashboardOverview();
+    var meta = d.meta || {};
+    var tasks = d.tasks || {};
+    var items = d.items || {};
+    var ach = d.achievements || {};
+    var economy = d.economy || {};
+    var record = d.record || {};
 
-    // === 顶部：修行者信息 ===
-    var headerHtml = '<div style="margin-bottom:16px">' +
-      '<span style="font-size:14px;color:var(--text2)">修行者：</span>' +
-      '<span style="font-size:16px;color:var(--gold);font-weight:700">' + ((d.user&&d.user.nickname)||'?') + '</span>' +
-      '<span style="margin-left:20px;font-size:14px;color:var(--text2)">修行境界：</span>' +
-      '<span style="font-size:16px;color:var(--purple2);font-weight:700">Lv.' + ((d.level&&d.level.current)||1) + '</span>' +
-      '<span style="margin-left:4px;font-size:12px;color:var(--text2)">(' + ((d.level&&d.level.total_exp||0).toLocaleString()) + ' EXP)</span>' +
-      '<div class="progress-bar" style="margin-top:8px;width:300px"><div class="progress-fill gold" style="width:' + (d.level&&d.level.progress||0) + '%"></div></div>' +
-      '<div style="margin-top:4px;font-size:11px;color:var(--text2)">连续修炼：' + ((d.record&&d.record.currentusingdaystreak)||0) + ' 天 | 最长：' + ((d.record&&d.record.longestusingdaystreak)||0) + ' 天</div>' +
+    var sourceClass = meta.source === 'cloud' ? 'badge-cyan' : 'badge-purple';
+    var sourceHtml = '<div class="dashboard-status">' +
+      '<div><span class="badge ' + sourceClass + '">' + escHtml(meta.source_label || '未知数据源') + '</span> ' +
+      '<span>最后刷新：' + escHtml(meta.refreshed_at || '-') + '</span><span style="margin:0 6px;color:var(--border2)">/</span>' +
+      (meta.read_only ? '<span style="margin-left:8px;color:var(--text2)">手机数据只读，当前不写入本地备份。</span>' : '<span style="margin-left:8px;color:var(--text2)">当前展示本地备份/工作副本数据。</span>') +
+      '</div><button class="btn btn-cyan btn-sm" onclick="loadDashboard()">刷新</button></div>' +
+      (meta.warning ? '<div class="dashboard-warning">' + escHtml(meta.warning) + '</div>' : '');
+
+    var titleHtml = '<div class="dashboard-intro">' +
+      '<div>' +
+        '<div class="dashboard-kicker">长期目标控制台</div>' +
+        '<div class="dashboard-title">哪些目标在推进，哪些目标需要重新点火</div>' +
+        '<div class="dashboard-subtitle">首页只做判断和下钻：先看长期目标健康度，再进入任务、成就、商品或经济页面处理细节。</div>' +
+      '</div>' +
+      '<div class="dashboard-streak"><div style="font-size:11px;color:var(--text2);margin-bottom:4px">连续使用</div><strong>' + dashboardNum(record.currentusingdaystreak) + '</strong><span style="color:var(--text2);font-size:12px"> 天</span>' +
+        '<div style="font-size:11px;color:var(--text2);margin-top:6px">最长 ' + dashboardNum(record.longestusingdaystreak) + ' 天 | 累计 ' + dashboardNum(record.usingdays) + ' 天</div>' +
+      '</div>' +
     '</div>';
 
-    // === 6 张数据卡片 ===
-    var statCards = '<div class="stats-grid">' +
-      '<div class="stat-card"><div class="stat-label">📿 今日功课完成率</div><div class="stat-value cyan">' + m.dailyCompletion + '%</div><div class="progress-bar" style="margin-top:6px"><div class="progress-fill cyan" style="width:' + m.dailyCompletion + '%"></div></div></div>' +
-      '<div class="stat-card"><div class="stat-label">🧘 今日闭关时长</div><div class="stat-value gold">' + formatMinutes(m.todayFocusMin) + '</div></div>' +
-      '<div class="stat-card"><div class="stat-label">✨ 今日获得修为</div><div class="stat-value purple">+' + m.todayExp + '</div></div>' +
-      '<div class="stat-card"><div class="stat-label">💎 金币余额</div><div class="stat-value gold">' + ((d.coins||0).toLocaleString()) + '</div></div>' +
-      '<div class="stat-card"><div class="stat-label">📋 待完成功课</div><div class="stat-value" style="color:' + (m.pendingTasks>0?'var(--orange)':'var(--green)') + '">' + m.pendingTasks + '</div></div>' +
-      '<div class="stat-card"><div class="stat-label">🌟 本月圆满天数</div><div class="stat-value cyan">' + m.perfectDays + '<span style="font-size:14px;color:var(--text2)">/' + m.daysInMonth + '</span></div></div>' +
+    var cards = '<div class="stats-grid">' +
+      dashboardCard('任务总览', dashboardNum(tasks.total), '待推进 ' + dashboardNum(tasks.active) + ' | 已完成 ' + dashboardNum(tasks.done) + ' | 冻结 ' + dashboardNum(tasks.frozen), 'cyan', 'tasks') +
+      dashboardCard('成就完成率', dashboardPct(ach.done_rate).toFixed(1) + '%', '已完成 ' + dashboardNum(ach.done) + ' / ' + dashboardNum(ach.total) + ' | 接近完成 ' + dashboardNum(ach.near_count), 'gold', 'achprogress') +
+      dashboardCard('停滞目标', dashboardNum(ach.stagnant_count), '进度为 0 或 30 天未更新；逾期任务 ' + dashboardNum(tasks.overdue), 'purple', 'achievements') +
+      dashboardCard('商品覆盖', dashboardPct(items.coverage_rate).toFixed(1) + '%', '商品 ' + dashboardNum(items.total) + ' | 已拥有 ' + dashboardNum(items.owned) + ' | 库存 ' + dashboardNum(items.owned_units), 'cyan', 'items') +
+      dashboardCard('金币余额', dashboardNum(economy.coins), '待完成任务可得金币 ' + dashboardNum(economy.pending_coin) + ' | 平均商品价格 ' + dashboardNum(economy.avg_item_price), 'gold', 'economy') +
+      dashboardCard('经验总量', dashboardNum(economy.total_exp), '待完成任务可得经验 ' + dashboardNum(economy.pending_exp), 'purple', 'economy') +
     '</div>';
 
-    // === 快捷操作区 ===
-    var quickHtml = '<div class="quick-actions">' +
-      '<button class="btn btn-gold" onclick="loadPage(\'focus\')" style="padding:10px 24px;font-size:14px">🧘 开始闭关</button>' +
-      m.quickHabits.map(function(h, i) {
-        return '<div class="quick-badge' + (h.done?' done':'') + '" onclick="toggleQuickHabit(' + i + ')" id="qhab' + i + '">' +
-          '<span>' + h.icon + '</span><span style="font-size:13px">' + h.name + '</span>' +
-          (h.done ? '<span style="color:var(--green);font-size:16px">✓</span>' : '<span style="font-size:10px;color:var(--text2)">点击打卡</span>') +
-        '</div>';
-      }).join('') +
-    '</div>';
-
-    // === 折线图：近7天修为增长（纯 SVG）===
-    var lineChart = buildLineChart(m.weeklyExp, '📈 近7日修为增长', 'purple');
-
-    // === 环形图：今日修行时间分配 ===
-    var ringChart = buildRingChart(m.timeDistribution, '⏱️ 今日修行时间分配');
-
-    var chartsRow = '<div class="chart-row-flex">' +
-      '<div class="chart-half">' + lineChart + '</div>' +
-      '<div class="chart-half">' + ringChart + '</div>' +
-    '</div>';
-
-    // === 六维属性面板 ===
-    var skillsHtml = (d.skills||[]).map(function(s) {
-      var icon = s.icon && s.icon.startsWith('http') ? '<img src="' + s.icon + '" style="width:24px;height:24px;vertical-align:middle;margin-right:6px;border-radius:4px">' : '';
-      return '<div class="stat-card" style="text-align:left;padding:14px">' +
-        '<div style="font-size:12px;color:var(--text2);margin-bottom:4px">' + icon + (s.name||'?') + '</div>' +
-        '<div style="font-size:28px;font-weight:700;color:var(--purple);margin-bottom:4px">Lv.' + (s.level||1) + '</div>' +
-        '<div style="font-size:11px;color:var(--text2);margin-bottom:6px">EXP: ' + ((s.experience||0).toLocaleString()) + '</div>' +
-        '<div class="progress-bar"><div class="progress-fill cyan" style="width:' + (s.progress||0) + '%"></div></div>' +
+    var categoryHtml = (ach.categories || []).map(function(cat) {
+      return '<div class="stat-card" onclick="loadPage(\'achprogress\')" style="cursor:pointer;text-align:left;padding:14px">' +
+        '<div style="display:flex;justify-content:space-between;gap:12px;align-items:baseline">' +
+          '<strong style="font-size:13px;color:var(--text)">' + escHtml(cat.name || '-') + '</strong>' +
+          '<span style="font-size:12px;color:var(--cyan)">' + dashboardPct(cat.done_rate).toFixed(1) + '%</span>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--text2);margin-top:4px">完成 ' + dashboardNum(cat.done) + ' / ' + dashboardNum(cat.total) + ' | 接近 ' + dashboardNum(cat.near) + ' | 停滞 ' + dashboardNum(cat.stagnant) + '</div>' +
+        dashboardProgressBar(cat.done_rate, cat.done_rate >= 70 ? 'gold' : 'cyan') +
       '</div>';
     }).join('');
 
-    c.innerHTML = headerHtml + statCards + quickHtml + chartsRow +
-      '<div class="section-title">⚔️ 六维属性</div>' +
-      '<div class="stats-grid">' + (skillsHtml || '<div class="empty">暂无属性</div>') + '</div>' +
-      '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadDashboard()">🔄 刷新</button></div>';
+    var staleTaskHtml = (tasks.stale || []).map(function(row) {
+      return '<div style="padding:8px 0;border-bottom:1px solid rgba(148,163,184,.16)">' +
+        '<strong style="font-size:13px;color:var(--text)">' + escHtml(row.name || '?') + '</strong>' +
+        '<div style="font-size:11px;color:var(--text2);margin-top:2px">' + escHtml(row.category_name || '-') + (row.updated_date ? ' | 更新 ' + escHtml(row.updated_date) : '') + '</div>' +
+      '</div>';
+    }).join('');
+
+    c.innerHTML = sourceHtml + titleHtml + cards +
+      '<div class="section-title">成就分类完成率</div>' +
+      '<div class="dashboard-section-grid">' + (categoryHtml || '<div class="empty">暂无成就分类数据</div>') + '</div>' +
+      '<div class="chart-row-flex" style="align-items:stretch;margin-top:18px">' +
+        '<div class="dashboard-list-panel"><div class="section-title">接近完成的成就</div>' + dashboardMiniList(ach.near_done, '暂无接近完成的成就') + '</div>' +
+        '<div class="dashboard-list-panel"><div class="section-title">停滞成就</div>' + dashboardMiniList(ach.stagnant, '暂无停滞成就') + '</div>' +
+      '</div>' +
+      '<div class="section-title">长期未推进任务</div>' +
+      '<div class="dashboard-task-panel">' + (staleTaskHtml || '<div class="empty" style="padding:12px">暂无 30 天未更新的进行中任务</div>') + '</div>';
   } catch(e) {
-    c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>加载失败: ' + e.message + '<br><small>请先打开备份存档</small></div>';
+    c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>加载失败: ' + escHtml(e.message) + '<br><small>请先打开备份存档，或检查云人升连接。</small></div>';
   }
 }
 
@@ -1394,81 +1974,79 @@ async function loadDaily() {
 /* =================================================================================
  *  PAGE 1C: Focus — 闭关修炼
  * ================================================================================= */
+async function fetchFocusOverview() {
+  var source = dataSource === 'cloud' ? 'cloud' : 'local';
+  return api('/api/focus/overview?source=' + source);
+}
+
+function focusRewardText(session) {
+  var parts = [];
+  if (session.rewardSummary) {
+    if (typeof session.rewardSummary === 'string') parts.push(session.rewardSummary);
+    else parts.push(JSON.stringify(session.rewardSummary));
+  }
+  if (session.expEarned) parts.push('+' + session.expEarned + ' EXP');
+  if (session.coinEarned) parts.push('+' + session.coinEarned + ' 金币');
+  return parts.length ? parts.join(' / ') : '由 App 番茄奖励结算';
+}
+
+async function startNativeFocusSession(type, minutes) {
+  var btn = document.getElementById('focusStartBtn');
+  var status = document.getElementById('focusNativeStatus');
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = '正在通过云人升打开手机 LifeUp 番茄页...';
+  try {
+    var r = await api('/api/focus/start', {
+      method: 'POST',
+      body: JSON.stringify({ type: type, minutes: minutes })
+    });
+    if (status) {
+      status.innerHTML = escHtml(r.message || '已打开番茄页') +
+        '<br>建议任务：<strong>' + escHtml(r.suggested_task_name || type) + '</strong>，标签：' +
+        escHtml((r.suggested_tags || []).join(' / ')) + '，时长：' + escHtml(r.minutes || minutes) + ' 分钟。';
+    }
+    toast('已打开手机番茄页，完成后回来刷新统计');
+  } catch(e) {
+    if (status) status.textContent = '打开失败：' + e.message;
+    toast('❌ 打开番茄页失败: ' + e.message, 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 async function loadFocus() {
   var c = document.getElementById('content');
-  var m = getMockCultivationData();
-  var now = new Date();
-  var todayKey = now.toISOString().slice(0,10);
-  var weekAgo = new Date(now); weekAgo.setDate(now.getDate()-6);
-  var weekKey = weekAgo.toISOString().slice(0,10);
+  c.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在读取 LifeUp 番茄记录...</p></div>';
+  try {
+    var m = await fetchFocusOverview();
+    var meta = m.meta || {};
+    var sourceClass = meta.source === 'cloud' ? 'badge-cyan' : 'badge-purple';
 
-  // 本周/本月统计
-  var weekFocusMin = m.weekFocusMin;
-  var monthFocusMin = m.monthFocusMin;
-  var todayFocusMin = m.todayFocusMin;
-
-  // 近7天闭关时长柱状图
-  var weekBarData = [];
-  for (var i = 6; i >= 0; i--) {
-    var wd = new Date(now); wd.setDate(now.getDate() - i);
-    var wk = wd.toISOString().slice(0,10);
-    var mins = _mockFocusSessions.filter(function(s){ return s.date===wk; }).reduce(function(s,v){ return s+v.duration; }, 0);
-    weekBarData.push({ label: (wd.getMonth()+1)+'/'+wd.getDate(), value: mins });
-  }
-
-  // 时辰分布热力图
-  var hourDist = m.hourDistribution;
-  // 转换为 24/7 网格数据: 分成7列展示
-  var hourCells = [];
-  for (var h = 0; h < 24; h++) {
-    var hv = hourDist[h] ? hourDist[h].value : 0;
-    hourCells.push({ label: String(h), value: hv, date: h+'时' });
-  }
-  // 用 6列展示 24小时 (4行)
-  var hourGridCells = hourCells.map(function(d) {
-    var level = 0;
-    if (d.value >= 4) level = 4; else if (d.value >= 3) level = 3; else if (d.value >= 2) level = 2; else if (d.value >= 1) level = 1;
-    var colors = ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'];
-    return '<div style="aspect-ratio:1;border-radius:2px;font-size:8px;display:flex;align-items:center;justify-content:center;background:' + colors[level] + '" title="' + d.date + ': ' + d.value + '次">' + d.label + '</div>';
-  }).join('');
-
-  // 历史闭关记录
-  var sessionsHtml = m.focusSessions.slice(0, 10).map(function(s) {
-    return '<tr><td>' + s.date + '</td><td>' + s.type + '</td><td>' + formatMinutes(s.duration) + '</td><td style="color:var(--purple)">+' + s.expEarned + ' EXP</td></tr>';
-  }).join('');
-
-  var isRunning = _focusRunning;
-  var timerBtnHtml = '';
-  if (isRunning) {
-    var dm = Math.floor(_focusSeconds / 60);
-    var ds = _focusSeconds % 60;
-    timerBtnHtml = '<div class="focus-timer">' +
-      '<div style="font-size:18px;color:var(--text2);margin-bottom:12px" id="focusStatusText">' + _focusType + ' 进行中...</div>' +
-      '<div class="timer-display" id="focusTimerDisplay">' + (dm<10?'0':'')+dm+':'+(ds<10?'0':'')+ds + '</div>' +
-      '<div style="margin-top:20px;display:flex;gap:12px;justify-content:center">' +
-      '<button class="timer-btn' + (_focusRunning?'':' pulse') + '" id="focusPauseBtn" onclick="' + (_focusRunning?'pauseFocusTimer()':'resumeFocusTimer()') + '">' + (_focusRunning?'⏸':'▶') + '</button>' +
-      '<button class="timer-btn" onclick="stopFocusTimer();loadFocus();" style="border-color:var(--red);color:var(--red)">⏹</button>' +
-      '</div></div>';
-  } else {
-    // 开始闭关选择
     var focusTypes = ['打坐修炼','研读功法','炼丹制器','斩妖除魔'];
     var focusMinutes = [15, 30, 45, 60];
-    timerBtnHtml = '<div style="background:var(--bg3);border-radius:8px;padding:24px;text-align:center;margin-bottom:16px">' +
-      '<div style="font-size:20px;font-weight:700;color:var(--gold);margin-bottom:16px">🧘 开始闭关</div>' +
+    if (!window._selectedFocusType) window._selectedFocusType = '打坐修炼';
+    if (!window._selectedFocusMin) window._selectedFocusMin = 30;
+    var selectedTypeIdx = Math.max(0, focusTypes.indexOf(window._selectedFocusType));
+    var selectedTimeIdx = Math.max(0, focusMinutes.indexOf(window._selectedFocusMin));
+
+    var timerBtnHtml = '<div style="background:var(--bg3);border-radius:8px;padding:24px;text-align:center;margin-bottom:16px">' +
+      '<div style="display:flex;justify-content:center;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap">' +
+        '<div style="font-size:20px;font-weight:700;color:var(--gold)">🧘 开始闭关</div>' +
+        '<span class="badge ' + sourceClass + '">' + escHtml(meta.source_label || '番茄记录') + '</span>' +
+      '</div>' +
       '<div style="margin-bottom:16px"><span style="font-size:13px;color:var(--text2);margin-right:12px">修炼类型：</span>' +
       focusTypes.map(function(t, i) {
-        return '<button class="btn btn-sm" id="ftype' + i + '" style="margin:4px;' + (i===0?'background:var(--cyan);color:#fff;border-color:var(--cyan);':'background:var(--bg);color:var(--text2);border:1px solid var(--border);') + '" onclick="selectFocusType(\'' + t + '\',' + i + ')">' + t + '</button>';
+        return '<button class="btn btn-sm" id="ftype' + i + '" style="margin:4px;' + (i===selectedTypeIdx?'background:var(--cyan);color:#fff;border-color:var(--cyan);':'background:var(--bg);color:var(--text2);border:1px solid var(--border);') + '" onclick="selectFocusType(\'' + t + '\',' + i + ')">' + t + '</button>';
       }).join('') + '</div>' +
       '<div style="margin-bottom:20px"><span style="font-size:13px;color:var(--text2);margin-right:12px">时长：</span>' +
       focusMinutes.map(function(mi, i) {
-        return '<button class="btn btn-sm" id="ftime' + i + '" style="margin:4px;background:var(--bg);color:var(--text2);border:1px solid var(--border)" onclick="selectFocusTime(' + mi + ',' + i + ')">' + mi + '分钟</button>';
+        return '<button class="btn btn-sm" id="ftime' + i + '" style="margin:4px;' + (i===selectedTimeIdx?'background:var(--cyan);color:#fff;border-color:var(--cyan);':'background:var(--bg);color:var(--text2);border:1px solid var(--border);') + '" onclick="selectFocusTime(' + mi + ',' + i + ')">' + mi + '分钟</button>';
       }).join('') + '</div>' +
-      '<button class="btn btn-gold" style="padding:12px 48px;font-size:16px" onclick="startFocusWithSelection()">🔮 入定修炼</button>' +
-    '</div>';
-  }
+      '<button class="btn btn-gold" id="focusStartBtn" style="padding:12px 48px;font-size:16px" onclick="startFocusWithSelection()">🔮 入定修炼</button>' +
+      '<div id="focusNativeStatus" style="font-size:12px;color:var(--text2);margin-top:12px">点击后将打开手机 LifeUp 原生番茄页；计时、提醒、完成记录和奖励由 App 接管。</div>' +
+    '</div>' +
+    (meta.warning ? '<div class="dashboard-warning" style="margin-bottom:16px">' + escHtml(meta.warning) + '</div>' : '');
 
-  window._selectedFocusType = '打坐修炼';
-  window._selectedFocusMin = 30;
   window.selectFocusType = function(t, idx) {
     window._selectedFocusType = t;
     ['打坐修炼','研读功法','炼丹制器','斩妖除魔'].forEach(function(_, i) {
@@ -1484,31 +2062,60 @@ async function loadFocus() {
     });
   };
   window.startFocusWithSelection = function() {
-    startFocusTimer(window._selectedFocusType, window._selectedFocusMin);
+    startNativeFocusSession(window._selectedFocusType, window._selectedFocusMin);
   };
+
+    var hourDist = m.hourDistribution || [];
+    var hourCells = [];
+    for (var h = 0; h < 24; h++) {
+      var hv = hourDist[h] ? hourDist[h].value : 0;
+      hourCells.push({ label: String(h), value: hv, date: h+'时' });
+    }
+    var hourGridCells = hourCells.map(function(d) {
+      var level = 0;
+      if (d.value >= 4) level = 4; else if (d.value >= 3) level = 3; else if (d.value >= 2) level = 2; else if (d.value >= 1) level = 1;
+      var colors = ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'];
+      return '<div style="aspect-ratio:1;border-radius:2px;font-size:8px;display:flex;align-items:center;justify-content:center;background:' + colors[level] + '" title="' + d.date + ': ' + d.value + '次">' + d.label + '</div>';
+    }).join('');
+
+    var sessions = m.focusSessions || [];
+    var sessionsHtml = sessions.slice(0, 10).map(function(s) {
+      var reward = focusRewardText(s);
+      return '<tr><td>' + escHtml(s.date || '-') + '</td><td>' + escHtml(s.type || '-') + '</td><td>' + formatMinutes(s.duration || 0) + '</td><td style="color:var(--purple)">' + escHtml(reward) + '</td></tr>';
+    }).join('');
 
   c.innerHTML =
     timerBtnHtml +
     '<div class="stats-grid">' +
-      '<div class="stat-card"><div class="stat-label">🧘 今日闭关</div><div class="stat-value gold">' + formatMinutes(todayFocusMin) + '</div></div>' +
-      '<div class="stat-card"><div class="stat-label">📅 本周闭关</div><div class="stat-value cyan">' + formatMinutes(weekFocusMin) + '</div></div>' +
-      '<div class="stat-card"><div class="stat-label">📆 本月闭关</div><div class="stat-value purple">' + formatMinutes(monthFocusMin) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">🧘 今日闭关</div><div class="stat-value gold">' + formatMinutes(m.todayFocusMin || 0) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">📅 本周闭关</div><div class="stat-value cyan">' + formatMinutes(m.weekFocusMin || 0) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">📆 本月闭关</div><div class="stat-value purple">' + formatMinutes(m.monthFocusMin || 0) + '</div></div>' +
     '</div>' +
-    buildBarChart(weekBarData, '📊 近7天闭关时长', 'cyan') +
+    '<div class="source-page-note">' + escHtml(m.rewardHint || '') + '</div>' +
+    buildBarChart(m.weekBarData || [], '📊 近7天闭关时长', 'cyan') +
     '<div class="chart-container"><h4>🕐 一日时辰修炼分布</h4>' +
       '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-bottom:6px"><span style="font-size:9px;color:var(--text2);grid-column:1/-1;margin-bottom:2px">0时 → 23时（颜色越深闭关越多）</span>' + hourGridCells + '</div>' +
       '<div style="display:flex;gap:2px;align-items:center;margin-top:6px;font-size:10px;color:var(--text2)"><span>少</span>' +
         ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'].map(function(cl){return '<span style="width:12px;height:12px;border-radius:2px;background:'+cl+'"></span>';}).join('') +
       '<span>多</span></div></div>' +
     '<div class="section-title">📜 修炼记录</div>' +
-    (m.focusSessions.length === 0 ? '<div class="empty">暂无闭关记录，开始你的第一次修炼吧 🧘</div>' :
+    '<div style="font-size:12px;color:var(--text2);margin:-4px 0 10px">' + escHtml(m.filterHint || '') + '</div>' +
+    (sessions.length === 0 ? '<div class="empty">暂无闭关番茄记录。请在手机番茄任务名称或标签中加入“闭关修炼”或具体修炼类型。</div>' :
       '<table class="data-table"><thead><tr><th>日期</th><th>修炼类型</th><th>时长</th><th>获得修为</th></tr></thead><tbody>' + sessionsHtml + '</tbody></table>') +
     '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadFocus()">🔄 刷新</button></div>';
+  } catch(e) {
+    c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>闭关页面加载失败: ' + escHtml(e.message) + '<br><small>请先检测手机云人升连接，或打开本地备份存档。</small></div>';
+  }
 }
 
 /* =================================================================================
  *  PAGE 1D: Goals — 大道宏愿（目标管理）
  * ================================================================================= */
+function demoDataBanner(pageName) {
+  return '<div class="source-page-note"><span class="badge badge-gold">演示数据</span> ' +
+    escHtml(pageName) + ' 尚未接入 LifeUp 真实字段，当前数值用于界面演示，刷新时可能变化；不会写入手机或本地备份。</div>';
+}
+
 async function loadGoals() {
   var c = document.getElementById('content');
   var m = getMockCultivationData();
@@ -1516,7 +2123,7 @@ async function loadGoals() {
   var now = new Date();
 
   if (!goals || goals.length === 0) {
-    c.innerHTML = '<div class="empty"><div class="empty-icon">🌟</div>暂无大道宏愿<br><small>设定你的修行目标，步步登仙</small></div>';
+    c.innerHTML = demoDataBanner('大道宏愿') + '<div class="empty"><div class="empty-icon">🌟</div>暂无大道宏愿<br><small>设定你的修行目标，步步登仙</small></div>';
     return;
   }
 
@@ -1564,6 +2171,7 @@ async function loadGoals() {
   }).join('');
 
   c.innerHTML =
+    demoDataBanner('大道宏愿') +
     '<div class="section-title">🌟 大道宏愿</div>' +
     '<div style="font-size:12px;color:var(--text2);margin-bottom:16px">完成进度：' + goals.filter(function(g){ return g.progress >= 100; }).length + '/' + goals.length + ' 个宏愿</div>' +
     cardsHtml +
@@ -1681,7 +2289,7 @@ async function loadReview() {
     return '<div class="insight-card"><span style="font-size:18px;margin-right:8px">' + item.icon + '</span><span style="font-size:13px;color:var(--text)">' + item.text + '</span></div>';
   }).join('');
 
-  c.innerHTML = periodBtns + summaryCards +
+  c.innerHTML = demoDataBanner('道行复盘') + periodBtns + summaryCards +
     buildBarChart(barData, period==='week'?'📊 本周 vs 上周 每日修炼对比':'📊 周期修炼对比', 'cyan') +
     buildRadarChart(radarData, '🛡️ 六维属性增长雷达图', 100) +
     '<div class="section-title">🧠 修行洞察</div>' + insightHtml +
@@ -1703,8 +2311,9 @@ async function loadTasks(filterArg) {
     var qs = filter ? 'filter=' + filter : '';
     if (search) qs += '&search=' + encodeURIComponent(search);
     if (catId) qs += '&category_id=' + catId;
+    qs = addSourceParam(qs);
     var tasks = await api('/api/tasks' + (qs ? '?' + qs : ''));
-    var cats = await api('/api/categories/tasks').catch(function(){ return []; });
+    var cats = await api('/api/categories/tasks' + (sourceQuery() ? '?' + sourceQuery() : '')).catch(function(){ return []; });
     window._taskCats = cats;
 
     var freqMap = {0:'单次',1:'每日',2:'每周',3:'每月',4:'每年',5:'无限'};
@@ -1714,31 +2323,34 @@ async function loadTasks(filterArg) {
     var rows = tasks.map(function(t) {
       var coinStr = t.coin||0;
       if (t.rewardcoinvariable) coinStr += '±' + t.rewardcoinvariable;
+      var cloudReadOnly = dataSource === 'cloud' || t.read_only;
       return '<tr>' +
-        '<td><input type="checkbox" class="batch-check task-check" value="' + t.id + '" onchange="updateBatchBar(\'tasks\')"></td>' +
-        '<td>' + (t.id||'') + '</td>' +
-        '<td>' + (t.isfrozen ? '❄️ ' : '') + (statusMap[t.done]||'?') + ' <strong>' + (t.title||'?') + '</strong></td>' +
-        '<td><span class="badge badge-cyan">' + (freqMap[t.frequency]||t.frequency) + '</span></td>' +
-        '<td>' + coinStr + '</td>' +
-        '<td>' + (t.exp||0) + '</td>' +
-        '<td>' + (t.priority ? '<span class="badge" style="background:' + ['','#4caf50','#56b6c2','#a78bfa','#e0556a'][t.priority] + '">⚠️LV' + t.priority + '</span>' : '-') + '</td>' +
-        '<td><span class="badge" style="background:' + ['','#56b6c2','#a78bfa','#c4b5fd','#e09040'][t.difficulty||1] + '">💀LV' + (t.difficulty||1) + '</span></td>' +
-        '<td>' + (t.done_count||0) + '/' + (t.target_count||'∞') + '</td>' +
-        '<td><span class="badge badge-purple">' + (t.category_name||'-') + '</span></td>' +
+        '<td>' + (cloudReadOnly ? '' : '<input type="checkbox" class="batch-check task-check" value="' + escAttr(t.id) + '" onchange="updateBatchBar(\'tasks\')">') + '</td>' +
+        '<td>' + escHtml(t.id||'') + '</td>' +
+        '<td>' + (t.isfrozen ? '❄️ ' : '') + escHtml(statusMap[t.done]||'?') + ' <strong>' + escHtml(t.title||'?') + '</strong></td>' +
+        '<td><span class="badge badge-cyan">' + escHtml(freqMap[t.frequency]||t.frequency) + '</span></td>' +
+        '<td>' + escHtml(coinStr) + '</td>' +
+        '<td>' + escHtml(t.exp||0) + '</td>' +
+        '<td>' + (t.priority ? '<span class="badge" style="background:' + (['','#4caf50','#56b6c2','#a78bfa','#e0556a'][t.priority] || '#64748b') + '">⚠️LV' + escHtml(t.priority) + '</span>' : '-') + '</td>' +
+        '<td><span class="badge" style="background:' + (['','#56b6c2','#a78bfa','#c4b5fd','#e09040'][t.difficulty||1] || '#64748b') + '">💀LV' + escHtml(t.difficulty||1) + '</span></td>' +
+        '<td>' + escHtml(t.done_count||0) + '/' + escHtml(t.target_count||'∞') + '</td>' +
+        '<td><span class="badge badge-purple">' + escHtml(t.category_name||'-') + '</span></td>' +
         '<td>' +
-          '<button class="btn btn-cyan btn-sm" onclick="editTask(' + t.id + ')">✏️</button>' +
-          (t.isfrozen ? '<button class="btn btn-sm" style="background:#56b6c2" onclick="freezeTask(' + t.id + ',false)">🔓</button>' : '<button class="btn btn-sm" style="background:#e09040" onclick="freezeTask(' + t.id + ',true)">❄️</button>') +
-          '<button class="btn btn-sm" style="background:var(--purple)" onclick="toggleSubtasks(' + t.id + ')">📋 子任务</button>' +
-          '<button class="btn btn-danger btn-sm" onclick="deleteTask(' + t.id + ')">🗑️</button>' +
+          (cloudReadOnly ? '<span class="badge badge-cyan">只读</span>' :
+            '<button class="btn btn-cyan btn-sm" onclick="editTask(' + t.id + ')">✏️</button>' +
+            (t.isfrozen ? '<button class="btn btn-sm" style="background:#56b6c2" onclick="freezeTask(' + t.id + ',false)">🔓</button>' : '<button class="btn btn-sm" style="background:#e09040" onclick="freezeTask(' + t.id + ',true)">❄️</button>') +
+            '<button class="btn btn-sm" style="background:var(--purple)" onclick="toggleSubtasks(' + t.id + ')">📋 子任务</button>' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteTask(' + t.id + ')">🗑️</button>') +
         '</td>' +
       '</tr>';
     }).join('');
 
     var catOpts = '<option value="">全部分类</option>' + cats.map(function(c) {
-      return '<option value="' + c.id + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+      return '<option value="' + escAttr(c.id) + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + escHtml(c.name||c.categoryname) + '</option>';
     }).join('');
 
     c.innerHTML =
+      sourceBanner('任务') +
       '<div class="search-bar">' +
         '<input class="search-input" id="taskSearch" placeholder="🔍 搜索任务名称或备注..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')taskSearch()">' +
         '<button class="btn btn-cyan btn-sm" onclick="taskSearch()">搜索</button>' +
@@ -1747,7 +2359,7 @@ async function loadTasks(filterArg) {
         '<select id="taskCatFilter" onchange="taskFilterCat()" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;max-width:150px">' + catOpts + '</select>' +
       '</div>' +
       '<div class="btn-group">' +
-        '<button class="btn btn-primary" onclick="showAddTask()">➕ 新建任务</button>' +
+        (dataSource === 'cloud' ? '<button class="btn btn-primary" onclick="openCloudTaskComposer()">➕ 新增手机任务</button>' : '<button class="btn btn-primary" onclick="showAddTask()">➕ 新建任务</button>') +
         '<button class="btn btn-cyan btn-sm" onclick="loadTasks()">🔄 刷新</button>' +
         '<span style="color:var(--text2);font-size:12px">筛选：</span>' +
         '<span class="filter-tag' + (filter==='all'?' active':'') + '" onclick="loadTasks(\'all\')">全部</span>' +
@@ -1755,19 +2367,22 @@ async function loadTasks(filterArg) {
         '<span class="filter-tag' + (filter==='done'?' active':'') + '" onclick="loadTasks(\'done\')">已完成</span>' +
         '<span class="filter-tag' + (filter==='frozen'?' active':'') + '" onclick="loadTasks(\'frozen\')">❄️ 已冻结</span>' +
         '<span style="margin-left:12px;color:var(--text2);font-size:11px">共 ' + tasks.length + ' 条</span>' +
-        '<span style="margin-left:auto;color:var(--text2);font-size:11px">📋 模板：</span>' +
-        '<button class="btn btn-sm btn-purple" onclick="loadTemplatesIntoTaskPage()">📥 载入模板</button>' +
+        (dataSource === 'cloud' ? '<span style="margin-left:auto"></span>' :
+          '<span style="margin-left:auto;color:var(--text2);font-size:11px">📋 模板：</span>' +
+          '<button class="btn btn-sm btn-purple" onclick="loadTemplatesIntoTaskPage()">📥 载入模板</button>') +
       '</div>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
         '<thead><tr>' +
-          '<th><input type="checkbox" onchange="toggleAllChecks(this,\'task-check\')" title="全选/取消"></th>' +
+          '<th>' + (dataSource === 'cloud' ? '' : '<input type="checkbox" onchange="toggleAllChecks(this,\'task-check\')" title="全选/取消">') + '</th>' +
           '<th>ID</th><th>名称</th><th>频率</th><th>🪙</th><th>✨</th><th>重要</th><th>困难</th><th>进度</th><th>分类</th><th>操作</th>' +
         '</tr></thead>' +
         '<tbody>' + (rows || '<tr><td colspan="11" class="empty">暂无任务</td></tr>') + '</tbody>' +
       '</table></div>' +
       '<div id="templatesArea" style="margin-top:12px"></div>';
   } catch(e) {
-    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+    c.innerHTML = dataSource === 'cloud'
+      ? '<div class="empty">❌ 手机云人升任务读取失败：' + escHtml(e.message) + '<br><small>请到“手机连接/新增任务”页检测连接，或切回本地备份。</small></div>'
+      : '<div class="empty">❌ ' + escHtml(e.message) + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
@@ -1811,6 +2426,10 @@ function loadTemplates() {
 function loadTemplatesIntoTaskPage() {
   var area = document.getElementById('templatesArea');
   if (!area) return;
+  if (dataSource === 'cloud') {
+    area.innerHTML = '<div class="source-page-note">云端模式新增任务请使用“手机连接/新增任务”表单，本地模板不会直接写入手机。</div>';
+    return;
+  }
   var tmpls = loadTemplates();
   if (tmpls.length === 0) {
     area.innerHTML = '<div style="font-size:11px;color:var(--text2)">暂无任务模板。编辑任务时可选择"保存为模板"。</div>';
@@ -1829,6 +2448,10 @@ function loadTemplatesIntoTaskPage() {
     '<button class="btn btn-danger btn-sm" style="margin-top:8px" onclick="clearTemplates()">🗑️ 清空模板</button>';
 }
 function createFromTemplate(idx) {
+  if (dataSource === 'cloud') {
+    openCloudTaskComposer();
+    return toast('云端新增任务请使用手机新增任务表单', 'error');
+  }
   var tmpls = loadTemplates();
   var tm = tmpls[idx];
   if (!tm) return toast('模板不存在', 'error');
@@ -1849,6 +2472,10 @@ function clearTemplates() {
 
 // --- Task CRUD ---
 function showAddTask() {
+  if (dataSource === 'cloud') {
+    openCloudTaskComposer();
+    return;
+  }
   var cats = window._taskCats || [];
   var opts = cats.map(function(c) { return '<option value="' + c.id + '">' + (c.name||c.categoryname) + '</option>'; }).join('');
   // 六大属性
@@ -1921,6 +2548,10 @@ function showAddTask() {
 }
 
 function addTask() {
+  if (dataSource === 'cloud') {
+    openCloudTaskComposer();
+    return;
+  }
   // 获取任务类型
   var tasktype = parseInt(document.getElementById('f_type').value) || 0;
   // 获取重要程度
@@ -2033,6 +2664,7 @@ function addRewardRow(itemId, amt) {
 }
 
 function editTask(id) {
+  if (cloudReadOnlyGuard('编辑任务')) return;
   api('/api/tasks').then(function(tasks) {
     var t = tasks.find(function(x) { return x.id === id; });
     if (!t) return toast('未找到任务', 'error');
@@ -2140,6 +2772,7 @@ function editTask(id) {
 }
 
 function updateTask(id) {
+  if (cloudReadOnlyGuard('保存任务修改')) return;
   // get priority/difficulty/attrs
   var prio = document.getElementById('f_priority').querySelector('.lvl-btn.active');
   var difficulty = document.getElementById('f_difficulty').querySelector('.lvl-btn.active');
@@ -2210,6 +2843,7 @@ function updateTask(id) {
 // ============================================================
 
 function toggleSubtasks(taskId) {
+  if (cloudReadOnlyGuard('管理子任务')) return;
   var panel = document.getElementById('subtask_panel_' + taskId);
   if (panel) { panel.remove(); return; }
   // 插入展开行
@@ -2255,6 +2889,7 @@ function loadSubtasks(taskId) {
 }
 
 function showAddSubtask(taskId) {
+  if (cloudReadOnlyGuard('新增子任务')) return;
   showModal('➕ 添加子任务',
     '<div class="form-group"><label>名称</label><input id="st_content" placeholder="子任务名称"></div>' +
     '<div class="form-row">' +
@@ -2275,6 +2910,7 @@ function showAddSubtask(taskId) {
 }
 
 function addSubtask(taskId) {
+  if (cloudReadOnlyGuard('新增子任务')) return;
   var data = {
     content: document.getElementById('st_content').value,
     rewardcoin: parseInt(document.getElementById('st_coin').value) || 0,
@@ -2293,6 +2929,7 @@ function addSubtask(taskId) {
 }
 
 function editSubtask(taskId, subId) {
+  if (cloudReadOnlyGuard('编辑子任务')) return;
   api('/api/tasks/' + taskId + '/subtasks').then(function(subs) {
     var s = subs.find(function(x) { return x.id === subId; });
     if (!s) return toast('未找到子任务', 'error');
@@ -2324,6 +2961,7 @@ function editSubtask(taskId, subId) {
 }
 
 function updateSubtask2(taskId, subId) {
+  if (cloudReadOnlyGuard('保存子任务修改')) return;
   var data = {
     id: subId,
     content: document.getElementById('st_content').value,
@@ -2343,6 +2981,7 @@ function updateSubtask2(taskId, subId) {
 }
 
 function deleteSubtask(taskId, subId) {
+  if (cloudReadOnlyGuard('删除子任务')) return;
   if (!confirm('确定删除子任务 #' + subId + '？')) return;
   api('/api/subtasks/delete', { method: 'POST', body: JSON.stringify({id: subId}) }).then(function() {
     toast('🗑️ 已删除');
@@ -2351,6 +2990,7 @@ function deleteSubtask(taskId, subId) {
 }
 
 function deleteTask(id) {
+  if (cloudReadOnlyGuard('删除任务')) return;
   if (!confirm('确定删除此任务？')) return;
   api('/api/tasks/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadTasks();
@@ -2359,6 +2999,7 @@ function deleteTask(id) {
 }
 
 function freezeTask(id, freeze) {
+  if (cloudReadOnlyGuard(freeze ? '冻结任务' : '解冻任务')) return;
   api('/api/tasks/update', { method: 'POST', body: JSON.stringify({id: id, isfrozen: freeze}) }).then(function() {
     loadTasks();
     toast(freeze ? '❄️ 已冻结' : '🔓 已解冻');
@@ -2366,6 +3007,7 @@ function freezeTask(id, freeze) {
 }
 
 function freezeTask(id, freeze) {
+  if (cloudReadOnlyGuard(freeze ? '冻结任务' : '解冻任务')) return;
   api('/api/tasks/update', { method: 'POST', body: JSON.stringify({id: id, isfrozen: freeze}) }).then(function() {
     loadTasks();
     toast(freeze ? '❄️ 已冻结' : '🔓 已解冻');
@@ -2385,32 +3027,34 @@ async function loadItems() {
     var qs = [];
     if (search) qs.push('search=' + encodeURIComponent(search));
     if (catId) qs.push('category_id=' + catId);
+    if (dataSource === 'cloud') qs.push('source=cloud');
     var url = '/api/items' + (qs.length ? '?' + qs.join('&') : '');
     var items = await api(url);
-    var cats = await api('/api/categories/shop').catch(function(){ return []; });
+    var cats = await api('/api/categories/shop' + (sourceQuery() ? '?' + sourceQuery() : '')).catch(function(){ return []; });
 
     var rows = items.map(function(i) {
+      var cloudReadOnly = dataSource === 'cloud' || i.read_only;
       return '<tr>' +
-        '<td><input type="checkbox" class="batch-check item-check" value="' + i.id + '" onchange="updateBatchBar(\'items\')"></td>' +
-        '<td>' + (i.id||'') + '</td>' +
-        '<td>' + (i.icon&&i.icon.startsWith('http') ? '<img src="' + i.icon + '" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">' : i.icon||'') + ' ' + (i.name||'?') + '</td>' +
-        '<td><span class="badge badge-gold">🪙 ' + (i.price||0) + '</span></td>' +
-        '<td>' + (i.count == -1 ? '∞' : i.count||0) + '</td>' +
-        '<td>📦 ' + (i.inventory_count||0) + '</td>' +
-        '<td><span class="badge badge-purple">' + (i.category_name||'-') + '</span></td>' +
-        '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (i.description||'') + '</td>' +
+        '<td>' + (cloudReadOnly ? '' : '<input type="checkbox" class="batch-check item-check" value="' + escAttr(i.id) + '" onchange="updateBatchBar(\'items\')">') + '</td>' +
+        '<td>' + escHtml(i.id||'') + '</td>' +
+        '<td>' + safeIconHtml(i.icon, '📦') + ' ' + escHtml(i.name||'?') + '</td>' +
+        '<td><span class="badge badge-gold">🪙 ' + escHtml(i.price||0) + '</span></td>' +
+        '<td>' + escHtml(i.count == -1 ? '∞' : i.count||0) + '</td>' +
+        '<td>📦 ' + escHtml(i.inventory_count||0) + '</td>' +
+        '<td><span class="badge badge-purple">' + escHtml(i.category_name||'-') + '</span></td>' +
+        '<td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(i.description||'') + '</td>' +
         '<td>' +
-          '<button class="btn btn-cyan btn-sm" onclick="editItem(' + i.id + ')">✏️</button>' +
-          '<button class="btn btn-danger btn-sm" onclick="deleteItem(' + i.id + ')">🗑️</button>' +
+          (cloudReadOnly ? '<span class="badge badge-cyan">只读</span>' : '<button class="btn btn-cyan btn-sm" onclick="editItem(' + i.id + ')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteItem(' + i.id + ')">🗑️</button>') +
         '</td>' +
       '</tr>';
     }).join('');
 
     var catOpts = '<option value="">全部类别</option>' + cats.map(function(c) {
-      return '<option value="' + c.id + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+      return '<option value="' + escAttr(c.id) + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + escHtml(c.name||c.categoryname) + '</option>';
     }).join('');
 
     c.innerHTML =
+      sourceBanner('商品') +
       '<div class="search-bar">' +
         '<input class="search-input" id="itemSearch" placeholder="🔍 搜索商品名称或描述..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')itemSearch()">' +
         '<select id="itemCatFilter" onchange="itemFilterCat()" style="padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px">' + catOpts + '</select>' +
@@ -2418,7 +3062,7 @@ async function loadItems() {
         (search ? '<span class="search-clear" onclick="itemClearSearch()">✕ 清除</span>' : '') +
       '</div>' +
       '<div class="btn-group">' +
-        '<button class="btn btn-primary" onclick="showAddItem()">➕ 新建商品</button>' +
+        (dataSource === 'cloud' ? '<span class="badge badge-cyan">商品云端新增放到下一版</span>' : '<button class="btn btn-primary" onclick="showAddItem()">➕ 新建商品</button>') +
         '<button class="btn btn-cyan btn-sm" onclick="loadItems()">🔄 刷新</button>' +
         '<span style="color:var(--text2);font-size:12px">共 ' + items.length + ' 件</span>' +
         '<span style="margin-left:auto"></span>' +
@@ -2426,13 +3070,15 @@ async function loadItems() {
       '</div>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
         '<thead><tr>' +
-          '<th><input type="checkbox" onchange="toggleAllChecks(this,\'item-check\')" title="全选/取消"></th>' +
+          '<th>' + (dataSource === 'cloud' ? '' : '<input type="checkbox" onchange="toggleAllChecks(this,\'item-check\')" title="全选/取消">') + '</th>' +
           '<th>ID</th><th>名称</th><th>价格</th><th>商店库存</th><th>持有</th><th>分类</th><th>描述</th><th>操作</th>' +
         '</tr></thead>' +
         '<tbody>' + (rows || '<tr><td colspan="11" class="empty">暂无商品</td></tr>') + '</tbody>' +
       '</table></div>';
   } catch(e) {
-    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+    c.innerHTML = dataSource === 'cloud'
+      ? '<div class="empty">❌ 手机云人升商品读取失败：' + escHtml(e.message) + '<br><small>请到“手机连接/新增任务”页检测连接，或切回本地备份。</small></div>'
+      : '<div class="empty">❌ ' + escHtml(e.message) + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
@@ -2447,51 +3093,757 @@ function itemFilterCat() {
 }
 
 // --- Item CRUD ---
-function showAddItem() {
-  api('/api/categories/shop').then(function(cats) {
-    var opts = cats.map(function(c) { return '<option value="' + c.id + '">' + (c.name||c.categoryname) + '</option>'; }).join('');
-    showModal('➕ 新建商品',
-      '<div class="form-group"><label>商品名称</label><input id="f_name" placeholder="如：基础修复液"></div>' +
-      '<div class="form-row">' +
-        '<div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="100"></div>' +
-        '<div class="form-group"><label>📦 商店库存 (-1=无限)</label><input id="f_count" type="number" value="-1"></div>' +
-      '</div>' +
-      '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
-      '<div class="form-group"><label>图标 URL</label><input id="f_icon" placeholder="https://... 或 lifeup_sample_*.png"></div>' +
-      '<div class="form-group"><label>描述</label><textarea id="f_desc"></textarea></div>' +
-      '<div class="modal-actions">' +
-        '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
-        '<button class="btn btn-primary" onclick="addItem()">创建</button>' +
-      '</div>'
-    );
-  }).catch(function() { showAddItemSimple(); });
+function itemCategoryOptions(cats, selected) {
+  return (cats || []).map(function(c) {
+    var id = c.id;
+    return '<option value="' + id + '"' + (id === selected ? ' selected' : '') + '>' + escHtml(c.name || c.categoryname || ('分类 ' + id)) + '</option>';
+  }).join('');
 }
-function showAddItemSimple() {
-  showModal('➕ 新建商品',
-    '<div class="form-group"><label>商品名称</label><input id="f_name" placeholder="如：基础修复液"></div>' +
+function purchaseLimitBuilderHtml(rawLimits) {
+  return '' +
+    '<div class="limit-builder">' +
+      '<div class="limit-builder-head">' +
+        '<div><div class="limit-builder-title">购买/使用限制</div><div class="switch-row-sub">参考 APP 的限制入口；周期数量限制会写入 LifeUp 已知格式，其它高级限制会保留为可读配置。</div></div>' +
+        '<div class="limit-add-wrap">' +
+          '<button type="button" class="btn btn-cyan" onclick="togglePurchaseLimitMenu()">添加限制</button>' +
+          '<div id="purchaseLimitMenu" class="limit-menu">' +
+            '<button type="button" onclick="addPurchaseLimit(\'period\')">周期数量限制</button>' +
+            '<button type="button" onclick="addPurchaseLimit(\'attribute\')">属性等级</button>' +
+            '<button type="button" onclick="addPurchaseLimit(\'time\')">时间</button>' +
+            '<button type="button" onclick="addPurchaseLimit(\'item_count\')">拥有物品数量</button>' +
+            '<button type="button" onclick="addPurchaseLimit(\'task_done\')">完成任务</button>' +
+            '<button type="button" onclick="addPurchaseLimit(\'achievement\')">解锁成就</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="purchaseLimitList" class="limit-list"></div>' +
+      '<details class="limit-advanced">' +
+        '<summary>高级 JSON</summary>' +
+        '<div class="form-group"><textarea id="f_limits" placeholder="[]">' + escHtml(rawLimits || '[]') + '</textarea></div>' +
+      '</details>' +
+    '</div>';
+}
+function parsePurchaseLimitJson(raw) {
+  try {
+    var parsed = JSON.parse(raw || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(e) {
+    return [];
+  }
+}
+function periodLimitLabel(type) {
+  return ['每日数量限制', '每周数量限制', '每月数量限制', '每年数量限制'][parseInt(type) || 0] || '每日数量限制';
+}
+function purchaseLimitKind(limit) {
+  if (limit && (limit.kind || limit.limitKey)) return limit.kind || limit.limitKey;
+  if (limit && limit.limitType != null && limit.limitNumber != null) return 'period';
+  return 'custom';
+}
+function optionHtml(items, selected, labelFn) {
+  return (items || []).map(function(item) {
+    var id = item.id;
+    return '<option value="' + id + '"' + (String(id) === String(selected) ? ' selected' : '') + '>' + escHtml(labelFn(item)) + '</option>';
+  }).join('');
+}
+async function getPurchaseLimitTasks() {
+  if (purchaseLimitTaskCache) return purchaseLimitTaskCache;
+  purchaseLimitTaskCache = await api('/api/tasks').catch(function() { return []; });
+  return purchaseLimitTaskCache;
+}
+async function getPurchaseLimitAchievements() {
+  if (purchaseLimitAchievementCache) return purchaseLimitAchievementCache;
+  purchaseLimitAchievementCache = await api('/api/achievements').catch(function() { return []; });
+  return purchaseLimitAchievementCache;
+}
+function initPurchaseLimitBuilder() {
+  var box = document.getElementById('purchaseLimitList');
+  var textarea = document.getElementById('f_limits');
+  if (!box || !textarea) return;
+  var limits = parsePurchaseLimitJson(textarea.value);
+  box.innerHTML = '';
+  limits.forEach(function(limit) { appendPurchaseLimitCard(limit); });
+  if (!limits.length) renderPurchaseLimitEmpty();
+  syncPurchaseLimitsToJson();
+}
+function renderPurchaseLimitEmpty() {
+  var box = document.getElementById('purchaseLimitList');
+  if (box && !box.querySelector('[data-purchase-limit]')) {
+    box.innerHTML = '<div class="limit-empty">暂无限制。点击「添加限制」选择 APP 中的限制类型。</div>';
+  }
+}
+function togglePurchaseLimitMenu() {
+  var menu = document.getElementById('purchaseLimitMenu');
+  if (menu) menu.classList.toggle('show');
+}
+function addPurchaseLimit(kind) {
+  var menu = document.getElementById('purchaseLimitMenu');
+  if (menu) menu.classList.remove('show');
+  appendPurchaseLimitCard(defaultPurchaseLimit(kind));
+  syncPurchaseLimitsToJson();
+}
+function defaultPurchaseLimit(kind) {
+  if (kind === 'period') return { limitType: 0, limitNumber: 1 };
+  if (kind === 'attribute') return { kind: 'attribute', skill_id: 0, mode: 'min', min: 1, max: 1 };
+  if (kind === 'time') return { kind: 'time', subtype: 'daily_range', start: '09:00', end: '23:00' };
+  if (kind === 'item_count') return { kind: 'item_count', item_id: 0, mode: 'min', min: 1, max: 1 };
+  if (kind === 'task_done') return { kind: 'task_done', task_id: 0, required: 1 };
+  if (kind === 'achievement') return { kind: 'achievement', achievement_id: 0 };
+  return { kind: 'custom' };
+}
+function appendPurchaseLimitCard(limit) {
+  var box = document.getElementById('purchaseLimitList');
+  if (!box) return;
+  var empty = box.querySelector('.limit-empty');
+  if (empty) empty.remove();
+  var kind = purchaseLimitKind(limit);
+  box.insertAdjacentHTML('beforeend', renderPurchaseLimitCard(limit, kind));
+  hydratePurchaseLimitCard(box.lastElementChild, limit, kind);
+}
+function renderPurchaseLimitCard(limit, kind) {
+  var title = {
+    period: '周期数量限制',
+    attribute: '属性等级',
+    time: '时间',
+    item_count: '拥有物品数量',
+    task_done: '完成任务',
+    achievement: '解锁成就',
+    custom: '高级限制'
+  }[kind] || '高级限制';
+  return '<div class="limit-card" data-purchase-limit data-kind="' + escAttr(kind) + '">' +
+    '<div class="limit-card-head"><div><div class="limit-card-title">' + title + '</div><div class="limit-card-sub">' + purchaseLimitSummary(limit, kind) + '</div></div>' +
+    '<button type="button" class="btn btn-xs btn-danger" onclick="removePurchaseLimitCard(this)">删除</button></div>' +
+    '<div class="limit-card-body"></div>' +
+  '</div>';
+}
+function purchaseLimitSummary(limit, kind) {
+  if (kind === 'period') return periodLimitLabel(limit.limitType) + ' · 限制 ' + (limit.limitNumber || 1);
+  if (kind === 'attribute') return '选择属性并设置最低等级或等级范围';
+  if (kind === 'time') return '时间、每日时间段、每周几、每月日期、月份、绝对时间段';
+  if (kind === 'item_count') return '按已拥有物品数量限制';
+  if (kind === 'task_done') return '按任务完成次数限制';
+  if (kind === 'achievement') return '按成就是否解锁限制';
+  return '保留未知 JSON 配置';
+}
+function hydratePurchaseLimitCard(card, limit, kind) {
+  var body = card && card.querySelector('.limit-card-body');
+  if (!body) return;
+  if (kind === 'period') {
+    body.innerHTML = '<div class="limit-card-grid"><div class="form-group"><label>周期</label><select data-limit-field="limitType">' +
+      '<option value="0">每日数量限制</option><option value="1">每周数量限制</option><option value="2">每月数量限制</option><option value="3">每年数量限制</option>' +
+      '</select></div><div class="form-group"><label>限制数量</label><input data-limit-field="limitNumber" type="number" min="1" value="' + (limit.limitNumber || 1) + '"></div></div>';
+    body.querySelector('[data-limit-field="limitType"]').value = String(limit.limitType || 0);
+  } else if (kind === 'attribute') {
+    body.innerHTML = '<div class="limit-card-grid three"><div class="form-group"><label>相关属性</label><select data-limit-field="skill_id"></select></div>' +
+      '<div class="form-group"><label>模式</label><select data-limit-field="mode"><option value="min">最低等级</option><option value="range">等级范围</option></select></div>' +
+      '<div class="form-group"><label>最小值</label><input data-limit-field="min" type="number" min="0" value="' + (limit.min || 1) + '"></div>' +
+      '<div class="form-group"><label>最大值</label><input data-limit-field="max" type="number" min="0" value="' + (limit.max || '') + '"></div></div>';
+    getItemEffectSkills().then(function(skills) {
+      var select = body.querySelector('[data-limit-field="skill_id"]');
+      if (select) {
+        select.innerHTML = '<option value="0">不指定</option>' + optionHtml(skills, limit.skill_id || 0, function(s) { return '#' + s.id + ' · ' + (s.name || s.content || ('属性 ' + s.id)); });
+        select.value = String(limit.skill_id || 0);
+        syncPurchaseLimitsToJson();
+      }
+    });
+    body.querySelector('[data-limit-field="mode"]').value = limit.mode || 'min';
+  } else if (kind === 'time') {
+    body.innerHTML = '<div class="limit-card-grid three"><div class="form-group"><label>时间类型</label><select data-limit-field="subtype">' +
+      '<option value="time">时间</option><option value="daily_range">每日时间段</option><option value="weekday">每周几</option><option value="month_day">每月日期</option><option value="month">月份</option><option value="absolute_range">绝对时间段</option>' +
+      '</select></div><div class="form-group"><label>开始/数值</label><input data-limit-field="start" value="' + escAttr(limit.start || '') + '" placeholder="如 09:00 / 周一 / 1"></div>' +
+      '<div class="form-group"><label>结束</label><input data-limit-field="end" value="' + escAttr(limit.end || '') + '" placeholder="如 23:00"></div></div>';
+    body.querySelector('[data-limit-field="subtype"]').value = limit.subtype || 'daily_range';
+  } else if (kind === 'item_count') {
+    body.innerHTML = '<div class="limit-card-grid three"><div class="form-group"><label>物品</label><select data-limit-field="item_id"></select></div>' +
+      '<div class="form-group"><label>模式</label><select data-limit-field="mode"><option value="min">至少拥有</option><option value="range">数量范围</option></select></div>' +
+      '<div class="form-group"><label>最小值</label><input data-limit-field="min" type="number" min="0" value="' + (limit.min || 1) + '"></div>' +
+      '<div class="form-group"><label>最大值</label><input data-limit-field="max" type="number" min="0" value="' + (limit.max || '') + '"></div></div>';
+    getItemEffectItems().then(function(items) {
+      var select = body.querySelector('[data-limit-field="item_id"]');
+      if (select) {
+        select.innerHTML = '<option value="0">选择物品</option>' + optionHtml(items, limit.item_id || 0, itemEffectItemLabel);
+        select.value = String(limit.item_id || 0);
+        syncPurchaseLimitsToJson();
+      }
+    });
+    body.querySelector('[data-limit-field="mode"]').value = limit.mode || 'min';
+  } else if (kind === 'task_done') {
+    body.innerHTML = '<div class="limit-card-grid"><div class="form-group"><label>任务</label><select data-limit-field="task_id"></select></div>' +
+      '<div class="form-group"><label>完成次数</label><input data-limit-field="required" type="number" min="1" value="' + (limit.required || 1) + '"></div></div>';
+    getPurchaseLimitTasks().then(function(tasks) {
+      var select = body.querySelector('[data-limit-field="task_id"]');
+      if (select) {
+        select.innerHTML = '<option value="0">选择任务</option>' + optionHtml(tasks, limit.task_id || 0, function(t) { return '#' + t.id + ' · ' + (t.name || t.content || ('任务 ' + t.id)); });
+        select.value = String(limit.task_id || 0);
+        syncPurchaseLimitsToJson();
+      }
+    });
+  } else if (kind === 'achievement') {
+    body.innerHTML = '<div class="form-group"><label>成就</label><select data-limit-field="achievement_id"></select></div>';
+    getPurchaseLimitAchievements().then(function(achs) {
+      var select = body.querySelector('[data-limit-field="achievement_id"]');
+      if (select) {
+        select.innerHTML = '<option value="0">选择成就</option>' + optionHtml(achs, limit.achievement_id || 0, function(a) { return '#' + a.id + ' · ' + (a.name || a.content || ('成就 ' + a.id)); });
+        select.value = String(limit.achievement_id || 0);
+        syncPurchaseLimitsToJson();
+      }
+    });
+  } else {
+    body.innerHTML = '<div class="form-group"><label>原始 JSON</label><textarea data-limit-field="raw">' + escHtml(JSON.stringify(limit || {}, null, 2)) + '</textarea></div>';
+  }
+  body.addEventListener('input', syncPurchaseLimitsToJson);
+  body.addEventListener('change', syncPurchaseLimitsToJson);
+}
+function removePurchaseLimitCard(btn) {
+  var card = btn && btn.closest ? btn.closest('[data-purchase-limit]') : null;
+  if (card) card.remove();
+  renderPurchaseLimitEmpty();
+  syncPurchaseLimitsToJson();
+}
+function collectPurchaseLimitsFromBuilder() {
+  var cards = document.querySelectorAll('#purchaseLimitList [data-purchase-limit]');
+  var limits = [];
+  [].forEach.call(cards, function(card) {
+    var kind = card.getAttribute('data-kind') || 'custom';
+    var value = {};
+    if (kind === 'period') {
+      value = {
+        limitNumber: Math.max(1, parseInt((card.querySelector('[data-limit-field="limitNumber"]') || {}).value) || 1),
+        limitType: parseInt((card.querySelector('[data-limit-field="limitType"]') || {}).value) || 0
+      };
+    } else if (kind === 'custom') {
+      try { value = JSON.parse((card.querySelector('[data-limit-field="raw"]') || {}).value || '{}'); } catch(e) { value = { kind: 'custom', raw: (card.querySelector('[data-limit-field="raw"]') || {}).value || '' }; }
+    } else {
+      value.kind = kind;
+      [].forEach.call(card.querySelectorAll('[data-limit-field]'), function(input) {
+        var key = input.getAttribute('data-limit-field');
+        var raw = input.value;
+        value[key] = input.type === 'number' || /_id$/.test(key) ? (parseInt(raw) || 0) : raw;
+      });
+    }
+    limits.push(value);
+  });
+  return limits;
+}
+function syncPurchaseLimitsToJson() {
+  var textarea = document.getElementById('f_limits');
+  if (!textarea) return;
+  var limits = collectPurchaseLimitsFromBuilder();
+  textarea.value = JSON.stringify(limits);
+  var cards = document.querySelectorAll('#purchaseLimitList [data-purchase-limit]');
+  [].forEach.call(cards, function(card, index) {
+    var sub = card.querySelector('.limit-card-sub');
+    if (sub && limits[index]) sub.textContent = purchaseLimitSummary(limits[index], card.getAttribute('data-kind') || 'custom');
+  });
+}
+function itemFormHtml(cats, item, mode) {
+  item = item || {};
+  var opts = itemCategoryOptions(cats, item.shopcategoryid || 0);
+  if (!opts) opts = '<option value="0">默认分类</option>';
+  var isEdit = mode === 'edit';
+  return '' +
+    '<div class="section-title" style="margin-top:0">商品信息</div>' +
     '<div class="form-row">' +
-      '<div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="100"></div>' +
-      '<div class="form-group"><label>📦 商店库存 (-1=无限)</label><input id="f_count" type="number" value="-1"></div>' +
+      '<div class="form-group"><label>商品名称</label><input id="f_name" value="' + escAttr(item.name || '') + '" placeholder="如：凡品卡包"></div>' +
+      '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
     '</div>' +
-    '<div class="form-group"><label>分类ID</label><input id="f_catid" type="number" value="0"></div>' +
-    '<div class="form-group"><label>图标 URL</label><input id="f_icon"></div>' +
-    '<div class="form-group"><label>描述</label><textarea id="f_desc"></textarea></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>售价</label><input id="f_price" type="number" value="' + (item.price != null ? item.price : 100) + '"></div>' +
+      '<div class="form-group"><label>商店库存 (-1=无限)</label><input id="f_count" type="number" value="' + (item.count != null ? item.count : -1) + '"></div>' +
+    '</div>' +
+    '<div class="form-group"><label>图标 URL / 文件名</label><input id="f_icon" value="' + escAttr(item.icon || '') + '" placeholder="https://... 或 lifeup_sample_*.png"></div>' +
+    '<div class="form-group"><label>描述</label><textarea id="f_desc" placeholder="商品说明，导入手机后会显示在商品详情中">' + escHtml(item.description || '') + '</textarea></div>' +
+    '<div class="section-title" style="margin-top:12px">进阶</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>自定义操作按钮文案</label><input id="f_use_text" value="' + escAttr(item.customusebuttontext != null ? item.customusebuttontext : (isEdit ? '' : '使用')) + '" placeholder="如：使用、打开、兑换"></div>' +
+    '</div>' +
+    '<div class="section-title" style="margin-top:12px">使用效果</div>' +
+    (isEdit ? '<div class="source-page-note">为避免误删已有复杂效果，编辑模式暂不覆盖商品效果；新增商品时可直接创建常用效果。</div>' : itemEffectEditorHtml()) +
+    '<div class="section-title" style="margin-top:12px">购买/使用限制</div>' +
+    '<div class="switch-row">' +
+      '<div class="switch-row-main"><div class="switch-row-icon">♕</div><div><div class="switch-row-title">不可直接购买</div><div class="switch-row-sub">开启后更适合兑换券、材料或脚本奖励，不在商店里直接出售。</div></div></div>' +
+      '<label class="switch-control"><input id="f_disable_purchase" type="checkbox" ' + (item.isdisablepurchase ? 'checked' : '') + '><span class="switch-slider"></span></label>' +
+    '</div>' +
+    purchaseLimitBuilderHtml(item.purchaselimits || '[]') +
     '<div class="modal-actions">' +
       '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
-      '<button class="btn btn-primary" onclick="addItem()">创建</button>' +
+      '<button class="btn btn-primary" onclick="' + (isEdit ? 'updateItem(' + item.id + ')' : 'addItem()') + '">' + (isEdit ? '保存' : '创建') + '</button>' +
+    '</div>';
+}
+async function getItemEffectSkills() {
+  if (itemEffectSkillCache) return itemEffectSkillCache;
+  itemEffectSkillCache = await api('/api/skills').catch(function() { return []; });
+  return itemEffectSkillCache;
+}
+async function getItemEffectItems() {
+  if (itemEffectItemCache) return itemEffectItemCache;
+  itemEffectItemCache = await api('/api/items').catch(function() { return []; });
+  return itemEffectItemCache;
+}
+function itemEffectItemLabel(item) {
+  if (!item) return '';
+  var name = item.name || ('商品 ' + item.id);
+  var meta = [];
+  if (item.inventory_count != null) meta.push('库存 ' + item.inventory_count);
+  if (item.price != null) meta.push('售价 ' + item.price);
+  return '#' + item.id + ' · ' + name + (meta.length ? ' · ' + meta.join(' / ') : '');
+}
+function findItemEffectItemById(id) {
+  var target = String(id || '');
+  return (itemEffectItemCache || []).find(function(item) { return String(item.id) === target; });
+}
+function itemEffectItemOptionsHtml(items, selectedId) {
+  var itemOptions = (items || []).map(function(item) {
+    var selected = selectedId != null && String(item.id) === String(selectedId) ? ' selected' : '';
+    return '<option value="' + item.id + '"' + selected + '>' + escHtml(itemEffectItemLabel(item)) + '</option>';
+  }).join('');
+  return itemOptions || '<option value="0">没有可选商品</option>';
+}
+function filterItemEffectItems() {
+  var select = document.getElementById('f_effect_item');
+  var filter = document.getElementById('f_effect_item_filter');
+  if (!select || !filter || !itemEffectItemCache) return;
+  var query = (filter.value || '').trim().toLowerCase();
+  var current = select.value;
+  var items = itemEffectItemCache.filter(function(item) {
+    if (!query) return true;
+    return String(item.id).indexOf(query) >= 0 || String(item.name || '').toLowerCase().indexOf(query) >= 0;
+  });
+  select.innerHTML = itemEffectItemOptionsHtml(items);
+  if ([].some.call(select.options, function(opt) { return opt.value === current; })) {
+    select.value = current;
+  }
+}
+function filterLootboxPickItems() {
+  var select = document.getElementById('f_lootbox_item');
+  var filter = document.getElementById('f_lootbox_filter');
+  if (!select || !filter || !itemEffectItemCache) return;
+  var query = (filter.value || '').trim().toLowerCase();
+  var current = select.value;
+  var items = itemEffectItemCache.filter(function(item) {
+    if (!query) return true;
+    return String(item.id).indexOf(query) >= 0 || String(item.name || '').toLowerCase().indexOf(query) >= 0;
+  });
+  select.innerHTML = itemEffectItemOptionsHtml(items, current);
+  if ([].some.call(select.options, function(opt) { return opt.value === current; })) {
+    select.value = current;
+  }
+}
+function addLootboxRewardRow() {
+  var select = document.getElementById('f_lootbox_item');
+  var amountEl = document.getElementById('f_lootbox_amount');
+  var list = document.getElementById('f_lootbox_entries');
+  if (!select || !list) return;
+  var itemId = parseInt(select.value) || 0;
+  if (itemId <= 0) return toast('请先选择一个商品', 'error');
+  var amount = Math.max(1, parseInt((amountEl || {}).value) || 1);
+  var item = findItemEffectItemById(itemId);
+  var rowId = ++lootboxEntrySeq;
+  list.insertAdjacentHTML('beforeend',
+    '<div class="lootbox-entry" data-lootbox-entry data-item-id="' + itemId + '">' +
+      '<div class="lootbox-entry-head">' +
+        '<div><div class="lootbox-entry-name">' + escHtml((item && item.name) || ('商品 ' + itemId)) + '</div>' +
+        '<div class="lootbox-entry-id">' + escHtml(itemEffectItemLabel(item) || ('#' + itemId)) + '</div></div>' +
+        '<button type="button" class="btn btn-xs btn-danger" onclick="removeLootboxRewardRow(this)">移除</button>' +
+      '</div>' +
+      '<div class="lootbox-entry-controls">' +
+        '<div class="form-group"><label>数量</label><input class="lootbox-amount" type="number" min="1" value="' + amount + '"></div>' +
+        '<div class="form-group"><label>比重/概率</label><input class="lootbox-probability" type="number" min="0" value="100"></div>' +
+        '<label class="lootbox-fixed-control"><input class="lootbox-fixed" type="checkbox"> 固定奖励</label>' +
+      '</div>' +
     '</div>'
   );
+  if (amountEl) amountEl.value = 1;
+  toast('已添加开箱奖励：' + ((item && item.name) || ('商品 ' + itemId)));
 }
-
-function addItem() {
+function removeLootboxRewardRow(btn) {
+  var row = btn && btn.closest ? btn.closest('[data-lootbox-entry]') : null;
+  if (row) row.remove();
+}
+function collectLootboxRewardRows() {
+  var rows = document.querySelectorAll('#f_lootbox_entries [data-lootbox-entry]');
+  var rewards = [];
+  [].forEach.call(rows, function(row) {
+    var itemId = parseInt(row.getAttribute('data-item-id')) || 0;
+    if (itemId <= 0) return;
+    rewards.push({
+      item_id: itemId,
+      amount: Math.max(1, parseInt((row.querySelector('.lootbox-amount') || {}).value) || 1),
+      probability: Math.max(0, parseInt((row.querySelector('.lootbox-probability') || {}).value) || 0),
+      is_fixed: !!(row.querySelector('.lootbox-fixed') && row.querySelector('.lootbox-fixed').checked)
+    });
+  });
+  return rewards;
+}
+function synthesisCurrentItemLabel() {
+  return '当前新建商品';
+}
+function parseItemEffectItemInputValue(value, allowCurrent) {
+  var raw = String(value || '').trim();
+  if (allowCurrent && (!raw || raw === synthesisCurrentItemLabel())) return 0;
+  var idMatch = raw.match(/^#?\s*(\d+)/);
+  if (idMatch) return parseInt(idMatch[1]) || 0;
+  var found = (itemEffectItemCache || []).find(function(item) {
+    return raw === String(item.id) || raw === String(item.name || '') || raw === itemEffectItemLabel(item);
+  });
+  return found ? (parseInt(found.id) || 0) : 0;
+}
+function itemEffectItemIconHtml(item, fallback) {
+  var icon = item && (item.icon_url || item.icon || item.item_icon);
+  if (icon && String(icon).indexOf('http') === 0) {
+    return '<img src="' + escAttr(icon) + '" alt="" loading="lazy" onerror="this.outerHTML=\'<span>' + escAttr(fallback || '📦') + '</span>\'">';
+  }
+  return '<span>' + escHtml(fallback || '📦') + '</span>';
+}
+function currentSynthesisItemIconHtml() {
+  var icon = (document.getElementById('f_icon') || {}).value || '';
+  if (icon && String(icon).indexOf('http') === 0) {
+    return '<img src="' + escAttr(icon) + '" alt="" loading="lazy" onerror="this.outerHTML=\'<span>📦</span>\'">';
+  }
+  return '<span>📦</span>';
+}
+function updateSynthesisCurrentItemCard() {
+  var nameEl = document.getElementById('f_synthesis_current_name');
+  var iconEl = document.getElementById('f_synthesis_current_icon');
+  if (nameEl) nameEl.textContent = (document.getElementById('f_name') || {}).value || synthesisCurrentItemLabel();
+  if (iconEl) iconEl.innerHTML = currentSynthesisItemIconHtml();
+}
+function renderSynthesisTargetCard(item) {
+  if (!item) {
+    return '<div class="synthesis-card-main"><div class="synthesis-card-icon">＋</div><div>' +
+      '<div class="synthesis-card-name">选择目标商品</div>' +
+      '<div class="synthesis-card-sub">点击搜索已有商品</div>' +
+    '</div></div>';
+  }
+  return '<div class="synthesis-card-main"><div class="synthesis-card-icon">' + itemEffectItemIconHtml(item) + '</div><div>' +
+    '<div class="synthesis-card-name">' + escHtml(item.name || ('商品 ' + item.id)) + '</div>' +
+    '<div class="synthesis-card-sub">固定获得 ×1</div>' +
+  '</div></div>';
+}
+function setSynthesisTargetItem(itemId) {
+  var item = findItemEffectItemById(itemId);
+  var hidden = document.getElementById('f_synthesis_output_item');
+  var card = document.getElementById('f_synthesis_target_card');
+  var picker = document.getElementById('f_synthesis_target_picker');
+  if (!item || !hidden || !card) return;
+  hidden.value = item.id;
+  card.innerHTML = renderSynthesisTargetCard(item);
+  if (picker) picker.classList.remove('show');
+}
+function renderSynthesisTargetResults(query) {
+  var results = document.getElementById('f_synthesis_target_results');
+  if (!results) return;
+  var q = String(query || '').trim().toLowerCase();
+  var items = (itemEffectItemCache || []).filter(function(item) {
+    if (!q) return true;
+    return String(item.id).indexOf(q) >= 0 || String(item.name || '').toLowerCase().indexOf(q) >= 0;
+  }).slice(0, 12);
+  results.innerHTML = items.map(function(item) {
+    return '<button type="button" class="synthesis-target-option" onclick="setSynthesisTargetItem(' + item.id + ')">' +
+      '<span class="synthesis-card-icon">' + itemEffectItemIconHtml(item) + '</span>' +
+      '<span><span class="synthesis-target-option-name">' + escHtml(item.name || ('商品 ' + item.id)) + '</span>' +
+      '<span class="synthesis-target-option-meta">#' + item.id + ' · 售价 ' + (item.price != null ? item.price : 0) + '</span></span>' +
+    '</button>';
+  }).join('') || '<div class="effect-hint" style="margin:0">没有匹配商品</div>';
+}
+function openSynthesisTargetPicker() {
+  var picker = document.getElementById('f_synthesis_target_picker');
+  var input = document.getElementById('f_synthesis_target_search');
+  if (!picker) return;
+  picker.classList.add('show');
+  renderSynthesisTargetResults(input ? input.value : '');
+  if (input) input.focus();
+}
+function filterSynthesisTargetItems() {
+  var input = document.getElementById('f_synthesis_target_search');
+  renderSynthesisTargetResults(input ? input.value : '');
+}
+function skillIconHtml(skill) {
+  if (skill && skill.icon_url) {
+    return '<img src="' + escAttr(skill.icon_url) + '" alt="" onerror="this.outerHTML=\'<span class=&quot;skill-fallback&quot;>⚔</span>\'">';
+  }
+  return '<span class="skill-fallback">⚔</span>';
+}
+function selectItemEffectSkill(id) {
+  var input = document.getElementById('f_effect_skill');
+  if (input) input.value = id;
+  var chips = document.querySelectorAll('#itemEffectFields .skill-chip');
+  [].forEach.call(chips, function(chip) {
+    chip.classList.toggle('active', String(chip.getAttribute('data-skill-id')) === String(id));
+  });
+}
+function toggleItemEffectRandom() {
+  var enabled = !!(document.getElementById('f_effect_random') && document.getElementById('f_effect_random').checked);
+  var fields = document.getElementById('f_effect_random_fields');
+  var fixed = document.getElementById('f_effect_fixed_field');
+  if (fields) fields.classList.toggle('show', enabled);
+  if (fixed) fixed.style.display = enabled ? 'none' : 'block';
+}
+function toggleItemExpRandom() { toggleItemEffectRandom(); }
+function itemEffectEditorHtml() {
+  return '' +
+    '<div class="form-group"><label>效果类型</label><select id="f_effect_type" onchange="renderItemEffectFields()">' +
+      '<option value="none">无</option>' +
+      '<option value="disabled">不可使用</option>' +
+      '<option value="coin">金币</option>' +
+      '<option value="exp">经验值</option>' +
+      '<option value="item">更改商品数量</option>' +
+      '<option value="lootbox">开箱</option>' +
+      '<option value="synthesis">简易合成</option>' +
+      '<option value="api">链接/API</option>' +
+    '</select></div>' +
+    '<div id="itemEffectFields" class="effect-panel">选择一个效果类型后填写参数。</div>';
+}
+function renderItemEffectFields() {
+  var typeEl = document.getElementById('f_effect_type');
+  var box = document.getElementById('itemEffectFields');
+  if (!typeEl || !box) return;
+  var type = typeEl.value;
+  var html = '';
+  if (type === 'none') html = '<div style="color:var(--text2);font-size:12px">使用商品后不触发额外效果。</div>';
+  if (type === 'disabled') html = '<div style="color:var(--text2);font-size:12px">商品不可使用，仅作为展示、收藏或兑换材料。</div>';
+  if (type === 'coin') {
+    renderItemCoinEffectFields(box);
+    return;
+  }
+  if (type === 'exp') {
+    box.innerHTML = '<div style="color:var(--text2);font-size:12px">正在读取属性/技能列表...</div>';
+    renderItemExpEffectFields(box);
+    return;
+  }
+  if (type === 'item') {
+    box.innerHTML = '<div style="color:var(--text2);font-size:12px">正在读取商店商品...</div>';
+    renderItemQuantityEffectFields(box);
+    return;
+  }
+  if (type === 'lootbox') {
+    box.innerHTML = '<div style="color:var(--text2);font-size:12px">正在读取商店商品...</div>';
+    renderItemLootboxEffectFields(box);
+    return;
+  }
+  if (type === 'synthesis') {
+    box.innerHTML = '<div style="color:var(--text2);font-size:12px">正在读取商店商品...</div>';
+    renderItemSynthesisEffectFields(box);
+    return;
+  }
+  if (type === 'api') html = '<div class="form-group"><label>URL / LifeUp API</label><input id="f_effect_url" placeholder="lifeup://api/... 或 https://..."></div><label style="display:flex;align-items:center;gap:8px"><input id="f_effect_webview" type="checkbox"> 使用内置浏览器</label>';
+  box.innerHTML = html;
+}
+function renderItemCoinEffectFields(box) {
+  box.innerHTML =
+    '<div class="effect-choice-grid">' +
+      '<label class="effect-radio"><input type="radio" name="f_coin_direction" value="add" checked><span class="effect-mark add">+</span><span>增加金币</span></label>' +
+      '<label class="effect-radio"><input type="radio" name="f_coin_direction" value="decrease"><span class="effect-mark decrease">-</span><span>减少金币</span></label>' +
+    '</div>' +
+    '<div class="effect-hint">增加会保存为正金币，减少会自动保存为负金币；选择减少时不用手动输入负号。</div>' +
+    '<div id="f_effect_fixed_field" class="form-group"><label>金币变化</label><input id="f_effect_value" type="number" value="100"></div>' +
+    '<label class="inline-check"><input id="f_effect_random" type="checkbox" onchange="toggleItemEffectRandom()">随机</label>' +
+    '<label class="inline-check"><input id="f_effect_cross_zero" type="checkbox">随机允许从减少到增加（跨 0）</label>' +
+    '<div id="f_effect_random_fields" class="effect-random-fields">' +
+      '<div class="form-row"><div class="form-group"><label>最小值</label><input id="f_effect_min" type="number" value="1"></div><div class="form-group"><label>最大值</label><input id="f_effect_max" type="number" value="100"></div></div>' +
+    '</div>';
+}
+async function renderItemQuantityEffectFields(box) {
+  var items = await getItemEffectItems();
+  box.innerHTML =
+    '<div class="form-group"><label>目标商品</label><input id="f_effect_item_filter" placeholder="搜索商品名称或 ID" oninput="filterItemEffectItems()"></div>' +
+    '<div class="form-group"><select id="f_effect_item">' + itemEffectItemOptionsHtml(items) + '</select></div>' +
+    '<div class="effect-choice-grid">' +
+      '<label class="effect-radio"><input type="radio" name="f_item_direction" value="add" checked><span class="effect-mark add">+</span><span>增加数量</span></label>' +
+      '<label class="effect-radio"><input type="radio" name="f_item_direction" value="decrease"><span class="effect-mark decrease">-</span><span>减少数量</span></label>' +
+    '</div>' +
+    '<div class="effect-hint">目标商品来自商店管理列表；增加会写入正数量，减少会自动保存为负数量，不需要手动输入负号。</div>' +
+    '<div id="f_effect_fixed_field" class="form-group"><label>数量</label><input id="f_effect_amount" type="number" value="1"></div>' +
+    '<label class="inline-check"><input id="f_effect_random" type="checkbox" onchange="toggleItemEffectRandom()">随机</label>' +
+    '<label class="inline-check"><input id="f_effect_cross_zero" type="checkbox">随机允许从减少到增加（跨 0）</label>' +
+    '<div id="f_effect_random_fields" class="effect-random-fields">' +
+      '<div class="form-row"><div class="form-group"><label>最小值</label><input id="f_effect_min" type="number" value="1"></div><div class="form-group"><label>最大值</label><input id="f_effect_max" type="number" value="6"></div></div>' +
+    '</div>';
+}
+async function renderItemLootboxEffectFields(box) {
+  var items = await getItemEffectItems();
+  box.innerHTML =
+    '<div class="effect-hint">开箱奖励来自商店管理列表。先选择商品和数量，点击“添加商品”加入奖励列表；加入后可以分别设置比重/概率和固定奖励。</div>' +
+    '<div class="lootbox-add-bar">' +
+      '<div class="form-group"><label>选择商品</label><input id="f_lootbox_filter" placeholder="搜索商品名称或 ID" oninput="filterLootboxPickItems()"></div>' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>商品</label><select id="f_lootbox_item">' + itemEffectItemOptionsHtml(items) + '</select></div>' +
+        '<div class="form-group"><label>数量</label><input id="f_lootbox_amount" type="number" min="1" value="1"></div>' +
+      '</div>' +
+      '<button type="button" class="btn btn-cyan" onclick="addLootboxRewardRow()">添加商品</button>' +
+    '</div>' +
+    '<div class="form-group"><label>已加入奖励</label><div id="f_lootbox_entries" class="lootbox-list"></div></div>';
+}
+async function renderItemSynthesisEffectFields(box) {
+  var items = await getItemEffectItems();
+  box.innerHTML =
+    '<div class="synthesis-config">' +
+      '<div class="effect-hint">简易合成消耗当前新建商品，合成获得 1 个目标商品。</div>' +
+      '<input id="f_synthesis_output_item" type="hidden" value="0">' +
+      '<div class="synthesis-flow-editor">' +
+        '<div class="synthesis-card readonly">' +
+          '<div class="synthesis-card-main">' +
+            '<div id="f_synthesis_current_icon" class="synthesis-card-icon">' + currentSynthesisItemIconHtml() + '</div>' +
+            '<div><div id="f_synthesis_current_name" class="synthesis-card-name">' + escHtml((document.getElementById('f_name') || {}).value || synthesisCurrentItemLabel()) + '</div>' +
+            '<div class="synthesis-card-sub">主材料 · 当前新建商品</div></div>' +
+          '</div>' +
+          '<div class="form-group"><label>消耗数量</label><input id="f_synthesis_input_amount" type="number" min="1" step="1" value="1"></div>' +
+        '</div>' +
+        '<div class="synthesis-arrow" aria-hidden="true"><span class="synthesis-arrow-icon">→</span><span>合成</span></div>' +
+        '<button type="button" id="f_synthesis_target_card" class="synthesis-card selectable" onclick="openSynthesisTargetPicker()">' + renderSynthesisTargetCard(null) + '</button>' +
+      '</div>' +
+      '<div id="f_synthesis_target_picker" class="synthesis-target-picker">' +
+        '<div class="form-group"><label>搜索目标商品</label><input id="f_synthesis_target_search" placeholder="输入商品名或 ID" oninput="filterSynthesisTargetItems()"></div>' +
+        '<div id="f_synthesis_target_results" class="synthesis-target-results"></div>' +
+      '</div>' +
+    '</div>';
+  renderSynthesisTargetResults('');
+  ['f_name', 'f_icon'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateSynthesisCurrentItemCard);
+  });
+}
+async function renderItemExpEffectFields(box) {
+  var skills = await getItemEffectSkills();
+  var firstId = skills.length ? skills[0].id : 0;
+  var chips = skills.map(function(s, index) {
+    return '<button type="button" class="skill-chip' + (index === 0 ? ' active' : '') + '" data-skill-id="' + s.id + '" onclick="selectItemEffectSkill(' + s.id + ')">' +
+      skillIconHtml(s) +
+      '<span>' + escHtml(s.name || ('技能 ' + s.id)) + '</span>' +
+    '</button>';
+  }).join('');
+  if (!chips) {
+    chips = '<button type="button" class="skill-chip active" data-skill-id="0" onclick="selectItemEffectSkill(0)"><span class="skill-fallback">⚔</span><span>不指定</span></button>';
+  }
+  box.innerHTML =
+    '<input id="f_effect_skill" type="hidden" value="' + firstId + '">' +
+    '<div class="form-group"><label>选择相关属性（横向滚动查看更多）</label><div class="skill-picker">' + chips + '</div></div>' +
+    '<div class="effect-choice-grid">' +
+      '<label class="effect-radio"><input type="radio" name="f_exp_direction" value="add" checked><span class="effect-mark add">+</span><span>增加经验值</span></label>' +
+      '<label class="effect-radio"><input type="radio" name="f_exp_direction" value="decrease"><span class="effect-mark decrease">-</span><span>减少经验值</span></label>' +
+    '</div>' +
+    '<div class="effect-hint">增加会写入正经验；减少会自动保存为负值。随机范围尚需用真实手机导入再校准，但本地会保留最小值/最大值参数。</div>' +
+    '<div id="f_effect_fixed_field" class="form-group"><label>经验值</label><input id="f_effect_value" type="number" value="50"></div>' +
+    '<label class="inline-check"><input id="f_effect_random" type="checkbox" onchange="toggleItemEffectRandom()">随机</label>' +
+    '<label class="inline-check"><input id="f_effect_cross_zero" type="checkbox">随机允许从减少到增加（跨 0）</label>' +
+    '<div id="f_effect_random_fields" class="effect-random-fields">' +
+      '<div class="form-row"><div class="form-group"><label>最小值</label><input id="f_effect_min" type="number" value="0"></div><div class="form-group"><label>最大值</label><input id="f_effect_max" type="number" value="100"></div></div>' +
+    '</div>';
+}
+function normalizeItemJsonField(value, fallback, label) {
+  var raw = (value || '').trim();
+  if (!raw) return fallback;
+  try {
+    JSON.parse(raw);
+    return raw;
+  } catch(e) {
+    toast(label + ' 不是有效 JSON', 'error');
+    return null;
+  }
+}
+function collectItemData(id) {
+  if (document.getElementById('purchaseLimitList')) syncPurchaseLimitsToJson();
+  var limits = normalizeItemJsonField((document.getElementById('f_limits') || {}).value, '[]', '限制 JSON');
+  if (limits === null) return null;
   var data = {
     name: document.getElementById('f_name').value,
-    price: parseInt(document.getElementById('f_price').value),
+    price: parseInt(document.getElementById('f_price').value) || 0,
     count: parseInt(document.getElementById('f_count').value),
     icon: document.getElementById('f_icon').value,
     description: document.getElementById('f_desc').value,
-    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0
+    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0,
+    customusebuttontext: (document.getElementById('f_use_text') || {}).value || '',
+    isdisablepurchase: document.getElementById('f_disable_purchase') && document.getElementById('f_disable_purchase').checked ? 1 : 0,
+    purchaselimits: limits
   };
+  if (id) data.id = id;
+  if (isNaN(data.count)) data.count = -1;
+  var effectType = document.getElementById('f_effect_type');
+  if (effectType) {
+    var effect = { type: effectType.value };
+    if (['coin', 'exp'].indexOf(effect.type) >= 0) effect.value = parseInt((document.getElementById('f_effect_value') || {}).value) || 0;
+    if (effect.type === 'coin') {
+      var coinDirection = document.querySelector('input[name="f_coin_direction"]:checked');
+      effect.direction = coinDirection ? coinDirection.value : 'add';
+      effect.is_random = !!(document.getElementById('f_effect_random') && document.getElementById('f_effect_random').checked);
+      effect.cross_zero = !!(document.getElementById('f_effect_cross_zero') && document.getElementById('f_effect_cross_zero').checked);
+      if (effect.is_random) {
+        effect.min_value = parseInt((document.getElementById('f_effect_min') || {}).value) || 0;
+        effect.max_value = parseInt((document.getElementById('f_effect_max') || {}).value) || 0;
+      }
+    }
+    if (effect.type === 'exp') {
+      var direction = document.querySelector('input[name="f_exp_direction"]:checked');
+      effect.skill_id = parseInt((document.getElementById('f_effect_skill') || {}).value) || 0;
+      effect.direction = direction ? direction.value : 'add';
+      effect.is_random = !!(document.getElementById('f_effect_random') && document.getElementById('f_effect_random').checked);
+      effect.cross_zero = !!(document.getElementById('f_effect_cross_zero') && document.getElementById('f_effect_cross_zero').checked);
+      if (effect.is_random) {
+        effect.min_value = parseInt((document.getElementById('f_effect_min') || {}).value) || 0;
+        effect.max_value = parseInt((document.getElementById('f_effect_max') || {}).value) || 0;
+      }
+    }
+    if (effect.type === 'item') {
+      effect.item_id = parseInt((document.getElementById('f_effect_item') || {}).value) || 0;
+      effect.amount = parseInt((document.getElementById('f_effect_amount') || {}).value) || 1;
+    }
+    if (effect.type === 'item') {
+      var itemDirection = document.querySelector('input[name="f_item_direction"]:checked');
+      effect.direction = itemDirection ? itemDirection.value : 'add';
+      effect.is_random = !!(document.getElementById('f_effect_random') && document.getElementById('f_effect_random').checked);
+      effect.cross_zero = !!(document.getElementById('f_effect_cross_zero') && document.getElementById('f_effect_cross_zero').checked);
+      if (effect.is_random) {
+        effect.min_value = parseInt((document.getElementById('f_effect_min') || {}).value) || 0;
+        effect.max_value = parseInt((document.getElementById('f_effect_max') || {}).value) || 0;
+      }
+    }
+    if (effect.type === 'lootbox') {
+      effect.items = collectLootboxRewardRows();
+      if (!effect.items.length) {
+        toast('请至少添加一个开箱商品', 'error');
+        return null;
+      }
+    }
+    if (effect.type === 'synthesis') {
+      effect.output_item_id = parseInt((document.getElementById('f_synthesis_output_item') || {}).value) || 0;
+      if (effect.output_item_id <= 0) {
+        toast('请选择目标商品', 'error');
+        return null;
+      }
+      effect.output_amount = 1;
+      var inputAmount = Math.max(1, parseInt((document.getElementById('f_synthesis_input_amount') || {}).value) || 1);
+      if (inputAmount <= 0) {
+        toast('消耗数量必须是正整数', 'error');
+        return null;
+      }
+      effect.inputs = [{ input_current_item: true, amount: inputAmount }];
+    }
+    if (effect.type === 'api') {
+      effect.url = (document.getElementById('f_effect_url') || {}).value || '';
+      effect.use_webview = !!(document.getElementById('f_effect_webview') && document.getElementById('f_effect_webview').checked);
+    }
+    data.effects = [effect];
+  }
+  return data;
+}
+function showAddItem() {
+  if (cloudReadOnlyGuard('新增商品')) return;
+  api('/api/categories/shop').then(function(cats) {
+    showModal('➕ 新建商品', itemFormHtml(cats, null, 'add'), true);
+    renderItemEffectFields();
+    initPurchaseLimitBuilder();
+  }).catch(function() { showAddItemSimple(); });
+}
+function showAddItemSimple() {
+  if (cloudReadOnlyGuard('新增商品')) return;
+  showModal('➕ 新建商品', itemFormHtml([{id:0,name:'默认分类'}], null, 'add'), true);
+  renderItemEffectFields();
+  initPurchaseLimitBuilder();
+}
+
+function addItem() {
+  if (cloudReadOnlyGuard('新增商品')) return;
+  var data = collectItemData();
+  if (!data) return;
   if (!data.name) return toast('请输入商品名称', 'error');
   api('/api/items/add', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
@@ -2501,50 +3853,24 @@ function addItem() {
 }
 
 function editItem(id) {
+  if (cloudReadOnlyGuard('编辑商品')) return;
   api('/api/items').then(function(items) {
     var i = items.find(function(x) { return x.id === id; });
     if (!i) return toast('未找到商品', 'error');
     api('/api/categories/shop').then(function(cats) {
-      var opts = cats.map(function(c) {
-        return '<option value="' + c.id + '"' + (c.id===i.shopcategoryid?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
-      }).join('');
-      showModal('✏️ 编辑商品 #' + id,
-        '<div class="form-group"><label>商品名称</label><input id="f_name" value="' + escAttr(i.name||'') + '"></div>' +
-        '<div class="form-row">' +
-          '<div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="' + (i.price||0) + '"></div>' +
-          '<div class="form-group"><label>📦 库存</label><input id="f_count" type="number" value="' + (i.count||0) + '"></div>' +
-        '</div>' +
-        '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
-        '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(i.icon||'') + '"></div>' +
-        '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(i.description||'') + '</textarea></div>' +
-        '<div class="modal-actions">' +
-          '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
-          '<button class="btn btn-primary" onclick="updateItem(' + id + ')">保存</button>' +
-        '</div>'
-      );
+      showModal('✏️ 编辑商品 #' + id, itemFormHtml(cats, i, 'edit'), true);
+      initPurchaseLimitBuilder();
     }).catch(function() {
-      showModal('✏️ 编辑商品 #' + id,
-        '<div class="form-group"><label>商品名称</label><input id="f_name" value="' + escAttr(i.name||'') + '"></div>' +
-        '<div class="form-row"><div class="form-group"><label>💎 价格</label><input id="f_price" type="number" value="' + (i.price||0) + '"></div><div class="form-group"><label>📦 库存</label><input id="f_count" type="number" value="' + (i.count||0) + '"></div></div>' +
-        '<div class="form-group"><label>分类ID</label><input id="f_catid" type="number" value="' + (i.shopcategoryid||0) + '"></div>' +
-        '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(i.icon||'') + '"></div>' +
-        '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(i.description||'') + '</textarea></div>' +
-        '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="updateItem(' + id + ')">保存</button></div>'
-      );
+      showModal('✏️ 编辑商品 #' + id, itemFormHtml([{id:i.shopcategoryid||0,name:'当前分类'}], i, 'edit'), true);
+      initPurchaseLimitBuilder();
     });
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
 function updateItem(id) {
-  var data = {
-    id: id,
-    name: document.getElementById('f_name').value,
-    price: parseInt(document.getElementById('f_price').value),
-    count: parseInt(document.getElementById('f_count').value),
-    icon: document.getElementById('f_icon').value,
-    description: document.getElementById('f_desc').value,
-    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0
-  };
+  if (cloudReadOnlyGuard('保存商品修改')) return;
+  var data = collectItemData(id);
+  if (!data) return;
   api('/api/items/update', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
     loadItems();
@@ -2553,6 +3879,7 @@ function updateItem(id) {
 }
 
 function deleteItem(id) {
+  if (cloudReadOnlyGuard('删除商品')) return;
   if (!confirm('确定删除此商品？')) return;
   api('/api/items/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadItems();
@@ -2573,31 +3900,33 @@ async function loadAchievements() {
     var qs = [];
     if (search) qs.push('search=' + encodeURIComponent(search));
     if (catId) qs.push('category_id=' + catId);
+    if (dataSource === 'cloud') qs.push('source=cloud');
     var ach = await api('/api/achievements' + (qs.length ? '?' + qs.join('&') : ''));
-    var cats = await api('/api/categories/achievements').catch(function(){ return []; });
-    var sysAch = await api('/api/achievements/system').catch(function(){ return []; });
+    var cats = await api('/api/categories/achievements' + (sourceQuery() ? '?' + sourceQuery() : '')).catch(function(){ return []; });
+    var sysAch = dataSource === 'cloud' ? [] : await api('/api/achievements/system').catch(function(){ return []; });
     var statusMap = {0:'🔒 未解锁', 1:'🔓 已解锁', 2:'🎁 已领取'};
 
     var rows = ach.map(function(a) {
+      var cloudReadOnly = dataSource === 'cloud' || a.read_only;
       return '<tr>' +
-        '<td>' + (a.id||'') + '</td>' +
-        '<td>' + (a.icon&&a.icon.startsWith('http') ? '<img src="' + a.icon + '" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">' : '') + ' <strong>' + (a.name||'?') + '</strong></td>' +
-        '<td><span class="badge badge-purple">' + (a.category_name||'-') + '</span></td>' +
-        '<td><span class="badge badge-' + (a.achievementstatus>=1?'green':'red') + '">' + (statusMap[a.achievementstatus]||a.achievementstatus) + '</span></td>' +
-        '<td>🪙 ' + (a.coin||0) + '</td>' +
-        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (a.description||'') + '</td>' +
+        '<td>' + escHtml(a.id||'') + '</td>' +
+        '<td>' + safeIconHtml(a.icon, '🏆') + ' <strong>' + escHtml(a.name||'?') + '</strong></td>' +
+        '<td><span class="badge badge-purple">' + escHtml(a.category_name||'-') + '</span></td>' +
+        '<td><span class="badge badge-' + (a.achievementstatus>=1?'green':'red') + '">' + escHtml(statusMap[a.achievementstatus]||a.achievementstatus) + '</span></td>' +
+        '<td>🪙 ' + escHtml(a.coin||0) + '</td>' +
+        '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(a.description||'') + '</td>' +
         '<td>' +
-          '<button class="btn btn-cyan btn-sm" onclick="editAchievement(' + a.id + ')">✏️</button>' +
-          '<button class="btn btn-danger btn-sm" onclick="deleteAchievement(' + a.id + ')">🗑️</button>' +
+          (cloudReadOnly ? '<span class="badge badge-cyan">只读</span>' : '<button class="btn btn-cyan btn-sm" onclick="editAchievement(' + a.id + ')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteAchievement(' + a.id + ')">🗑️</button>') +
         '</td>' +
       '</tr>';
     }).join('');
 
     var catOptsAch = '<option value="">全部分类</option>' + cats.map(function(c) {
-      return '<option value="' + c.id + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
+      return '<option value="' + escAttr(c.id) + '"' + (String(c.id)===String(catId)?' selected':'') + '>' + escHtml(c.name||c.categoryname) + '</option>';
     }).join('');
 
     c.innerHTML =
+      sourceBanner('成就') +
       '<div class="search-bar">' +
         '<input class="search-input" id="achSearch" placeholder="🔍 搜索成就名称或描述..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')achSearch()">' +
         '<button class="btn btn-cyan btn-sm" onclick="achSearch()">搜索</button>' +
@@ -2606,7 +3935,7 @@ async function loadAchievements() {
         '<select id="achCatFilter" onchange="achFilterCat()" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;max-width:150px">' + catOptsAch + '</select>' +
       '</div>' +
       '<div class="btn-group">' +
-        '<button class="btn btn-primary" onclick="showAddAchievement()">➕ 新建成就</button>' +
+        (dataSource === 'cloud' ? '<span class="badge badge-cyan">成就云端新增/编辑放到下一版</span>' : '<button class="btn btn-primary" onclick="showAddAchievement()">➕ 新建成就</button>') +
         '<button class="btn btn-cyan btn-sm" onclick="loadAchievements()">🔄 刷新</button>' +
         '<span style="color:var(--text2);font-size:12px">自定义 ' + ach.length + ' 个 | 系统成就 ' + sysAch.length + ' 个</span>' +
         '<span style="margin-left:auto"></span>' +
@@ -2621,11 +3950,13 @@ async function loadAchievements() {
         '<div style="overflow-x:auto"><table class="data-table">' +
           '<thead><tr><th>ID</th><th>名称</th><th>类型</th><th>等级</th><th>奖励</th><th>目标值</th></tr></thead>' +
           '<tbody>' + sysAch.map(function(a) {
-            return '<tr><td>' + a.id + '</td><td>' + (a.title||'?') + '</td><td>' + (a.achievementtype||0) + '</td><td>' + (a.levelnumber||1) + '</td><td>🪙' + (a.rewardcoin||0) + ' ✨' + (a.rewardexp||0) + '</td><td>' + (a.targetvalue||0) + '</td></tr>';
+            return '<tr><td>' + escHtml(a.id) + '</td><td>' + escHtml(a.title||'?') + '</td><td>' + escHtml(a.achievementtype||0) + '</td><td>' + escHtml(a.levelnumber||1) + '</td><td>🪙' + escHtml(a.rewardcoin||0) + ' ✨' + escHtml(a.rewardexp||0) + '</td><td>' + escHtml(a.targetvalue||0) + '</td></tr>';
           }).join('') + '</tbody>' +
         '</table></div>' : '');
   } catch(e) {
-    c.innerHTML = '<div class="empty">❌ ' + e.message + '<br><small>请先打开备份存档</small></div>';
+    c.innerHTML = dataSource === 'cloud'
+      ? '<div class="empty">❌ 手机云人升成就读取失败：' + escHtml(e.message) + '<br><small>请到“手机连接/新增任务”页检测连接，或切回本地备份。</small></div>'
+      : '<div class="empty">❌ ' + escHtml(e.message) + '<br><small>请先打开备份存档</small></div>';
   }
 }
 
@@ -2644,6 +3975,7 @@ function achFilterCat() {
 }
 
 function showAddAchievement() {
+  if (cloudReadOnlyGuard('新增成就')) return;
   api('/api/categories/achievements').then(function(cats) {
     var opts = cats.map(function(c) { return '<option value="' + c.id + '">' + (c.name||c.categoryname) + '</option>'; }).join('');
     showAchievementForm('➕ 新建成就', '', 0, 100, 0, '', '', opts);
@@ -2669,6 +4001,7 @@ function showAchievementForm(title, name, catId, coin, exp, icon, desc, catOpts)
 }
 
 function addAchievement() {
+  if (cloudReadOnlyGuard('新增成就')) return;
   var data = {
     name: document.getElementById('f_name').value,
     category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0,
@@ -2687,6 +4020,7 @@ function addAchievement() {
 }
 
 function editAchievement(id) {
+  if (cloudReadOnlyGuard('编辑成就')) return;
   api('/api/achievements').then(function(ach) {
     var a = ach.find(function(x) { return x.id === id; });
     if (!a) return toast('未找到成就', 'error');
@@ -2724,6 +4058,7 @@ function editAchievement(id) {
 }
 
 function updateAchievement(id) {
+  if (cloudReadOnlyGuard('保存成就修改')) return;
   var data = {
     id: id,
     name: document.getElementById('f_name').value,
@@ -2741,6 +4076,7 @@ function updateAchievement(id) {
 }
 
 function deleteAchievement(id) {
+  if (cloudReadOnlyGuard('删除成就')) return;
   if (!confirm('确定删除此成就？')) return;
   api('/api/achievements/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadAchievements();
@@ -2759,6 +4095,7 @@ var COND_TYPE_MAP = {
 };
 
 function manageConditions(achId) {
+  if (cloudReadOnlyGuard('管理成就条件')) return;
   api('/api/achievements/' + achId + '/conditions').then(function(data) {
     var conds = data.conditions || [];
     var achName = conds.length > 0 ? conds[0].achievement_name : '成就 #' + achId;
@@ -2807,6 +4144,7 @@ function manageConditions(achId) {
 }
 
 function saveCondition(condId, achId) {
+  if (cloudReadOnlyGuard('保存成就条件')) return;
   var data = {
     conditiontype: parseInt(document.getElementById('ctype_' + condId).value) || 1,
     targetvalues: parseInt(document.getElementById('ctarget_' + condId).value) || 1,
@@ -2819,6 +4157,7 @@ function saveCondition(condId, achId) {
 }
 
 function removeCondition(condId, achId) {
+  if (cloudReadOnlyGuard('删除成就条件')) return;
   if (!confirm('确定删除此条件？')) return;
   api('/api/conditions/' + condId + '/delete', { method: 'POST' }).then(function() {
     toast('🗑️ 条件已删除');
@@ -2827,6 +4166,7 @@ function removeCondition(condId, achId) {
 }
 
 function addCondition(achId) {
+  if (cloudReadOnlyGuard('新增成就条件')) return;
   var data = {
     conditiontype: parseInt(document.getElementById('newCType').value) || 1,
     targetvalues: parseInt(document.getElementById('newCTarget').value) || 1,
@@ -2962,6 +4302,10 @@ async function loadSynthesis() {
   var calcMode = pageStates.synthesis.calcMode;
 
   var c = document.getElementById('content');
+  if (dataSource === 'cloud') {
+    c.innerHTML = '<div class="source-page-note">合成配方目前只支持本地备份工作副本。云端模式不会读取或修改本地合成数据，请切回“本地备份”后管理。</div>';
+    return;
+  }
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
     var qs = [];
@@ -3083,6 +4427,7 @@ function synthFilterCat() {
 
 // --- Synthesis CRUD ---
 function showAddSynthesis() {
+  if (cloudReadOnlyGuard('新增合成配方')) return;
   showModal('➕ 新建合成配方', true,
     '<div class="form-group"><label>配方名称</label><input id="f_stitle" placeholder="如：炼制丹药"></div>' +
     '<div class="form-group"><label>备注</label><textarea id="f_snote"></textarea></div>' +
@@ -3107,6 +4452,7 @@ function parseItemPairs(str) {
 }
 
 function addSynthesis() {
+  if (cloudReadOnlyGuard('新增合成配方')) return;
   var data = {
     title: document.getElementById('f_stitle').value,
     note: document.getElementById('f_snote').value,
@@ -3125,6 +4471,7 @@ function addSynthesis() {
 }
 
 function editSynthesis(id) {
+  if (cloudReadOnlyGuard('编辑合成配方')) return;
   api('/api/synthesis').then(function(data) {
     var r = (data.recipes||[]).find(function(x) { return x.id === id; });
     if (!r) return toast('未找到配方', 'error');
@@ -3146,6 +4493,7 @@ function editSynthesis(id) {
 }
 
 function updateSynthesis(id) {
+  if (cloudReadOnlyGuard('保存合成配方')) return;
   var data = {
     id: id,
     title: document.getElementById('f_stitle').value,
@@ -3162,6 +4510,7 @@ function updateSynthesis(id) {
 }
 
 function deleteSynthesis(id) {
+  if (cloudReadOnlyGuard('删除合成配方')) return;
   if (!confirm('确定删除此配方？')) return;
   api('/api/synthesis/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadSynthesis();
@@ -3280,6 +4629,10 @@ function histClearDate() {
  * ================================================================================= */
 async function loadPools() {
   var c = document.getElementById('content');
+  if (dataSource === 'cloud') {
+    c.innerHTML = '<div class="source-page-note">卡池管理目前只支持本地备份工作副本。云端模式不会读取或修改本地卡池数据，请切回“本地备份”后管理。</div>';
+    return;
+  }
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
     var data = await api('/api/pools');
@@ -3324,6 +4677,7 @@ async function loadPools() {
 }
 
 function editPool(id) {
+  if (cloudReadOnlyGuard('编辑卡池')) return;
   api('/api/pools').then(function(data) {
     var p = (data.pools||[]).find(function(x) { return x.id === id; });
     if (!p) return toast('未找到卡池', 'error');
@@ -3346,6 +4700,7 @@ function editPool(id) {
 }
 
 function savePool(id, count) {
+  if (cloudReadOnlyGuard('保存卡池')) return;
   var entries = [];
   for (var i = 0; i < count; i++) {
     entries.push({
@@ -3590,85 +4945,230 @@ async function loadEconomy() {
 /* =================================================================================
  *  PAGE 13: Snapshots — 快照管理
  * ================================================================================= */
-function getSnapshots() {
-  try { return JSON.parse(localStorage.getItem('lifeup_snapshots') || '[]'); } catch(e) { return []; }
-}
-function saveSnapshots(snaps) {
-  localStorage.setItem('lifeup_snapshots', JSON.stringify(snaps));
+var snapshotCache = [];
+var snapshotLoadGeneration = 0;
+var snapshotActionInFlight = false;
+var snapshotActionLabel = '';
+
+function setSnapshotActionState(active, label) {
+  snapshotActionInFlight = !!active;
+  snapshotActionLabel = snapshotActionInFlight ? String(label || '快照操作进行中...') : '';
+  if (currentPage !== 'snapshots') return;
+  var panel = document.getElementById('snapshotPanel');
+  if (!panel) return;
+  panel.setAttribute('aria-busy', snapshotActionInFlight ? 'true' : 'false');
+  var status = document.getElementById('snapshotActionStatus');
+  if (status) status.textContent = snapshotActionLabel;
+  panel.querySelectorAll('[data-snapshot-control]').forEach(function(button) {
+    button.disabled = snapshotActionInFlight || button.getAttribute('data-snapshot-disabled') === 'true';
+  });
 }
 
-function loadSnapshots() {
+function snapshotSizeText(value) {
+  var bytes = Number(value);
+  if (!Number.isFinite(bytes) || bytes < 0) return escHtml(value == null ? '?' : value);
+  if (bytes >= 1024 * 1024) return escHtml((bytes / (1024 * 1024)).toFixed(2).replace(/\.00$/, '') + ' MB');
+  if (bytes >= 1024) return escHtml((bytes / 1024).toFixed(2).replace(/\.00$/, '') + ' KB');
+  return escHtml(bytes + ' B');
+}
+
+function snapshotDateText(value) {
+  var text = String(value || '');
+  var date = new Date(text);
+  if (text && !Number.isNaN(date.getTime())) text = date.toLocaleString();
+  return escHtml(text || '未知时间');
+}
+
+function snapshotIntegrityHtml(snapshot) {
+  var integrity = snapshot && typeof snapshot.integrity === 'object' && snapshot.integrity
+    ? snapshot.integrity : {};
+  var restorable = snapshot && snapshot.restorable === true &&
+    integrity.archive === 'ok' && integrity.database === 'ok';
+  if (restorable) {
+    return '<span class="badge badge-green">创建时校验通过</span>' +
+      '<div style="font-size:10px;color:var(--text2);margin-top:4px">恢复时会再次校验 ZIP 和 SQLite</div>';
+  }
+  return '<span class="badge badge-red">不可恢复</span>' +
+    '<div style="font-size:10px;color:var(--text2);margin-top:4px">状态: ' +
+    escHtml((snapshot && snapshot.status) || 'invalid') + '</div>';
+}
+
+function renderSnapshots(payload) {
   var c = document.getElementById('content');
-  var snaps = getSnapshots();
-
-  var rows = snaps.map(function(s, idx) {
+  if (!c) return;
+  var pagination = payload && typeof payload.pagination === 'object' && payload.pagination
+    ? payload.pagination : {};
+  var total = Number(pagination.total);
+  if (!Number.isFinite(total) || total < 0) total = snapshotCache.length;
+  var actionDisabled = snapshotActionInFlight ? ' disabled' : '';
+  var rows = snapshotCache.map(function(snapshot, index) {
+    var integrity = snapshot && typeof snapshot.integrity === 'object' && snapshot.integrity
+      ? snapshot.integrity : {};
+    var restorable = snapshot && snapshot.restorable === true &&
+      integrity.archive === 'ok' && integrity.database === 'ok';
     return '<tr>' +
-      '<td>' + (s.name||'Snapshot #'+idx) + '</td>' +
-      '<td>' + (s.path||'') + '</td>' +
-      '<td>' + (s.time||'') + '</td>' +
-      '<td>' + (s.size||'?') + '</td>' +
+      '<td><strong>' + escHtml((snapshot && snapshot.name) || ('快照 #' + (index + 1))) + '</strong>' +
+        '<div style="font-size:10px;color:var(--text2);margin-top:4px">' +
+        escHtml((snapshot && snapshot.filename) || '未知文件') + '</div></td>' +
+      '<td>' + snapshotDateText(snapshot && snapshot.created_at) + '</td>' +
+      '<td>' + snapshotSizeText(snapshot && snapshot.size) + '</td>' +
+      '<td>' + snapshotIntegrityHtml(snapshot) + '</td>' +
       '<td>' +
-        '<button class="btn btn-cyan btn-sm" onclick="restoreSnapshot(' + idx + ')">📂 恢复</button>' +
-        '<button class="btn btn-danger btn-sm" onclick="deleteSnapshot(' + idx + ')">🗑️</button>' +
+        '<button class="btn btn-cyan btn-sm" data-snapshot-control data-snapshot-disabled="' +
+          (restorable ? 'false' : 'true') + '" onclick="restoreSnapshot(' + index + ')"' +
+          (restorable && !snapshotActionInFlight ? '' : ' disabled') +
+          (restorable ? '' : ' title="快照校验失败，不能恢复"') + '>📂 恢复</button>' +
+        '<button class="btn btn-danger btn-sm" data-snapshot-control data-snapshot-disabled="false"' +
+          actionDisabled + ' onclick="deleteSnapshot(' + index + ')">🗑️</button>' +
       '</td>' +
     '</tr>';
   }).join('');
 
-  c.innerHTML =
+  c.innerHTML = '<div id="snapshotPanel" aria-busy="' +
+    (snapshotActionInFlight ? 'true' : 'false') + '">' +
     '<div class="btn-group">' +
-      '<button class="btn btn-primary" onclick="createSnapshot()">📸 创建快照</button>' +
-      '<button class="btn btn-cyan btn-sm" onclick="loadSnapshots()">🔄 刷新</button>' +
-      '<span style="color:var(--text2);font-size:12px">共 ' + snaps.length + ' 个快照（存储在浏览器本地）</span>' +
+      '<button class="btn btn-primary" data-snapshot-control data-snapshot-disabled="false"' +
+        actionDisabled + ' onclick="createSnapshot()">📸 创建快照</button>' +
+      '<button class="btn btn-cyan btn-sm" data-snapshot-control data-snapshot-disabled="false"' +
+        actionDisabled + ' onclick="loadSnapshots()">🔄 刷新</button>' +
+      '<span style="color:var(--text2);font-size:12px">共 ' + escHtml(String(total)) + ' 个服务器快照</span>' +
+      '<span id="snapshotActionStatus" aria-live="polite" style="color:var(--cyan);font-size:12px">' +
+        escHtml(snapshotActionLabel) + '</span>' +
     '</div>' +
-    '<p style="font-size:11px;color:var(--text2);margin-bottom:12px">快照记录备份文件的路径和状态，方便快速切换。实际数据取决于服务器当前加载的存档。</p>' +
+    '<p style="font-size:11px;color:var(--text2);margin-bottom:12px">每个快照都是服务器托管的独立 ZIP。恢复时会创建新的工作副本，不会覆盖当前工作副本或原始备份。</p>' +
     '<div style="overflow-x:auto"><table class="data-table">' +
-      '<thead><tr><th>名称</th><th>路径</th><th>时间</th><th>大小</th><th>操作</th></tr></thead>' +
-      '<tbody>' + (rows || '<tr><td colspan="5" class="empty">暂无快照</td></tr>') + '</tbody>' +
-    '</table></div>';
+      '<thead><tr><th>名称 / 文件</th><th>创建时间</th><th>大小</th><th>完整性</th><th>操作</th></tr></thead>' +
+      '<tbody>' + (rows || '<tr><td colspan="5" class="empty">暂无真实快照，请先创建一个快照。</td></tr>') + '</tbody>' +
+    '</table></div></div>';
+}
+
+async function loadSnapshots() {
+  if (currentPage !== 'snapshots') return;
+  var c = document.getElementById('content');
+  var generation = ++snapshotLoadGeneration;
+  if (!c) return;
+  if (dataSource === 'cloud') {
+    snapshotCache = [];
+    c.innerHTML = '<div class="source-page-note">快照管理只适用于本地备份工作副本。云端模式不会读取、创建、恢复或删除本地快照，请切回“本地备份”后管理。</div>';
+    return;
+  }
+
+  c.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在读取服务器快照...</p></div>';
+  try {
+    var payload = await api('/api/snapshots?limit=200&offset=0');
+    if (generation !== snapshotLoadGeneration || currentPage !== 'snapshots' || dataSource !== 'local') return;
+    snapshotCache = payload && Array.isArray(payload.snapshots) ? payload.snapshots : [];
+    renderSnapshots(payload || {});
+    return payload;
+  } catch(error) {
+    if (generation !== snapshotLoadGeneration || currentPage !== 'snapshots' || dataSource !== 'local') return;
+    var suggestion = error && error.suggestion ? '<br><small>💡 ' + escHtml(error.suggestion) + '</small>' : '';
+    c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>快照列表加载失败：' +
+      escHtml((error && error.message) || '未知错误') + suggestion +
+      '<div style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadSnapshots()">🔄 重试</button></div></div>';
+  }
 }
 
 function createSnapshot() {
-  showModal('📸 创建快照',
-    '<p style="font-size:12px;color:var(--text2);margin-bottom:12px">保存当前加载的存档路径作为快照，方便以后快速切换。</p>' +
-    '<div class="form-group"><label>快照名称</label><input id="f_snapname" placeholder="如：2024年1月存档"></div>' +
+  if (cloudReadOnlyGuard('创建本地快照')) return;
+  if (snapshotActionInFlight) return toast('快照操作正在进行，请稍候', 'error');
+  showModal('📸 创建真实快照',
+    '<p style="font-size:12px;color:var(--text2);margin-bottom:12px">服务器会复制并校验当前工作副本，生成独立 ZIP。之后继续修改工作副本不会改变此快照。</p>' +
+    '<div class="form-group"><label>快照名称</label><input id="f_snapname" maxlength="100" placeholder="如：批量修改任务前"></div>' +
     '<div class="modal-actions">' +
-      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
-      '<button class="btn btn-primary" onclick="doCreateSnapshot()">📸 创建</button>' +
+      '<button class="btn btn-cyan" id="snapshotCreateCancelBtn" onclick="closeModal()">取消</button>' +
+      '<button class="btn btn-primary" id="snapshotCreateConfirmBtn" onclick="doCreateSnapshot()">📸 创建</button>' +
     '</div>'
   );
-  setTimeout(function() { var inp = document.getElementById('f_snapname'); if (inp) inp.focus(); }, 100);
+  setTimeout(function() { var input = document.getElementById('f_snapname'); if (input) input.focus(); }, 100);
 }
-function doCreateSnapshot() {
-  var name = document.getElementById('f_snapname').value.trim() || 'Snapshot';
-  var path = localStorage.getItem('lifeup_backup_path') || '';
-  var snaps = getSnapshots();
-  snaps.push({
-    name: name,
-    path: path,
-    time: new Date().toLocaleString(),
-    size: '?'
-  });
-  saveSnapshots(snaps);
-  closeModal();
-  loadSnapshots();
-  toast('📸 快照已创建');
+
+async function doCreateSnapshot() {
+  if (cloudReadOnlyGuard('创建本地快照')) return;
+  if (snapshotActionInFlight) return toast('快照操作正在进行，请稍候', 'error');
+  var input = document.getElementById('f_snapname');
+  var name = input ? String(input.value || '').trim() : '';
+  var button = document.getElementById('snapshotCreateConfirmBtn');
+  var cancelButton = document.getElementById('snapshotCreateCancelBtn');
+  setSnapshotActionState(true, '正在创建并校验快照...');
+  if (button) { button.disabled = true; button.textContent = '创建并校验中...'; }
+  if (cancelButton) cancelButton.disabled = true;
+  try {
+    var result = await api('/api/snapshots', {
+      method: 'POST',
+      body: JSON.stringify({ name: name })
+    });
+    if (button && document.getElementById('snapshotCreateConfirmBtn') === button) {
+      closeModal();
+    }
+    toast('📸 快照已创建：' + ((result.snapshot && result.snapshot.name) || name || '自动命名快照'));
+    await loadSnapshots();
+    return result;
+  } catch(error) {
+    toast('❌ 创建快照失败：' + ((error && error.message) || '未知错误') +
+      (error && error.suggestion ? '；' + error.suggestion : ''), 'error');
+  } finally {
+    setSnapshotActionState(false);
+    if (button) { button.disabled = false; button.textContent = '📸 创建'; }
+    if (cancelButton) cancelButton.disabled = false;
+  }
 }
-function restoreSnapshot(idx) {
-  var snaps = getSnapshots();
-  var s = snaps[idx];
-  if (!s || !s.path) return toast('快照数据不完整', 'error');
-  if (!confirm('确定切换到快照 "' + (s.name||'') + '" 吗？当前未保存的修改将丢失。')) return;
-  _loadBackup(s.path).then(function() {
-    toast('📂 已切换到快照: ' + (s.name||''));
-  }).catch(function(e) { toast('❌ 恢复失败: ' + e.message, 'error'); });
+
+async function restoreSnapshot(index) {
+  if (cloudReadOnlyGuard('恢复本地快照')) return;
+  if (snapshotActionInFlight) return toast('快照操作正在进行，请稍候', 'error');
+  var snapshot = snapshotCache[index];
+  if (!snapshot || !snapshot.id) return toast('快照数据不完整，请刷新列表', 'error');
+  if (snapshot.restorable !== true) return toast('此快照未通过校验，不能恢复', 'error');
+  var name = String(snapshot.name || '未命名快照');
+  if (!confirm('确定恢复快照“' + name + '”吗？系统会创建并切换到新的工作副本，不会覆盖当前工作副本或原始备份。')) return;
+
+  setSnapshotActionState(true, '正在恢复快照并校验新工作副本...');
+  try {
+    var result = await api('/api/snapshots/' + encodeURIComponent(String(snapshot.id)) + '/restore', {
+      method: 'POST',
+      body: JSON.stringify({})
+    });
+    var workspace = result && result.workspace;
+    if (!workspace || workspace.loaded !== true || workspace.workspace_copy !== true ||
+        typeof workspace.backup_path !== 'string' || !workspace.backup_path.trim()) {
+      throw new Error('服务器未返回完整的新工作副本状态，请刷新页面确认当前工作区');
+    }
+    if (!applyLoadedStatus(workspace)) {
+      throw new Error('新工作副本未能应用到页面，请刷新页面确认当前工作区');
+    }
+    toast('📂 已从快照创建并切换到新工作副本：' + name);
+    return result;
+  } catch(error) {
+    toast('❌ 恢复失败：' + ((error && error.message) || '未知错误') +
+      (error && error.suggestion ? '；' + error.suggestion : ''), 'error');
+  } finally {
+    setSnapshotActionState(false);
+  }
 }
-function deleteSnapshot(idx) {
-  if (!confirm('确定删除此快照？')) return;
-  var snaps = getSnapshots();
-  snaps.splice(idx, 1);
-  saveSnapshots(snaps);
-  loadSnapshots();
-  toast('🗑️ 快照已删除');
+
+async function deleteSnapshot(index) {
+  if (cloudReadOnlyGuard('删除本地快照')) return;
+  if (snapshotActionInFlight) return toast('快照操作正在进行，请稍候', 'error');
+  var snapshot = snapshotCache[index];
+  if (!snapshot || !snapshot.id) return toast('快照数据不完整，请刷新列表', 'error');
+  var name = String(snapshot.name || '未命名快照');
+  if (!confirm('确定删除快照“' + name + '”吗？只会删除此服务器托管快照，不会删除当前工作副本或原始备份。')) return;
+
+  setSnapshotActionState(true, '正在删除快照...');
+  try {
+    var result = await api('/api/snapshots/' + encodeURIComponent(String(snapshot.id)), {
+      method: 'DELETE'
+    });
+    toast('🗑️ 快照已删除：' + name);
+    await loadSnapshots();
+    return result;
+  } catch(error) {
+    toast('❌ 删除快照失败：' + ((error && error.message) || '未知错误') +
+      (error && error.suggestion ? '；' + error.suggestion : ''), 'error');
+  } finally {
+    setSnapshotActionState(false);
+  }
 }
 
 /* =================================================================================
@@ -3774,6 +5274,423 @@ function exportTable(table) {
 /* =================================================================================
  *  HTML Escape Helpers
  * ================================================================================= */
+/* =================================================================================
+ *  PAGE: Cloud LifeUp API
+ * ================================================================================= */
+var cloudRows = [];
+var cloudBatchRows = [];
+var cloudTaskUrl = '';
+var cloudTaskPreviewToken = '';
+var cloudTaskIdempotencyKey = '';
+var cloudTaskPreviewVersion = 0;
+var cloudTaskExecuting = false;
+var cloudBatchPreviewToken = '';
+var cloudBatchIdempotencyKey = '';
+var cloudBatchPreviewVersion = 0;
+var cloudBatchExecuting = false;
+
+function cloudNewIdempotencyKey(prefix) {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return prefix + '-' + crypto.randomUUID();
+  return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+}
+
+function cloudInvalidateTaskPreview(showMessage) {
+  var hadPreview = !!cloudTaskPreviewToken;
+  cloudTaskPreviewVersion += 1;
+  cloudTaskUrl = '';
+  cloudTaskPreviewToken = '';
+  cloudTaskIdempotencyKey = '';
+  var btn = document.getElementById('cloudExecuteTaskBtn');
+  if (btn) btn.disabled = true;
+  var preview = document.getElementById('cloudTaskPreview');
+  if (hadPreview && showMessage !== false && preview) preview.textContent = '输入已更改，请重新生成预览。';
+}
+
+function cloudInvalidateBatchPreview(showMessage) {
+  var hadPreview = !!cloudBatchPreviewToken;
+  cloudBatchPreviewVersion += 1;
+  cloudBatchPreviewToken = '';
+  cloudBatchIdempotencyKey = '';
+  var btn = document.getElementById('cloudExecuteBatchBtn');
+  if (btn) btn.disabled = true;
+  var table = document.getElementById('cloudBatchTable');
+  if (hadPreview && showMessage !== false && table) table.textContent = '文件已更改，请重新导入并预览。';
+}
+
+function cloudPayload(extra) {
+  extra = extra || {};
+  var host = document.getElementById('cloudHost');
+  var port = document.getElementById('cloudPort');
+  var token = document.getElementById('cloudToken');
+  return Object.assign({
+    host: host ? host.value.trim() : '',
+    port: port ? (port.value || 13276) : 13276,
+    api_token: token ? token.value.trim() : ''
+  }, extra);
+}
+
+async function loadCloud() {
+  var c = document.getElementById('content');
+  c.innerHTML =
+    '<div class="source-page-note">手机连接/新增任务页只负责连接云人升、读取实时数据、以及通过官方 lifeup://api/ 新增任务。不会同步本地备份，也不会编辑或删除手机已有数据。</div>' +
+    '<div class="btn-group">' +
+      '<input class="search-input" id="cloudHost" placeholder="手机 IP，例如 192.168.3.45" style="width:210px">' +
+      '<input class="search-input" id="cloudPort" type="number" value="13276" style="width:110px">' +
+      '<input class="search-input" id="cloudToken" type="password" placeholder="Token 可选，不保存" style="width:180px">' +
+      '<button class="btn btn-primary" onclick="cloudTest(true)">检测连接</button>' +
+      '<button class="btn btn-cyan" onclick="cloudSaveConfig()">保存 Host/端口</button>' +
+      '<button class="btn btn-sm" onclick="cloudClearToken()">清除内存 Token</button>' +
+    '</div>' +
+    '<div id="cloudStatus" class="stat-card" style="text-align:left;margin-bottom:16px;padding:10px">云人升未检测。写操作只允许 lifeup://api/，并且必须确认。</div>' +
+    '<div class="btn-group">' +
+      '<button class="btn btn-sm" onclick="cloudLoadData(\'tasks\')">读取任务</button>' +
+      '<button class="btn btn-sm" onclick="cloudLoadData(\'items\')">读取商品</button>' +
+      '<button class="btn btn-sm" onclick="cloudLoadData(\'skills\')">读取技能</button>' +
+      '<button class="btn btn-sm" onclick="cloudLoadData(\'coin\')">读取金币</button>' +
+      '<button class="btn btn-sm" onclick="cloudLoadData(\'achievement_categories\')">读取成就分类</button>' +
+      '<button class="btn btn-sm" onclick="cloudLoadData(\'achievements\')">读取成就</button>' +
+    '</div>' +
+    '<div class="section-title">新增单个任务</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>todo 任务标题 *</label><input id="cloudTodo" placeholder="例如：写日记"></div>' +
+      '<div class="form-group"><label>category 清单 ID</label><input id="cloudCategory" type="number" min="0" placeholder="可选"></div>' +
+    '</div>' +
+    '<div class="form-group"><label>notes 备注</label><textarea id="cloudNotes" placeholder="可选"></textarea></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>coin 金币</label><input id="cloudCoin" type="number" min="0" placeholder="可选"></div>' +
+      '<div class="form-group"><label>exp 经验</label><input id="cloudExp" type="number" min="0" placeholder="可选"></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label>skills 技能 ID，逗号分隔</label><input id="cloudSkills" placeholder="例如 1,2"></div>' +
+      '<div class="form-group"><label>importance / difficulty</label><input id="cloudLevels" placeholder="可选，例如 2,3"></div>' +
+    '</div>' +
+    '<div class="btn-group">' +
+      '<button class="btn btn-primary" onclick="cloudPreviewTask()">生成预览</button>' +
+      '<button class="btn btn-green" id="cloudExecuteTaskBtn" onclick="cloudExecuteTask()" disabled>确认新增任务</button>' +
+    '</div>' +
+    '<pre id="cloudTaskPreview" class="stat-card" style="white-space:pre-wrap;text-align:left;overflow:auto">先生成预览，不会自动发送到手机。</pre>' +
+    '<div class="section-title">CSV / JSON 批量新增任务</div>' +
+    '<div class="btn-group">' +
+      '<input id="cloudBatchFile" type="file" accept=".csv,.json,text/csv,application/json">' +
+      '<button class="btn btn-primary" onclick="cloudPreviewBatch()">导入并预览</button>' +
+      '<button class="btn btn-green" id="cloudExecuteBatchBtn" onclick="cloudExecuteBatch()" disabled>确认批量新增</button>' +
+    '</div>' +
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">CSV 列名：todo, notes, coin, coin_var, exp, skills, category, frequency, importance, difficulty。JSON 使用对象数组。</div>' +
+    '<div id="cloudBatchTable" class="stat-card" style="text-align:left">还没有批量导入预览。</div>' +
+    '<div class="section-title">云人升读取结果</div>' +
+    '<div id="cloudDataTable" class="stat-card" style="text-align:left">还没有读取数据。</div>';
+  ['cloudTodo','cloudCategory','cloudNotes','cloudCoin','cloudExp','cloudSkills','cloudLevels'].forEach(function(id) {
+    var input = document.getElementById(id);
+    if (input) input.addEventListener('input', function() { cloudInvalidateTaskPreview(true); });
+  });
+  var batchFile = document.getElementById('cloudBatchFile');
+  if (batchFile) batchFile.addEventListener('change', function() { cloudInvalidateBatchPreview(true); });
+  try {
+    var cfg = await api('/api/cloud/config');
+    document.getElementById('cloudHost').value = cfg.host || '';
+    document.getElementById('cloudPort').value = cfg.port || 13276;
+    if (cfg.api_token_in_memory) document.getElementById('cloudToken').placeholder = 'Token 已在内存中（留空沿用）';
+  } catch(e) {}
+}
+
+async function cloudSaveConfig() {
+  var cfg = await api('/api/cloud/config', { method:'POST', body: JSON.stringify(cloudPayload()) });
+  setDataSource('cloud', false);
+  document.getElementById('cloudStatus').textContent = '已保存 Host/端口：' + cfg.base_url + '。Token 不会保存。';
+}
+
+async function cloudClearToken() {
+  var r = await api('/api/cloud/config', {
+    method:'POST',
+    body: JSON.stringify(cloudPayload({ clear_token: true }))
+  });
+  var input = document.getElementById('cloudToken');
+  if (input) {
+    input.value = '';
+    input.placeholder = 'Token 可选，不保存';
+  }
+  document.getElementById('cloudStatus').textContent = r.api_token_in_memory ? 'Token 仍在内存中。' : '内存 Token 已清除，磁盘中从未保存 Token。';
+}
+
+async function cloudTest(save) {
+  document.getElementById('cloudStatus').textContent = '正在检测连接...';
+  var r = await api('/api/cloud/test', { method:'POST', body: JSON.stringify(cloudPayload({ save: save })) });
+  setDataSource('cloud', false);
+  var info = r.info || {};
+  document.getElementById('cloudStatus').textContent =
+    '连接成功：' + r.base_url + ' · ' + (info.appVersionName || info.appVersion || '') + ' · API ' + (info.apiVersion || '');
+}
+
+function openCloudTaskComposer() {
+  setDataSource('cloud', false);
+  loadPage('cloud');
+  setTimeout(function() {
+    var input = document.getElementById('cloudTodo');
+    if (input) {
+      input.focus();
+      input.select();
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 200);
+}
+
+function cloudNum(value, field, min, max) {
+  var raw = String(value || '').trim();
+  if (!raw) return '';
+  var n = Number(raw);
+  if (!Number.isInteger(n)) throw new Error(field + ' 必须是整数');
+  if (min !== undefined && n < min) throw new Error(field + ' 不能小于 ' + min);
+  if (max !== undefined && n > max) throw new Error(field + ' 不能大于 ' + max);
+  return String(n);
+}
+
+function cloudBuildTaskUrl(input) {
+  var todo = String(input.todo || '').trim();
+  if (!todo) throw new Error('todo 任务标题不能为空');
+  var params = new URLSearchParams();
+  params.append('todo', todo);
+  if (input.notes) params.append('notes', String(input.notes).trim());
+  var numericRules = {
+    coin: [0], coin_var: [0], exp: [0], category: [0], frequency: [0],
+    importance: [1, 4], difficulty: [1, 4]
+  };
+  Object.keys(numericRules).forEach(function(k) {
+    var rule = numericRules[k];
+    var value = cloudNum(input[k], k, rule[0], rule[1]);
+    if (value !== '') params.append(k, value);
+  });
+  String(input.skills || '').split(/[,;，；\s]+/).map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(skill) {
+    params.append('skills', cloudNum(skill, 'skills', 0));
+  });
+  return 'lifeup://api/add_task?' + params.toString();
+}
+
+function cloudTaskInput() {
+  var levels = String(document.getElementById('cloudLevels').value || '').split(',');
+  return {
+    todo: document.getElementById('cloudTodo').value,
+    notes: document.getElementById('cloudNotes').value,
+    coin: cloudNum(document.getElementById('cloudCoin').value, 'coin', 0),
+    exp: cloudNum(document.getElementById('cloudExp').value, 'exp', 0),
+    skills: document.getElementById('cloudSkills').value,
+    category: cloudNum(document.getElementById('cloudCategory').value, 'category', 0),
+    importance: cloudNum(levels[0] || '', 'importance', 1, 4),
+    difficulty: cloudNum(levels[1] || '', 'difficulty', 1, 4)
+  };
+}
+
+async function cloudPreviewTask() {
+  cloudInvalidateTaskPreview(false);
+  var previewVersion = cloudTaskPreviewVersion;
+  var url = cloudBuildTaskUrl(cloudTaskInput());
+  document.getElementById('cloudTaskPreview').textContent = url;
+  document.getElementById('cloudStatus').textContent = '正在登记一次性预览...';
+  var r = await api('/api/cloud/preview', {
+    method:'POST',
+    body: JSON.stringify(cloudPayload({ urls:[url] }))
+  });
+  if (previewVersion !== cloudTaskPreviewVersion) return '';
+  cloudTaskUrl = url;
+  cloudTaskPreviewToken = r.preview_token;
+  cloudTaskIdempotencyKey = cloudNewIdempotencyKey('task');
+  var btn = document.getElementById('cloudExecuteTaskBtn');
+  if (btn) btn.disabled = false;
+  document.getElementById('cloudStatus').textContent = '预览已生成，10 分钟内可确认一次。修改输入后必须重新预览。';
+  return url;
+}
+
+async function cloudExecuteTask() {
+  if (cloudTaskExecuting) return;
+  if (!cloudTaskPreviewToken) return toast('请先生成预览；修改输入后需要重新预览', 'error');
+  var url = cloudTaskUrl;
+  if (!confirm('将通过云人升新增 1 个任务，不会编辑或删除已有数据。\n\n' + url + '\n\n继续？')) return;
+  var btn = document.getElementById('cloudExecuteTaskBtn');
+  cloudTaskExecuting = true;
+  if (btn) btn.disabled = true;
+  try {
+    var r = await api('/api/cloud/execute', {
+      method:'POST',
+      body: JSON.stringify({
+        preview_token: cloudTaskPreviewToken,
+        idempotency_key: cloudTaskIdempotencyKey
+      })
+    });
+    cloudTaskPreviewToken = '';
+    cloudTaskIdempotencyKey = '';
+    document.getElementById('cloudStatus').textContent = '新增请求已发送：' + r.count + ' 条。请在手机端确认。';
+    cloudLoadData('tasks');
+  } finally {
+    cloudTaskExecuting = false;
+    if (btn) btn.disabled = !cloudTaskPreviewToken;
+  }
+}
+
+async function cloudLoadData(dataset) {
+  document.getElementById('cloudDataTable').textContent = '正在读取 ' + dataset + ' ...';
+  try {
+    var r = await api('/api/cloud/data', { method:'POST', body: JSON.stringify(cloudPayload({ dataset: dataset })) });
+    cloudRows = r.rows || [];
+    cloudRenderRows(r.dataset || dataset, cloudRows, r.errors || []);
+  } catch(e) {
+    document.getElementById('cloudDataTable').textContent = e.message;
+  }
+}
+
+function cloudRenderRows(dataset, rows, errors) {
+  var box = document.getElementById('cloudDataTable');
+  if (!rows.length) {
+    box.innerHTML = '<div class="empty">没有读取到数据。' + (errors.length ? escHtml(JSON.stringify(errors)) : '') + '</div>';
+    return;
+  }
+  var keys = [];
+  rows.slice(0, 10).forEach(function(row) {
+    Object.keys(row || {}).forEach(function(k) { if (keys.indexOf(k) < 0) keys.push(k); });
+  });
+  keys = keys.slice(0, 10);
+  var body = rows.slice(0, 200).map(function(row) {
+    return '<tr>' + keys.map(function(k) {
+      var v = row && row[k];
+      if (Array.isArray(v) || (v && typeof v === 'object')) v = JSON.stringify(v);
+      return '<td>' + escHtml(v == null ? '' : v) + '</td>';
+    }).join('') + '</tr>';
+  }).join('');
+  box.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + escHtml(dataset) + ' · 共 ' + rows.length + ' 条，表格最多显示 200 条</div>' +
+    '<div style="overflow:auto"><table class="data-table"><thead><tr>' + keys.map(function(k){ return '<th>' + escHtml(k) + '</th>'; }).join('') +
+    '</tr></thead><tbody>' + body + '</tbody></table></div>';
+}
+
+function cloudParseCsv(text) {
+  var rows = [];
+  var row = [];
+  var cell = '';
+  var q = false;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i], next = text[i + 1];
+    if (ch === '"') {
+      if (q && next === '"') { cell += '"'; i++; } else q = !q;
+    } else if (ch === ',' && !q) {
+      row.push(cell); cell = '';
+    } else if ((ch === '\n' || ch === '\r') && !q) {
+      if (ch === '\r' && next === '\n') i++;
+      row.push(cell);
+      if (row.some(function(v){ return String(v).trim(); })) rows.push(row);
+      row = []; cell = '';
+    } else {
+      cell += ch;
+    }
+  }
+  row.push(cell);
+  if (row.some(function(v){ return String(v).trim(); })) rows.push(row);
+  if (!rows.length) return [];
+  var headers = rows.shift().map(function(h){ return String(h).trim(); });
+  return rows.map(function(values) {
+    var item = {};
+    headers.forEach(function(h, idx) { if (h) item[h] = values[idx] || ''; });
+    return item;
+  });
+}
+
+async function cloudReadBatchFile() {
+  var file = document.getElementById('cloudBatchFile').files[0];
+  if (!file) throw new Error('请先选择 CSV 或 JSON 文件');
+  var text = await file.text();
+  if (file.name.toLowerCase().endsWith('.json') || file.type.indexOf('json') >= 0) {
+    var parsed = JSON.parse(text);
+    if (!Array.isArray(parsed)) throw new Error('JSON 必须是任务对象数组');
+    return parsed;
+  }
+  return cloudParseCsv(text);
+}
+
+async function cloudPreviewBatch() {
+  cloudInvalidateBatchPreview(false);
+  var previewVersion = cloudBatchPreviewVersion;
+  var imported = await cloudReadBatchFile();
+  if (previewVersion !== cloudBatchPreviewVersion) return;
+  cloudBatchRows = imported.map(function(item, idx) {
+    try {
+      var normalized = {
+        todo: item.todo || item.content || item.name || '',
+        notes: item.notes || item.remark || '',
+        coin: item.coin || '',
+        coin_var: item.coin_var || '',
+        exp: item.exp || '',
+        skills: Array.isArray(item.skills) ? item.skills.join(',') : (item.skills || ''),
+        category: item.category || item.category_id || item.categoryId || '',
+        frequency: item.frequency || '',
+        importance: item.importance || '',
+        difficulty: item.difficulty || ''
+      };
+      var url = cloudBuildTaskUrl(normalized);
+      return Object.assign({ index: idx + 1, ok: true, error: '', url: url }, normalized);
+    } catch(e) {
+      return { index: idx + 1, ok: false, todo: item.todo || '', error: e.message, url: '' };
+    }
+  });
+  cloudRenderBatch();
+  var valid = cloudBatchRows.filter(function(r){ return r.ok; }).length;
+  var invalid = cloudBatchRows.length - valid;
+  if (!cloudBatchRows.length || invalid) {
+    document.getElementById('cloudStatus').textContent = '批量预览完成：' + valid + ' 条可执行，' + invalid + ' 条有错误。';
+    return;
+  }
+  var urls = cloudBatchRows.map(function(row) { return row.url; });
+  var preview = await api('/api/cloud/preview', {
+    method:'POST',
+    body: JSON.stringify(cloudPayload({ urls: urls }))
+  });
+  if (previewVersion !== cloudBatchPreviewVersion) return;
+  cloudBatchPreviewToken = preview.preview_token;
+  cloudBatchIdempotencyKey = cloudNewIdempotencyKey('batch');
+  var btn = document.getElementById('cloudExecuteBatchBtn');
+  if (btn) btn.disabled = false;
+  document.getElementById('cloudStatus').textContent = '批量预览完成：' + valid + ' 条可执行。10 分钟内可确认一次。';
+}
+
+function cloudRenderBatch() {
+  var box = document.getElementById('cloudBatchTable');
+  if (!cloudBatchRows.length) { box.textContent = '还没有批量导入预览。'; return; }
+  var body = cloudBatchRows.map(function(r) {
+    return '<tr><td>' + r.index + '</td><td>' + (r.ok ? '可执行' : '有错误') + '</td><td>' + escHtml(r.todo || '') +
+      '</td><td>' + escHtml(r.coin || '') + '</td><td>' + escHtml(r.exp || '') + '</td><td>' + escHtml(r.error || r.result || '') +
+      '</td><td>' + escHtml(r.url || '') + '</td></tr>';
+  }).join('');
+  box.innerHTML = '<div style="overflow:auto"><table class="data-table"><thead><tr><th>#</th><th>状态</th><th>任务</th><th>金币</th><th>经验</th><th>结果/错误</th><th>URL 预览</th></tr></thead><tbody>' + body + '</tbody></table></div>';
+}
+
+async function cloudExecuteBatch() {
+  if (cloudBatchExecuting) return;
+  if (!cloudBatchPreviewToken) return toast('请先导入并预览；更换文件后需要重新预览', 'error');
+  var invalid = cloudBatchRows.filter(function(r){ return !r.ok; });
+  if (invalid.length) return toast('还有 ' + invalid.length + ' 条错误数据，请修正后再执行', 'error');
+  var urls = cloudBatchRows.map(function(r){ return r.url; });
+  if (!confirm('将通过云人升批量新增 ' + urls.length + ' 个任务。不会编辑或删除已有数据。继续？')) return;
+  var btn = document.getElementById('cloudExecuteBatchBtn');
+  cloudBatchExecuting = true;
+  if (btn) btn.disabled = true;
+  try {
+    var r = await api('/api/cloud/execute', {
+      method:'POST',
+      body: JSON.stringify({
+        preview_token: cloudBatchPreviewToken,
+        idempotency_key: cloudBatchIdempotencyKey
+      })
+    });
+    cloudBatchPreviewToken = '';
+    cloudBatchIdempotencyKey = '';
+    cloudBatchRows = cloudBatchRows.map(function(row, idx) {
+      row.result = r.results && r.results[idx] ? JSON.stringify(r.results[idx]) : '已发送';
+      return row;
+    });
+    cloudRenderBatch();
+    document.getElementById('cloudStatus').textContent = '批量新增请求已发送：' + r.count + ' 条。请在手机端确认。';
+    cloudLoadData('tasks');
+  } finally {
+    cloudBatchExecuting = false;
+    if (btn) btn.disabled = !cloudBatchPreviewToken;
+  }
+}
+
 function escHtml(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -3782,16 +5699,48 @@ function escAttr(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function safeImageUrl(value) {
+  var text = String(value || '').trim();
+  if (!text) return '';
+  if (/^\/api\/media\//.test(text)) return text;
+  try {
+    var parsed = new URL(text, (typeof location !== 'undefined' && location.origin) ? location.origin : 'http://127.0.0.1');
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
+    return parsed.href;
+  } catch(e) {
+    return '';
+  }
+}
+function safeIconHtml(value, fallback) {
+  var url = safeImageUrl(value);
+  if (url) return '<img src="' + escAttr(url) + '" alt="" loading="lazy" style="width:20px;height:20px;vertical-align:middle;margin-right:4px;border-radius:3px">';
+  var text = String(value || '').trim();
+  if (text && text.indexOf(':') < 0) return '<span>' + escHtml(text) + '</span>';
+  return '<span>' + escHtml(fallback || '📦') + '</span>';
+}
 
 /* =================================================================================
  *  Auto-load on Startup + Drag-Drop Setup
  * ================================================================================= */
 window.addEventListener('DOMContentLoaded', function() {
+  if (DIRECT_FILE_MODE) {
+    showDirectFileModeHelp();
+    return;
+  }
   // 初始化拖拽
   setupDragDrop();
   // 加载历史记录缓存
   refreshHistory();
 
+  api('/api/status').then(function(status) {
+    if (applyLoadedStatus(status)) return;
+    autoLoadSavedBackup();
+  }).catch(function() {
+    autoLoadSavedBackup();
+  });
+});
+
+function autoLoadSavedBackup() {
   if (IS_DESKTOP) {
     try {
       window.pywebview.api.get_last_path().then(function(path) {
@@ -3805,7 +5754,7 @@ window.addEventListener('DOMContentLoaded', function() {
   if (inp) inp.value = saved;
   refreshHistory();
   _loadBackup(saved, true).catch(function() { /* server not running */ });
-});
+}
 
 // ====== Mock Data ======
 var _mockHabits = [];
@@ -4100,76 +6049,29 @@ function toggleQuickHabit(idx) {
   loadDashboard();
 }
 
-// ====== Focus Timer ======
-var _focusTimerInterval = null;
-var _focusSeconds = 0;
-var _focusRunning = false;
-var _focusType = '打坐修炼';
-
+// ====== Focus Timer Bridge ======
 function startFocusTimer(type, minutes) {
-  _focusType = type;
-  _focusSeconds = minutes * 60;
-  _focusRunning = true;
-  clearInterval(_focusTimerInterval);
-  renderFocusTimerUI();
-  _focusTimerInterval = setInterval(function() {
-    if (!_focusRunning) return;
-    _focusSeconds--;
-    var display = document.getElementById('focusTimerDisplay');
-    if (display) {
-      var m = Math.floor(_focusSeconds / 60);
-      var s = _focusSeconds % 60;
-      display.textContent = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-    }
-    if (_focusSeconds <= 0) {
-      stopFocusTimer();
-      completeFocusSession();
-    }
-  }, 1000);
+  return startNativeFocusSession(type, minutes);
 }
 
 function pauseFocusTimer() {
-  _focusRunning = false;
-  var btn = document.getElementById('focusPauseBtn');
-  if (btn) btn.textContent = '▶';
+  toast('计时已交给 LifeUp 手机端番茄钟处理');
 }
 
 function resumeFocusTimer() {
-  _focusRunning = true;
-  var btn = document.getElementById('focusPauseBtn');
-  if (btn) btn.textContent = '⏸';
+  toast('计时已交给 LifeUp 手机端番茄钟处理');
 }
 
 function stopFocusTimer() {
-  clearInterval(_focusTimerInterval);
-  _focusRunning = false;
+  toast('请在手机 LifeUp 番茄页停止或放弃本次专注');
 }
 
 function completeFocusSession() {
-  var typeMin = _focusType === '打坐修炼' ? 30 : 15;
-  var durationMin = Math.max(Math.floor((typeMin * 60 - Math.max(_focusSeconds, 0) + 60) / 60), 1);
-  var expEarned = durationMin * 5;
-  var todayKey = new Date().toISOString().slice(0,10);
-  _mockDailyCheck[todayKey].focusMin = (_mockDailyCheck[todayKey].focusMin||0) + durationMin;
-  _mockDailyCheck[todayKey].exp = (_mockDailyCheck[todayKey].exp||0) + expEarned;
-  _mockFocusSessions.unshift({
-    date: todayKey,
-    type: _focusType,
-    duration: durationMin,
-    expEarned: expEarned
-  });
-  _focusSeconds = 0;
-  toast('🧘 闭关结束！+' + expEarned + ' EXP');
   loadFocus();
 }
 
 function renderFocusTimerUI() {
-  var m = Math.floor(_focusSeconds / 60);
-  var s = _focusSeconds % 60;
-  var display = document.getElementById('focusTimerDisplay');
-  if (display) display.textContent = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-  var statusEl = document.getElementById('focusStatusText');
-  if (statusEl) statusEl.textContent = _focusRunning ? (_focusType + ' 进行中...') : '已暂停';
+  loadFocus();
 }
 
 // ====== Goal Toggle ======
