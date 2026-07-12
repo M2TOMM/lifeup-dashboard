@@ -258,15 +258,16 @@ class SnapshotApiTests(unittest.TestCase):
         race_path = self._snapshot_path(self.snapshot_dir, race_id)
         source_before = self._fingerprint(self.current_source)
         original_before = self._fingerprint(self.original_backup)
+        original_link = os.link
 
-        def allocate_then_occupy():
-            os.makedirs(self.snapshot_dir, exist_ok=True)
-            with open(race_path, "wb") as canary:
+        def occupy_at_publish(_source, target):
+            self.assertEqual(target, race_path)
+            with open(target, "wb") as canary:
                 canary.write(b"appeared-after-allocation")
-            return race_id, race_path
+            return original_link(_source, target)
 
-        with patch.object(
-            server, "_allocate_snapshot_target", side_effect=allocate_then_occupy
+        with patch.object(server.secrets, "token_hex", return_value=race_id), patch.object(
+            server.os, "link", side_effect=occupy_at_publish
         ):
             response = self.client.post(
                 "/api/snapshots", json={"name": "publish-race"}
@@ -325,23 +326,24 @@ class SnapshotApiTests(unittest.TestCase):
             path: self._fingerprint(path)
             for path in (snapshot_path, self.current_source, self.original_backup)
         }
-        os.makedirs(self.restore_dir, exist_ok=True)
-        race_path = os.path.join(self.restore_dir, "restore-race-canary.zip")
+        original_link = os.link
+        published_targets = []
 
-        def allocate_then_occupy(_snapshot_id):
-            with open(race_path, "wb") as canary:
+        def occupy_at_publish(_source, target):
+            published_targets.append(target)
+            with open(target, "wb") as canary:
                 canary.write(b"appeared-after-allocation")
-            return race_path
+            return original_link(_source, target)
 
-        with patch.object(
-            server, "_allocate_restore_target", side_effect=allocate_then_occupy
-        ):
+        with patch.object(server.os, "link", side_effect=occupy_at_publish):
             response = self.client.post(
                 f"/api/snapshots/{snapshot['id']}/restore"
             )
 
         self.assertEqual(response.status_code, 409, response.get_json())
         self.assertEqual(response.get_json()["code"], "RESTORE_ID_CONFLICT")
+        self.assertEqual(len(published_targets), 1)
+        race_path = published_targets[0]
         with open(race_path, "rb") as canary:
             self.assertEqual(canary.read(), b"appeared-after-allocation")
         self._assert_state_unchanged(baseline_state)

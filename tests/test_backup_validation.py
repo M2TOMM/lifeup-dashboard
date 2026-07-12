@@ -61,6 +61,10 @@ class BackupValidationTests(unittest.TestCase):
         self.assertEqual(server.STATE["tmpdir"], self.baseline_tmpdir)
         self.assertTrue(os.path.exists(self.baseline_marker))
 
+    def assert_import_dir_is_empty(self):
+        entries = os.listdir(self.import_dir) if os.path.isdir(self.import_dir) else []
+        self.assertEqual(entries, [], f"failed upload left managed files: {entries}")
+
     def upload(self, file_object, filename="LifeupBackup.zip"):
         return self.client.post(
             "/api/open-upload",
@@ -79,6 +83,7 @@ class BackupValidationTests(unittest.TestCase):
         self.assertIn("不安全路径", payload["error"])
         self.assertIn("重新", payload["suggestion"])
         self.assert_baseline_is_still_active()
+        self.assert_import_dir_is_empty()
 
     def test_rejects_missing_database_and_preserves_loaded_backup(self):
         response = self.upload(
@@ -91,6 +96,7 @@ class BackupValidationTests(unittest.TestCase):
         self.assertIn("databases/LifeUpDB.db", payload["error"])
         self.assertTrue(payload["suggestion"])
         self.assert_baseline_is_still_active()
+        self.assert_import_dir_is_empty()
 
     def test_rejects_corrupt_zip_and_preserves_loaded_backup(self):
         response = self.upload(io.BytesIO(b"this is not a zip"), "corrupt.zip")
@@ -100,6 +106,7 @@ class BackupValidationTests(unittest.TestCase):
         self.assertIn("ZIP", payload["error"])
         self.assertTrue(payload["suggestion"])
         self.assert_baseline_is_still_active()
+        self.assert_import_dir_is_empty()
 
     def test_rejects_archive_over_expanded_size_limit(self):
         with patch.object(server, "MAX_BACKUP_EXPANDED_BYTES", 1024, create=True):
@@ -111,6 +118,7 @@ class BackupValidationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400, response.get_json())
         self.assertIn("解压后", response.get_json()["error"])
         self.assert_baseline_is_still_active()
+        self.assert_import_dir_is_empty()
 
     def test_rejects_windows_device_names(self):
         response = self.upload(
@@ -121,6 +129,7 @@ class BackupValidationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400, response.get_json())
         self.assertIn("不安全路径", response.get_json()["error"])
         self.assert_baseline_is_still_active()
+        self.assert_import_dir_is_empty()
 
     def test_request_too_large_returns_beginner_friendly_json(self):
         with patch.dict(server.app.config, {"MAX_CONTENT_LENGTH": 128}):
@@ -133,6 +142,7 @@ class BackupValidationTests(unittest.TestCase):
         self.assertIn("过大", payload["error"])
         self.assertTrue(payload["suggestion"])
         self.assert_baseline_is_still_active()
+        self.assert_import_dir_is_empty()
 
     def test_rejects_non_zip_with_beginner_friendly_json(self):
         response = self.upload(io.BytesIO(b"plain text"), "notes.txt")
@@ -142,6 +152,7 @@ class BackupValidationTests(unittest.TestCase):
         self.assertIn("ZIP", payload["error"])
         self.assertTrue(payload["suggestion"])
         self.assert_baseline_is_still_active()
+        self.assert_import_dir_is_empty()
 
     def test_batch_upload_keeps_last_valid_backup_when_later_file_fails(self):
         response = self.client.post(
