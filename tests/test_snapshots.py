@@ -16,6 +16,40 @@ import server
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _node_binary():
+    configured = os.environ.get("NODE_BINARY")
+    candidates = [
+        configured,
+        shutil.which(configured) if configured else None,
+        shutil.which("node"),
+        r"C:\Users\M2TO\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe",
+    ]
+    for candidate in candidates:
+        if candidate and os.path.isfile(candidate):
+            return candidate
+    raise RuntimeError(
+        "Node.js is required for snapshot browser contract tests; "
+        "set NODE_BINARY to the executable path"
+    )
+
+
+def _run_node_contract(testcase, script):
+    result = subprocess.run(
+        [_node_binary(), "-e", script],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=30,
+    )
+    testcase.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+    testcase.assertIn(
+        "SNAPSHOT_CONTRACT_COMPLETE",
+        result.stdout,
+        "Node contract exited without reaching its completion sentinel",
+    )
+
+
 class SnapshotApiTests(unittest.TestCase):
     def setUp(self):
         self._old_state = dict(server.STATE)
@@ -485,14 +519,6 @@ class SnapshotApiTests(unittest.TestCase):
 
 class SnapshotBrowserContractTests(unittest.TestCase):
     def test_real_apply_loaded_status_updates_the_active_workspace_ui(self):
-        node = (
-            os.environ.get("NODE_BINARY")
-            or shutil.which("node")
-            or r"C:\Users\M2TO\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
-        )
-        if not os.path.exists(node):
-            self.skipTest("Node.js is unavailable")
-
         script = r"""
 const fs = require('fs');
 const vm = require('vm');
@@ -545,25 +571,11 @@ if (history.length !== 1 || history[0] !== backupPath) {
   throw new Error('restored workspace was not added to local history');
 }
 if (reloads !== 1) throw new Error('current page was not refreshed after restore');
+console.log('SNAPSHOT_CONTRACT_COMPLETE');
 """
-        result = subprocess.run(
-            [node, "-e", script],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        )
-        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        _run_node_contract(self, script)
 
     def test_snapshot_page_uses_server_ids_safe_text_and_new_restore_endpoint(self):
-        node = (
-            os.environ.get("NODE_BINARY")
-            or shutil.which("node")
-            or r"C:\Users\M2TO\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
-        )
-        if not os.path.exists(node):
-            self.skipTest("Node.js is unavailable")
-
         script = r"""
 const fs = require('fs');
 const vm = require('vm');
@@ -698,26 +710,183 @@ vm.runInContext(source, sandbox);
   await sandbox.restoreSnapshot(0);
   await sandbox.deleteSnapshot(0);
   if (requests.length !== 0) throw new Error('cloud mode requested or changed local snapshots');
-})().catch((error) => { console.error(error); process.exitCode = 1; });
+})().then(() => console.log('SNAPSHOT_CONTRACT_COMPLETE')).catch((error) => { console.error(error); process.exitCode = 1; });
 """
-        result = subprocess.run(
-            [node, "-e", script],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        )
-        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        _run_node_contract(self, script)
+
+    def test_cloud_snapshot_ui_uses_real_guards_and_never_fetches(self):
+        script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const html = fs.readFileSync('index.html', 'utf8');
+const fullSource = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const guardStart = fullSource.indexOf('function cloudReadOnlyGuard(');
+const guardEnd = fullSource.indexOf('updateDataSourceUI();', guardStart);
+const apiStart = fullSource.indexOf('async function api(');
+const apiEnd = fullSource.indexOf('async function apiWithTimeout(', apiStart);
+const marker = fullSource.indexOf('PAGE 13: Snapshots');
+const nextMarker = fullSource.indexOf('PAGE 14:', marker);
+const snapshotStart = fullSource.lastIndexOf('/*', marker);
+const snapshotEnd = fullSource.lastIndexOf('/*', nextMarker);
+if ([guardStart, guardEnd, apiStart, apiEnd, marker, nextMarker, snapshotStart, snapshotEnd].some((value) => value < 0)) {
+  throw new Error('real cloud/snapshot helpers not found');
+}
+
+const fetches = [];
+const toasts = [];
+let modalCount = 0;
+const content = { innerHTML: '' };
+const sandbox = {
+  console,
+  API_BASE: '',
+  dataSource: 'cloud',
+  currentPage: 'snapshots',
+  document: { getElementById: (id) => id === 'content' ? content : null },
+  toast: (message, type) => toasts.push({ message, type }),
+  showModal: () => { modalCount += 1; },
+  closeModal: () => {},
+  confirm: () => true,
+  setTimeout: (fn) => fn(),
+  clearTimeout: () => {},
+  escHtml: (value) => String(value == null ? '' : value),
+  applyLoadedStatus: () => true,
+  fetch: async (url, options) => {
+    fetches.push({ url, options });
+    return { ok: true, json: async () => ({ snapshots: [] }) };
+  }
+};
+vm.createContext(sandbox);
+vm.runInContext(fullSource.slice(guardStart, guardEnd), sandbox);
+vm.runInContext(fullSource.slice(apiStart, apiEnd), sandbox);
+vm.runInContext(fullSource.slice(snapshotStart, snapshotEnd), sandbox);
+
+(async () => {
+  await sandbox.loadSnapshots();
+  sandbox.createSnapshot();
+  await sandbox.doCreateSnapshot();
+  await sandbox.restoreSnapshot(0);
+  await sandbox.deleteSnapshot(0);
+  if (fetches.length !== 0) throw new Error('cloud snapshot UI reached fetch');
+  if (modalCount !== 0) throw new Error('cloud snapshot UI opened the local create modal');
+  if (!content.innerHTML.includes('云端模式不会读取')) {
+    throw new Error('cloud snapshot page did not explain local isolation');
+  }
+  for (const [path, options] of [
+    ['/api/snapshots', { method: 'POST', body: '{}' }],
+    ['/api/snapshots/' + 'a'.repeat(32) + '/restore', { method: 'POST', body: '{}' }],
+    ['/api/snapshots/' + 'a'.repeat(32), { method: 'DELETE' }]
+  ]) {
+    let rejected = false;
+    try { await sandbox.api(path, options); } catch (error) { rejected = true; }
+    if (!rejected) throw new Error('real api helper allowed cloud snapshot write: ' + path);
+  }
+  if (fetches.length !== 0) throw new Error('real api cloud write guard reached fetch');
+})().then(() => console.log('SNAPSHOT_CONTRACT_COMPLETE')).catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+"""
+        _run_node_contract(self, script)
+
+    def test_snapshot_failures_clear_busy_state_for_all_actions(self):
+        script = r"""
+const fs = require('fs');
+const vm = require('vm');
+const html = fs.readFileSync('index.html', 'utf8');
+const fullSource = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const marker = fullSource.indexOf('PAGE 13: Snapshots');
+const nextMarker = fullSource.indexOf('PAGE 14:', marker);
+const start = fullSource.lastIndexOf('/*', marker);
+const end = fullSource.lastIndexOf('/*', nextMarker);
+const source = fullSource.slice(start, end);
+
+function button(baseDisabled) {
+  return {
+    disabled: false,
+    textContent: '',
+    getAttribute: (name) => name === 'data-snapshot-disabled' && baseDisabled ? 'true' : null
+  };
+}
+const createControl = button(false);
+const invalidRestoreControl = button(true);
+const deleteControl = button(false);
+const controls = [createControl, invalidRestoreControl, deleteControl];
+const attributes = {};
+const panel = {
+  setAttribute: (name, value) => { attributes[name] = String(value); },
+  querySelectorAll: () => controls
+};
+const status = { textContent: '' };
+const confirmButton = button(false);
+confirmButton.textContent = '📸 创建';
+const cancelButton = button(false);
+const elements = {
+  snapshotPanel: panel,
+  snapshotActionStatus: status,
+  snapshotCreateConfirmBtn: confirmButton,
+  snapshotCreateCancelBtn: cancelButton,
+  f_snapname: { value: 'failure-test' }
+};
+let failureMode = 'reject';
+let requestCount = 0;
+const sandbox = {
+  console,
+  document: { getElementById: (id) => elements[id] || null },
+  currentPage: 'snapshots',
+  dataSource: 'local',
+  confirm: () => true,
+  toast: () => {},
+  closeModal: () => {},
+  cloudReadOnlyGuard: () => false,
+  applyLoadedStatus: () => true,
+  api: () => {
+    requestCount += 1;
+    if (failureMode === 'throw') throw new Error('sync failure');
+    return Promise.reject(new Error('async failure'));
+  }
+};
+vm.createContext(sandbox);
+vm.runInContext(source, sandbox);
+sandbox.snapshotCache = [{
+  id: 'a'.repeat(32),
+  name: 'failure snapshot',
+  restorable: true,
+  integrity: { archive: 'ok', database: 'ok', counts: {} }
+}];
+
+function assertCleared(label) {
+  if (attributes['aria-busy'] !== 'false' || status.textContent !== '') {
+    throw new Error(label + ' left aria-busy or status text active');
+  }
+  if (createControl.disabled || deleteControl.disabled || !invalidRestoreControl.disabled) {
+    throw new Error(label + ' did not restore panel controls');
+  }
+}
+
+(async () => {
+  failureMode = 'reject';
+  await sandbox.doCreateSnapshot();
+  assertCleared('create reject');
+  if (confirmButton.disabled || cancelButton.disabled || confirmButton.textContent !== '📸 创建') {
+    throw new Error('create reject did not restore modal controls');
+  }
+
+  failureMode = 'throw';
+  await sandbox.restoreSnapshot(0);
+  assertCleared('restore throw');
+
+  failureMode = 'reject';
+  await sandbox.deleteSnapshot(0);
+  assertCleared('delete reject');
+  if (requestCount !== 3) throw new Error('not all failure actions reached the API');
+})().then(() => console.log('SNAPSHOT_CONTRACT_COMPLETE')).catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
+"""
+        _run_node_contract(self, script)
 
     def test_create_completion_does_not_overwrite_page_after_navigation(self):
-        node = (
-            os.environ.get("NODE_BINARY")
-            or shutil.which("node")
-            or r"C:\Users\M2TO\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
-        )
-        if not os.path.exists(node):
-            self.skipTest("Node.js is unavailable")
-
         script = r"""
 const fs = require('fs');
 const vm = require('vm');
@@ -777,26 +946,11 @@ vm.runInContext(source, sandbox);
   if (requests.some((entry) => entry.path.startsWith('/api/snapshots?'))) {
     throw new Error('create completion refreshed snapshots after leaving the page');
   }
-})().catch((error) => { console.error(error); process.exitCode = 1; });
+})().then(() => console.log('SNAPSHOT_CONTRACT_COMPLETE')).catch((error) => { console.error(error); process.exitCode = 1; });
 """
-        result = subprocess.run(
-            [node, "-e", script],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        )
-        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        _run_node_contract(self, script)
 
     def test_delete_completion_does_not_overwrite_page_after_navigation(self):
-        node = (
-            os.environ.get("NODE_BINARY")
-            or shutil.which("node")
-            or r"C:\Users\M2TO\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
-        )
-        if not os.path.exists(node):
-            self.skipTest("Node.js is unavailable")
-
         script = r"""
 const fs = require('fs');
 const vm = require('vm');
@@ -856,26 +1010,11 @@ vm.runInContext(source, sandbox);
   if (requests.some((entry) => entry.path.startsWith('/api/snapshots?'))) {
     throw new Error('delete completion refreshed snapshots after leaving the page');
   }
-})().catch((error) => { console.error(error); process.exitCode = 1; });
+})().then(() => console.log('SNAPSHOT_CONTRACT_COMPLETE')).catch((error) => { console.error(error); process.exitCode = 1; });
 """
-        result = subprocess.run(
-            [node, "-e", script],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        )
-        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        _run_node_contract(self, script)
 
     def test_create_response_does_not_close_a_later_unrelated_modal(self):
-        node = (
-            os.environ.get("NODE_BINARY")
-            or shutil.which("node")
-            or r"C:\Users\M2TO\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
-        )
-        if not os.path.exists(node):
-            self.skipTest("Node.js is unavailable")
-
         script = r"""
 const fs = require('fs');
 const vm = require('vm');
@@ -925,26 +1064,11 @@ vm.runInContext(source, sandbox);
   if (modalState !== 'unrelated-task-modal-open') {
     throw new Error('late snapshot response closed an unrelated modal');
   }
-})().catch((error) => { console.error(error); process.exitCode = 1; });
+})().then(() => console.log('SNAPSHOT_CONTRACT_COMPLETE')).catch((error) => { console.error(error); process.exitCode = 1; });
 """
-        result = subprocess.run(
-            [node, "-e", script],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        )
-        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        _run_node_contract(self, script)
 
     def test_restore_exposes_and_clears_visible_busy_state(self):
-        node = (
-            os.environ.get("NODE_BINARY")
-            or shutil.which("node")
-            or r"C:\Users\M2TO\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
-        )
-        if not os.path.exists(node):
-            self.skipTest("Node.js is unavailable")
-
         script = r"""
 const fs = require('fs');
 const vm = require('vm');
@@ -1018,16 +1142,9 @@ sandbox.snapshotCache = [{
   if (createButton.disabled || deleteButton.disabled || !invalidRestoreButton.disabled) {
     throw new Error('buttons were not restored to their safe base states');
   }
-})().catch((error) => { console.error(error); process.exitCode = 1; });
+})().then(() => console.log('SNAPSHOT_CONTRACT_COMPLETE')).catch((error) => { console.error(error); process.exitCode = 1; });
 """
-        result = subprocess.run(
-            [node, "-e", script],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-        )
-        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+        _run_node_contract(self, script)
 
 
 if __name__ == "__main__":
