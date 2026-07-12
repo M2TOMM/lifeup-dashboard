@@ -1009,6 +1009,19 @@ def get_db():
     return conn
 
 
+def validate_batch_ids(ids, resource_name):
+    if not isinstance(ids, list) or not ids:
+        raise BatchValidationError(f'请选择至少一个{resource_name}')
+    if len(ids) > MAX_BATCH_SIZE:
+        raise BatchValidationError(f'单次最多处理 {MAX_BATCH_SIZE} 个{resource_name}')
+    if any(type(item_id) is not int or item_id <= 0 for item_id in ids):
+        raise BatchValidationError('ids 必须是正整数列表')
+    if len(set(ids)) != len(ids):
+        raise BatchValidationError('ids 不能包含重复项')
+
+    return ids
+
+
 def validate_batch_request(data, allowed_actions, resource_name):
     if not isinstance(data, dict):
         raise BatchValidationError('请求内容必须是 JSON 对象')
@@ -1018,15 +1031,7 @@ def validate_batch_request(data, allowed_actions, resource_name):
         allowed = '、'.join(sorted(allowed_actions))
         raise BatchValidationError(f'不支持的批量操作；允许的 action：{allowed}')
 
-    ids = data.get('ids')
-    if not isinstance(ids, list) or not ids:
-        raise BatchValidationError(f'请选择至少一个{resource_name}')
-    if len(ids) > MAX_BATCH_SIZE:
-        raise BatchValidationError(f'单次最多处理 {MAX_BATCH_SIZE} 个{resource_name}')
-    if any(type(item_id) is not int or item_id <= 0 for item_id in ids):
-        raise BatchValidationError('ids 必须是正整数列表')
-    if len(set(ids)) != len(ids):
-        raise BatchValidationError('ids 不能包含重复项')
+    ids = validate_batch_ids(data.get('ids'), resource_name)
 
     return ids, action
 
@@ -1037,6 +1042,19 @@ def validate_batch_price(price):
             f'price 必须是 0～{MAX_ITEM_PRICE} 之间的整数'
         )
     return price
+
+
+def ensure_batch_targets_exist(cursor, table_name, ids, resource_name):
+    placeholders = ','.join('?' * len(ids))
+    cursor.execute(
+        f'SELECT id FROM {table_name} WHERE id IN ({placeholders})',
+        ids,
+    )
+    found_ids = {row[0] for row in cursor.fetchall()}
+    missing_ids = [item_id for item_id in ids if item_id not in found_ids]
+    if missing_ids:
+        missing_text = '、'.join(str(item_id) for item_id in missing_ids)
+        raise BatchValidationError(f'{resource_name}不存在：{missing_text}')
 
 
 def request_data_source():
@@ -3225,28 +3243,59 @@ def set_task_group():
 @app.route('/api/tasks/batch/freeze', methods=['POST'])
 def batch_freeze():
     """批量冻结/解冻（按 groupid 或 id 列表）"""
-    data = request.get_json()
-    ids = data.get('ids', [])
-    groupid = data.get('groupid')
-    frozen = 1 if data.get('isfrozen') else 0
+    data = request.get_json(silent=True)
+    try:
+        if not isinstance(data, dict):
+            raise BatchValidationError('请求内容必须是 JSON 对象')
+        if type(data.get('isfrozen')) is not bool:
+            raise BatchValidationError('isfrozen 必须是布尔值')
+        frozen = 1 if data['isfrozen'] else 0
+        groupid = data.get('groupid')
+        if groupid is not None:
+            if type(groupid) is not int or groupid <= 0:
+                raise BatchValidationError('groupid 必须是正整数')
+            if data.get('ids') not in (None, []):
+                raise BatchValidationError('ids 和 groupid 不能同时提供')
+            ids = None
+        else:
+            ids = validate_batch_ids(data.get('ids'), '任务')
+    except BatchValidationError as exc:
+        return jsonify({'error': str(exc)}), 400
+
     now = now_ms()
     conn = get_db()
     try:
+        conn.execute('BEGIN IMMEDIATE')
         cur = conn.cursor()
-        if groupid:
+        if groupid is not None:
+            cur.execute(
+                "SELECT id FROM taskmodel "
+                "WHERE groupid=? AND isdeleterecord=0 LIMIT ?",
+                (groupid, MAX_BATCH_SIZE + 1),
+            )
+            group_ids = [row[0] for row in cur.fetchall()]
+            if not group_ids:
+                raise BatchValidationError('该任务分组不存在或没有可处理任务')
+            if len(group_ids) > MAX_BATCH_SIZE:
+                raise BatchValidationError(
+                    f'单次最多处理 {MAX_BATCH_SIZE} 个任务'
+                )
             cur.execute("UPDATE taskmodel SET isfrozen=?, updatedtime=? WHERE groupid=? AND isdeleterecord=0",
                         (frozen, now, groupid))
             affected = cur.rowcount
-        elif ids:
+        else:
+            ensure_batch_targets_exist(cur, 'taskmodel', ids, '任务')
             placeholders = ','.join(['?'] * len(ids))
             cur.execute(f"UPDATE taskmodel SET isfrozen=?, updatedtime=? WHERE id IN ({placeholders})",
                         [frozen, now] + ids)
             affected = cur.rowcount
-        else:
-            return jsonify({'error': '需要 ids 或 groupid'}), 400
         conn.commit()
         return jsonify({'ok': True, 'affected': affected})
+    except BatchValidationError as exc:
+        conn.rollback()
+        return jsonify({'error': str(exc)}), 400
     except Exception as e:
+        conn.rollback()
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
@@ -4561,7 +4610,9 @@ def batch_tasks():
 
     conn = get_db()
     try:
+        conn.execute('BEGIN IMMEDIATE')
         cur = conn.cursor()
+        ensure_batch_targets_exist(cur, 'taskmodel', ids, '任务')
         now = now_ms()
         ph = ','.join('?' * len(ids))
         if action == 'disable':
@@ -4576,7 +4627,11 @@ def batch_tasks():
             cur.execute(f"UPDATE taskmodel SET isfrozen=0, updatedtime=? WHERE id IN ({ph})", [now] + ids)
         conn.commit()
         return jsonify({'ok': True, 'affected': cur.rowcount})
+    except BatchValidationError as exc:
+        conn.rollback()
+        return jsonify({'error': str(exc)}), 400
     except Exception as e:
+        conn.rollback()
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()
@@ -4597,7 +4652,9 @@ def batch_items():
 
     conn = get_db()
     try:
+        conn.execute('BEGIN IMMEDIATE')
         cur = conn.cursor()
+        ensure_batch_targets_exist(cur, 'shopitemmodel', ids, '商品')
         now = now_ms()
         ph = ','.join('?' * len(ids))
         if action == 'disable':
@@ -4610,7 +4667,11 @@ def batch_items():
             cur.execute(f"UPDATE shopitemmodel SET isdel=1, updatetime=? WHERE id IN ({ph})", [now] + ids)
         conn.commit()
         return jsonify({'ok': True, 'affected': cur.rowcount})
+    except BatchValidationError as exc:
+        conn.rollback()
+        return jsonify({'error': str(exc)}), 400
     except Exception as e:
+        conn.rollback()
         return jsonify({'error': str(e)}), 500
     finally:
         conn.close()

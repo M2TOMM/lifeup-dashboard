@@ -25,7 +25,8 @@ class BatchValidationTests(unittest.TestCase):
                     taskstatus INTEGER NOT NULL,
                     updatedtime INTEGER NOT NULL,
                     isdeleterecord INTEGER NOT NULL,
-                    isfrozen INTEGER NOT NULL
+                    isfrozen INTEGER NOT NULL,
+                    groupid INTEGER NOT NULL
                 );
                 CREATE TABLE shopitemmodel (
                     id INTEGER PRIMARY KEY,
@@ -39,10 +40,10 @@ class BatchValidationTests(unittest.TestCase):
             conn.executemany(
                 """
                 INSERT INTO taskmodel
-                    (id, taskstatus, updatedtime, isdeleterecord, isfrozen)
-                VALUES (?, 0, 100, 0, 0)
+                    (id, taskstatus, updatedtime, isdeleterecord, isfrozen, groupid)
+                VALUES (?, 0, 100, 0, 0, ?)
                 """,
-                [(1,), (2,), (3,)],
+                [(1, 10), (2, 10), (3, 20)],
             )
             conn.executemany(
                 """
@@ -92,6 +93,14 @@ class BatchValidationTests(unittest.TestCase):
                 FROM shopitemmodel ORDER BY id
                 """
             ).fetchall()
+        finally:
+            conn.close()
+
+    def execute_sql(self, sql, parameters=()):
+        conn = sqlite3.connect(self._db_path)
+        try:
+            conn.execute(sql, parameters)
+            conn.commit()
         finally:
             conn.close()
 
@@ -195,6 +204,137 @@ class BatchValidationTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 200, response.get_json())
                 self.assertEqual(response.get_json()["affected"], 1)
                 self.assertEqual(self.item_rows()[0][1], price)
+
+    def test_task_batch_rejects_missing_target_before_writing(self):
+        self.assert_rejected_without_changes(
+            "/api/tasks/batch",
+            {"ids": [1, 999], "action": "freeze"},
+            self.task_rows,
+        )
+
+    def test_item_batch_rejects_missing_target_before_writing(self):
+        self.assert_rejected_without_changes(
+            "/api/items/batch",
+            {"ids": [1, 999], "action": "price", "price": 250},
+            self.item_rows,
+        )
+
+    def test_task_batch_rolls_back_when_database_fails_mid_update(self):
+        self.execute_sql(
+            """
+            CREATE TRIGGER fail_second_task_update
+            BEFORE UPDATE ON taskmodel
+            WHEN OLD.id = 2
+            BEGIN
+                SELECT RAISE(ABORT, 'forced task batch failure');
+            END
+            """
+        )
+        before = self.task_rows()
+
+        response = self.client.post(
+            "/api/tasks/batch", json={"ids": [1, 2], "action": "freeze"}
+        )
+
+        self.assertEqual(response.status_code, 500, response.get_json())
+        self.assertEqual(self.task_rows(), before)
+
+    def test_item_batch_rolls_back_when_database_fails_mid_update(self):
+        self.execute_sql(
+            """
+            CREATE TRIGGER fail_second_item_update
+            BEFORE UPDATE ON shopitemmodel
+            WHEN OLD.id = 2
+            BEGIN
+                SELECT RAISE(ABORT, 'forced item batch failure');
+            END
+            """
+        )
+        before = self.item_rows()
+
+        response = self.client.post(
+            "/api/items/batch",
+            json={"ids": [1, 2], "action": "price", "price": 250},
+        )
+
+        self.assertEqual(response.status_code, 500, response.get_json())
+        self.assertEqual(self.item_rows(), before)
+
+    def test_freeze_batch_rejects_invalid_state_and_ids(self):
+        invalid_payloads = (
+            {"ids": [1], "isfrozen": 1},
+            {"ids": [1, 1], "isfrozen": True},
+            {"ids": ["1"], "isfrozen": True},
+            {"ids": list(range(1, MAX_BATCH_SIZE + 2)), "isfrozen": True},
+            {"ids": [1, 999], "isfrozen": True},
+        )
+        for payload in invalid_payloads:
+            with self.subTest(payload=payload):
+                self.assert_rejected_without_changes(
+                    "/api/tasks/batch/freeze", payload, self.task_rows
+                )
+
+    def test_freeze_batch_updates_valid_ids(self):
+        response = self.client.post(
+            "/api/tasks/batch/freeze", json={"ids": [1, 2], "isfrozen": True}
+        )
+
+        self.assertEqual(response.status_code, 200, response.get_json())
+        self.assertEqual(response.get_json()["affected"], 2)
+        self.assertEqual([row[4] for row in self.task_rows()], [1, 1, 0])
+
+    def test_freeze_batch_updates_valid_group(self):
+        response = self.client.post(
+            "/api/tasks/batch/freeze", json={"groupid": 10, "isfrozen": True}
+        )
+
+        self.assertEqual(response.status_code, 200, response.get_json())
+        self.assertEqual(response.get_json()["affected"], 2)
+        self.assertEqual([row[4] for row in self.task_rows()], [1, 1, 0])
+
+    def test_task_batch_supported_actions_update_expected_fields(self):
+        cases = (
+            ("disable", "taskstatus", 1, 0),
+            ("enable", "taskstatus", 0, 1),
+            ("delete", "isdeleterecord", 0, 1),
+            ("freeze", "isfrozen", 0, 1),
+            ("unfreeze", "isfrozen", 1, 0),
+        )
+        for action, column, before_value, expected in cases:
+            with self.subTest(action=action):
+                self.execute_sql(
+                    f"UPDATE taskmodel SET {column}=? WHERE id=1", (before_value,)
+                )
+                response = self.client.post(
+                    "/api/tasks/batch", json={"ids": [1], "action": action}
+                )
+                self.assertEqual(response.status_code, 200, response.get_json())
+                self.assertEqual(response.get_json()["affected"], 1)
+                column_index = {
+                    "taskstatus": 1,
+                    "isdeleterecord": 3,
+                    "isfrozen": 4,
+                }[column]
+                self.assertEqual(self.task_rows()[0][column_index], expected)
+
+    def test_item_batch_supported_actions_update_expected_fields(self):
+        cases = (
+            ("disable", "purchasable", 1, 0),
+            ("enable", "purchasable", 0, 1),
+            ("delete", "isdel", 0, 1),
+        )
+        for action, column, before_value, expected in cases:
+            with self.subTest(action=action):
+                self.execute_sql(
+                    f"UPDATE shopitemmodel SET {column}=? WHERE id=1", (before_value,)
+                )
+                response = self.client.post(
+                    "/api/items/batch", json={"ids": [1], "action": action}
+                )
+                self.assertEqual(response.status_code, 200, response.get_json())
+                self.assertEqual(response.get_json()["affected"], 1)
+                column_index = {"purchasable": 2, "isdel": 4}[column]
+                self.assertEqual(self.item_rows()[0][column_index], expected)
 
 
 if __name__ == "__main__":
