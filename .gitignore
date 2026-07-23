@@ -2,9 +2,29 @@
 __pycache__/
 *.pyc
 *.pyo
+.venv/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+*.spec
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.jsonl
+*.pid
+*.tmp
+*.bak
+.env
+.env.*
+*.pem
+*.key
 
 # Archives
 _archive/
+*.zip
 
 # Generated LifeUp backup exports (may contain private user data)
 exports/
@@ -18,8 +38,17 @@ work/
 # Local Cloud LifeUp settings
 lifeup_cloud_config.json
 
-# Dist (keep the root dist EXEs)
-dist/*.spec
+# Local goal mappings (user-specific, stored outside LifeUp backups)
+lifeup_goal_mappings.json
+.lifeup_dashboard_config.json
+desktop-config.json
+
+# User deliverables may contain private data; explicit force-add is required.
+# Long-term project documentation belongs in docs/ instead.
+outputs/*
+
+# Historical root EXEs remain tracked; ignore newly generated dist artifacts.
+dist/
 
 # IDE
 .vscode/
