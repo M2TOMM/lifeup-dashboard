@@ -1,3 +1,4 @@
+import gc
 import io
 import json
 import os
@@ -7,6 +8,7 @@ import sqlite3
 import tempfile
 import unittest
 from unittest import mock
+import warnings
 
 import server
 from tests.fixtures import SCHEMA_SQL, SEED_SQL
@@ -59,14 +61,23 @@ class TaskBatchImportApiTests(unittest.TestCase):
         return connection
 
     def upload(self, name, content, expected_status=200, headers=None):
-        response = self.client.post(
-            "/api/local/task-import-files",
-            data={"file": (io.BytesIO(content), name)},
-            content_type="multipart/form-data",
-            headers=headers,
-        )
-        self.assertEqual(response.status_code, expected_status, response.get_json())
-        return response.get_json()
+        stream = io.BytesIO(content)
+        response = None
+        try:
+            response = self.client.post(
+                "/api/local/task-import-files",
+                data={"file": (stream, name)},
+                content_type="multipart/form-data",
+                headers=headers,
+            )
+            body = response.get_json()
+            self.assertEqual(response.status_code, expected_status, body)
+            return body
+        finally:
+            stream.close()
+            if response is not None:
+                response.request.input_stream.close()
+                response.close()
 
     def preview(self, rows, expected_status=201, headers=None):
         response = self.client.post(
@@ -178,6 +189,21 @@ class TaskBatchImportApiTests(unittest.TestCase):
                 body = self.upload(name, content, expected_status=400)
                 self.assertEqual(body["ok"], False)
                 self.assertEqual(body["code"], code)
+
+    def test_oversized_upload_closes_multipart_temporary_stream(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always", ResourceWarning)
+            body = self.upload(
+                "tasks.json",
+                b" " * (1024 * 1024 + 1),
+                expected_status=400,
+            )
+            gc.collect()
+
+        self.assertEqual(body["code"], "TASK_IMPORT_FILE_TOO_LARGE")
+        self.assertFalse(
+            [warning for warning in caught if warning.category is ResourceWarning]
+        )
 
     def test_ambiguous_names_and_field_boundaries_are_row_errors(self):
         connection = self.connect()

@@ -164,6 +164,11 @@
   - [x] 完成 217 项回归、Python/JavaScript 语法检查、差异检查、发布包审计和原始备份指纹核对
   - [x] Task 19 准备阶段保持暂存区为空，未执行 commit、push、reset、发布或真实手机写入
   - [x] 用户授权后完成三步本地提交和普通 push；`main` 与 `origin/main` 均指向 `07515c9`
+- [x] Task 20：测试上传资源清理
+  - [x] 使用 `ResourceWarning` 和 `tracemalloc` 稳定定位任务批量上传超限用例的未关闭 Werkzeug 临时流
+  - [x] 在测试上传辅助函数中关闭上传流、请求输入流和响应，不修改生产接口
+  - [x] 增加超限 multipart 请求资源清理回归，完成 13 项定向测试和 218 项完整回归，`ResourceWarning` 零命中
+  - [x] 完成测试文件语法检查和 `git diff --check`
 
 ### Checkpoint
 

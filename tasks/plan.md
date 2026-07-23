@@ -484,6 +484,29 @@
 
 **Estimated scope:** S
 
+### Task 20: 测试上传资源清理
+
+**Status:** 已完成（2026-07-23）
+
+**Description:** 修复任务批量导入超限测试中由 Werkzeug multipart 磁盘流未关闭产生的 `ResourceWarning`，保持生产上传接口和业务行为不变。
+
+**Acceptance criteria:**
+
+- [x] 使用强制启用 `ResourceWarning` 和 `tracemalloc` 的定向测试稳定复现未关闭文件。
+- [x] 测试上传辅助函数在成功、错误响应和断言失败路径中都关闭上传流、请求输入流和响应。
+- [x] 任务批量导入响应状态、稳定错误码和原有业务断言保持不变。
+- [x] 超限 multipart 请求有独立资源清理回归，完整回归不再产生 `ResourceWarning`。
+
+**Verification:**
+
+- [x] 13 项任务批量导入定向测试通过，`ResourceWarning` 零命中。
+- [x] 218 项完整回归通过，`ResourceWarning` 零命中。
+- [x] 测试文件 Python 语法检查和 `git diff --check` 通过。
+
+**Files touched:** `tests/test_task_batch_import.py`, `tasks/plan.md`, `tasks/todo.md`, `outputs/LIFEUP_DASHBOARD_PRODUCT_ROADMAP.md`
+
+**Estimated scope:** XS
+
 ## Risks and Mitigations
 
 | Risk | Impact | Mitigation |
@@ -505,4 +528,4 @@
 
 ## Recommended Start
 
-Task 19“仓库整理与安全提交准备”、后续三步本地提交和普通 push 均已完成；`main` 与 `origin/main` 均指向 `07515c9`，尚未发布。下一步可先修复测试中的临时文件 `ResourceWarning`，或在单独取得授权后重建包含成就子分类、MCP 和 Task 18 正确统计口径的新桌面版。
+Task 19、后续三步本地提交、普通 push 和 Task 20 测试资源清理均已完成；push 状态修正文档已通过 `a9aa88c` 推送，尚未发布。下一步可在单独取得授权后重建包含成就子分类、MCP 和 Task 18 正确统计口径的新桌面版。
