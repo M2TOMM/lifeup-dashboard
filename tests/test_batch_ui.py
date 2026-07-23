@@ -90,7 +90,10 @@ if (apiCalls.length !== 1) {
   throw new Error('valid boundary price did not reach the API');
 }
 const body = JSON.parse(apiCalls[0].options.body);
-if (body.price !== 2147483647 || body.action !== 'price') {
+if (apiCalls[0].path !== '/api/local/batch-previews' || body.entity !== 'items' ||
+    !Array.isArray(body.rows) || body.rows.length !== 1 ||
+    body.rows[0].action !== 'price' || body.rows[0].data.id !== 1 ||
+    body.rows[0].data.price !== 2147483647) {
   throw new Error('valid price payload was changed: ' + apiCalls[0].options.body);
 }
 """

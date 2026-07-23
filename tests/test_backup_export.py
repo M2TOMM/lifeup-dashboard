@@ -78,6 +78,29 @@ class BackupExportTests(unittest.TestCase):
             self.assertIsNone(archive.testzip())
             self.assertIn(server.DB_INTERNAL, archive.namelist())
 
+    def test_export_uses_android_compatible_zip_metadata(self):
+        response = self.post_save()
+
+        self.assertEqual(response.status_code, 200, response.get_json())
+        with zipfile.ZipFile(response.get_json()["path"], "r") as archive:
+            infos = archive.infolist()
+            self.assertTrue(infos)
+            self.assertEqual({info.flag_bits for info in infos}, {0x808})
+            self.assertEqual({info.create_system for info in infos}, {0})
+            self.assertEqual({info.external_attr for info in infos}, {0})
+            self.assertFalse(any(info.extra or info.comment for info in infos))
+
+    def test_export_validation_rejects_non_android_zip_metadata(self):
+        incompatible = os.path.join(self.export_dir, "incompatible.zip")
+        with zipfile.ZipFile(incompatible, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.write(self.database, server.DB_INTERNAL)
+
+        with self.assertRaises(server.BackupExportError) as raised:
+            server._inspect_backup_archive(incompatible)
+
+        self.assertEqual(raised.exception.code, "EXPORT_VALIDATION_FAILED")
+        self.assertIn("Android", str(raised.exception))
+
     def test_export_round_trip_preserves_key_entity_counts(self):
         before = self.entity_counts(self.database)
         response = self.post_save()
@@ -113,7 +136,7 @@ class BackupExportTests(unittest.TestCase):
             existing.write(original_bytes)
 
         disk_full = OSError(errno.ENOSPC, "simulated disk full")
-        with patch.object(zipfile.ZipFile, "write", side_effect=disk_full):
+        with patch.object(server, "_write_android_zip_member", side_effect=disk_full):
             response = self.post_save({"path": destination})
 
         self.assertEqual(response.status_code, 500, response.get_json())

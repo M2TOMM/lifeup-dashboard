@@ -213,6 +213,16 @@ body {
 .data-table td { padding: 8px 12px; border-bottom: 1px solid rgba(219,229,232,0.78); vertical-align: middle; }
 .data-table tr:hover td { background: #f6fafb; }
 .data-table input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; accent-color: var(--cyan); }
+.achievement-subcategory-row td { background: #edf4f6; border-bottom-color: #cfdde1; }
+.achievement-subcategory-row:hover td { background: #e5eef1 !important; }
+.achievement-subcategory-toggle {
+  border: 0; background: transparent; color: var(--text); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px; padding: 2px 0;
+  font: inherit; font-weight: 800; text-align: left;
+}
+.achievement-subcategory-toggle .chevron { width: 14px; color: var(--text2); }
+.achievement-child-name { display: inline-flex; align-items: center; gap: 6px; padding-left: 20px; }
+.achievement-child-guide { color: var(--border2); font-weight: 800; }
 
 /* ========== Buttons ========== */
 .btn {
@@ -257,6 +267,20 @@ body {
 .form-group textarea { resize: vertical; min-height: 60px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.achievement-kind-toggle {
+  display: grid; grid-template-columns: 1fr 1fr; width: min(320px, 100%);
+  margin: 0 auto 16px; border: 1px solid var(--border2); border-radius: 7px; overflow: hidden;
+}
+.achievement-kind-toggle button {
+  border: 0; border-right: 1px solid var(--border2); background: #fff; color: var(--text2);
+  cursor: pointer; padding: 9px 14px; font: inherit; font-size: 13px; font-weight: 750;
+}
+.achievement-kind-toggle button:last-child { border-right: 0; }
+.achievement-kind-toggle button.active { background: #dfe8eb; color: #151a1f; }
+.achievement-form-note {
+  margin: -4px 0 14px; padding: 9px 10px; border: 1px solid var(--border);
+  border-radius: 7px; background: #f8fbfc; color: var(--text2); font-size: 11px; line-height: 1.55;
+}
 .switch-row {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 12px; border: 1px solid var(--border); border-radius: 8px;
@@ -342,6 +366,22 @@ body {
   margin: 0 auto 5px; border-radius: 50%; background: #edf2f4; color: var(--text2); font-size: 16px;
 }
 .skill-chip span { display: block; font-size: 12px; white-space: nowrap; }
+.cloud-option-list {
+  display: flex; flex-wrap: wrap; gap: 7px; min-height: 38px;
+  padding: 8px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg2);
+}
+.cloud-option-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px;
+  border: 1px solid var(--border); border-radius: 999px; cursor: pointer;
+  color: var(--text2); background: var(--card);
+}
+.cloud-option-chip.active { border-color: var(--cyan); color: var(--text); }
+.cloud-option-chip input { margin: 0; }
+.cloud-operation-card {
+  border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+  margin-bottom: 8px; background: var(--bg2);
+}
 .effect-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .effect-radio {
   display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border);
@@ -829,6 +869,7 @@ body {
     <div class="nav-item" data-page="cloud"><span class="nav-icon">☁️</span> 手机连接/新增任务</div>
     <div class="nav-item" data-page="items"><span class="nav-icon">🏪</span> 商店管理</div>
     <div class="nav-item" data-page="achievements"><span class="nav-icon">🏆</span> 成就管理</div>
+    <div class="nav-item" data-page="icons"><span class="nav-icon">🖼️</span> 图标资源</div>
     <div class="nav-section-title">资源</div>
     <div class="nav-item" data-page="skills"><span class="nav-icon">⚔️</span> 属性面板</div>
     <div class="nav-item" data-page="inventory"><span class="nav-icon">🎒</span> 背包物品</div>
@@ -841,6 +882,7 @@ body {
     <div class="nav-item" data-page="economy"><span class="nav-icon">📊</span> 经济看板</div>
     <div class="nav-section-title">系统</div>
     <div class="nav-item" data-page="snapshots"><span class="nav-icon">📸</span> 快照管理</div>
+    <div class="nav-item" data-page="maintenance"><span class="nav-icon">🧹</span> 本机维护</div>
     <div class="nav-item" data-page="realms"><span class="nav-icon">🌌</span> 位面切换</div>
   </nav>
   <!-- 历史记录 -->
@@ -941,11 +983,23 @@ const pageStates = {
   items: { search: '', category: '' },
   synthesis: { search: '', category: '', calcMode: false },
   achievements: { search: '', category: '' },
+  icons: { search: '', folder: 'all', status: 'all', offset: 0, limit: 100 },
   collection: { search: '', rarity: '' },
   inventory: { search: '', view: 'cards' },
   achprogress: { category: '', status: '' },
 };
 let currentBatchType = 'tasks';
+var localBatchPreviewState = null;
+var localBatchPreviewGeneration = 0;
+var taskImportRows = [];
+var taskImportFileName = '';
+var itemImportRows = [];
+var itemImportFileName = '';
+var achievementImportRows = [];
+var achievementImportFileName = '';
+var iconManagerState = {
+  files: [], referenceGroups: [], replacementTargets: [], summary: {}, pagination: {}
+};
 let currentPage = 'dashboard';
 let itemEffectSkillCache = null;
 let itemEffectItemCache = null;
@@ -953,9 +1007,13 @@ let purchaseLimitTaskCache = null;
 let purchaseLimitAchievementCache = null;
 let lootboxEntrySeq = 0;
 let currentSort = { col: null, asc: true };
-let dataSource = localStorage.getItem('lifeup_data_source') || 'local';
+var dataSource = localStorage.getItem('lifeup_data_source') || 'local';
 
 function setDataSource(source, reload) {
+  resetLocalBatchPreview();
+  resetTaskImportState();
+  resetItemImportState();
+  resetAchievementImportState();
   dataSource = source === 'cloud' ? 'cloud' : 'local';
   localStorage.setItem('lifeup_data_source', dataSource);
   updateDataSourceUI();
@@ -999,6 +1057,11 @@ function isCloudReadOnlyWrite(path, opts) {
   var method = String((opts && opts.method) || 'GET').toUpperCase();
   if (method === 'GET' || method === 'HEAD') return false;
   return /^\/api\/(?:tasks|items|achievements|subtasks|conditions|synthesis|pools|snapshots)(?:[/?]|$)/.test(path) ||
+    /^\/api\/local\/batch-previews(?:[/?]|$)/.test(path) ||
+    /^\/api\/local\/task-import-files(?:[/?]|$)/.test(path) ||
+    /^\/api\/local\/item-import-files(?:[/?]|$)/.test(path) ||
+    /^\/api\/local\/achievement-import-files(?:[/?]|$)/.test(path) ||
+    /^\/api\/local\/icon-files(?:[/?]|$)/.test(path) ||
     /^\/api\/save(?:[/?]|$)/.test(path);
 }
 updateDataSourceUI();
@@ -1053,10 +1116,13 @@ async function api(path, opts = {}) {
   }
   const url = API_BASE + path;
   const headers = {
-    'Content-Type': 'application/json',
     'X-LifeUp-Data-Source': dataSource,
     ...(opts.headers || {})
   };
+  var isFormData = typeof FormData !== 'undefined' && opts.body instanceof FormData;
+  if (!isFormData && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
   const res = await fetch(url, {
     ...opts,
     headers
@@ -1064,7 +1130,10 @@ async function api(path, opts = {}) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
     const requestError = new Error(err.error || `HTTP ${res.status}`);
+    requestError.code = err.code || '';
+    requestError.category = err.category || '';
     requestError.suggestion = err.suggestion || '';
+    requestError.retryable = err.retryable !== false;
     requestError.details = err.errors || [];
     throw requestError;
   }
@@ -1119,7 +1188,7 @@ function closeModal() {
   document.getElementById('modalOverlay').classList.remove('show');
 }
 function overlayClick(e) {
-  if (e.target === e.currentTarget) closeModal();
+  if (e.target === e.currentTarget) cancelLocalBatchPreview();
 }
 
 // ====== Navigation ======
@@ -1141,10 +1210,10 @@ var pageTitles = {
   cloud:'☁️ 手机连接/新增任务',
   dashboard:'📊 目标控制台', daily:'📿 日常功课', focus:'🧘 闭关修炼', goals:'🌟 大道宏愿', review:'📜 道行复盘',
   tasks:'📋 任务管理', items:'🏪 商店管理',
-  achievements:'🏆 成就管理', skills:'⚔️ 属性面板', inventory:'🎒 背包物品',
+  achievements:'🏆 成就管理', icons:'🖼️ 图标资源管理器', skills:'⚔️ 属性面板', inventory:'🎒 背包物品',
   synthesis:'🔮 合成配方', history:'📜 活动记录', pools:'🎰 卡池管理',
   achprogress:'📈 成就进度', collection:'🃏 卡牌图鉴', economy:'📊 经济看板',
-  snapshots:'📸 快照管理', realms:'🌌 位面切换'
+  snapshots:'📸 快照管理', maintenance:'🧹 本机维护', realms:'🌌 位面切换'
 };
 
 function loadPage(page) {
@@ -1162,16 +1231,17 @@ function loadCurrentPage() {
     cloud: loadCloud,
     dashboard: loadDashboard, daily: loadDaily, focus: loadFocus, goals: loadGoals, review: loadReview,
     tasks: loadTasks, items: loadItems,
-    achievements: loadAchievements, skills: loadSkills, inventory: loadInventory,
+    achievements: loadAchievements, icons: loadIcons, skills: loadSkills, inventory: loadInventory,
     synthesis: loadSynthesis, history: loadHistory, pools: loadPools,
     achprogress: loadAchProgress, collection: loadCollection, economy: loadEconomy,
-    snapshots: loadSnapshots, realms: loadRealms
+    snapshots: loadSnapshots, maintenance: loadMaintenance, realms: loadRealms
   };
   if (loaders[page]) loaders[page]();
 }
 
 // ====== Batch Bar ======
 function updateBatchBar(type) {
+  resetLocalBatchPreview();
   if (dataSource === 'cloud') {
     hideBatchBar();
     return;
@@ -1193,6 +1263,7 @@ function updateBatchBar(type) {
   }
 }
 function hideBatchBar() {
+  resetLocalBatchPreview();
   document.getElementById('batchBar').classList.remove('show');
 }
 function toggleAllChecks(e, className) {
@@ -1222,51 +1293,483 @@ function validateLocalBatchIds(ids) {
   }
   return true;
 }
+function resetLocalBatchPreview() {
+  localBatchPreviewGeneration += 1;
+  localBatchPreviewState = null;
+  var button = document.getElementById('localBatchExecuteBtn');
+  if (button) button.disabled = true;
+}
+function resetTaskImportState() {
+  taskImportRows = [];
+  taskImportFileName = '';
+}
+function resetItemImportState() {
+  itemImportRows = [];
+  itemImportFileName = '';
+}
+function resetAchievementImportState() {
+  achievementImportRows = [];
+  achievementImportFileName = '';
+}
+function cancelLocalBatchPreview() {
+  resetLocalBatchPreview();
+  resetTaskImportState();
+  resetItemImportState();
+  resetAchievementImportState();
+  closeModal();
+}
+function localBatchStatusText(status) {
+  if (status === 'ready') return '可执行';
+  if (status === 'success') return '执行成功';
+  return '阻止执行';
+}
+function renderLocalBatchPreviewRows(rows) {
+  var safeRows = Array.isArray(rows) ? rows : [];
+  return safeRows.map(function(row, rowIndex) {
+    var errors = Array.isArray(row && row.errors) ? row.errors : [];
+    var errorHtml = errors.length ? errors.map(function(error) {
+      var field = error && error.field ? ' [' + String(error.field) + ']' : '';
+      return '<div><code>' + escHtml((error && error.code) || 'UNKNOWN_ERROR') + '</code>' +
+        escHtml(field) + '：' + escHtml((error && error.message) || '未知错误') + '</div>';
+    }).join('') : '<span style="color:var(--text3)">无</span>';
+    var normalizedText = JSON.stringify((row && row.normalized_data) || {});
+    var actionText = row && row.planned_action ? JSON.stringify(row.planned_action) : '—';
+    var status = (row && row.status) || 'error';
+    var statusColor = status === 'success' ? 'var(--green)' :
+      (status === 'ready' ? 'var(--cyan)' : 'var(--red)');
+    var duplicate = row && row.duplicate;
+    var duplicateHtml = '—';
+    if (duplicate && duplicate.found) {
+      var isItemDuplicate = Array.isArray(duplicate.existing_item_ids);
+      var isAchievementDuplicate = Array.isArray(duplicate.existing_achievement_ids);
+      var existingIds = isItemDuplicate ? duplicate.existing_item_ids :
+        (isAchievementDuplicate ? duplicate.existing_achievement_ids : duplicate.existing_task_ids);
+      var existing = Array.isArray(existingIds) ? existingIds.join('、') : '';
+      var lines = Array.isArray(duplicate.import_lines) ? duplicate.import_lines.join('、') : '';
+      var policy = row.normalized_data && row.normalized_data.duplicate_policy || '';
+      var policyHandler = isItemDuplicate ? 'setItemImportDuplicatePolicy' :
+        (isAchievementDuplicate ? 'setAchievementImportDuplicatePolicy' : 'setTaskImportDuplicatePolicy');
+      var duplicateLabel = isItemDuplicate ? '商品' : (isAchievementDuplicate ? '成就' : '任务');
+      duplicateHtml = '<div style="color:var(--orange);font-weight:700">⚠️ 潜在重复</div>' +
+        '<div style="font-size:11px;color:var(--text2)">' +
+        (existing ? '已有' + duplicateLabel + ' ID：' + escHtml(existing) + '<br>' : '') +
+        (lines ? '文件行：' + escHtml(lines) : '') + '</div>' +
+        '<select aria-label="第 ' + escAttr(row && row.line) + ' 行重复策略" onchange="' + policyHandler + '(' + rowIndex + ',this.value)" style="margin-top:6px;min-width:110px">' +
+        '<option value=""' + (!policy ? ' selected' : '') + '>请选择</option>' +
+        '<option value="skip"' + (policy === 'skip' ? ' selected' : '') + '>跳过</option>' +
+        '<option value="create"' + (policy === 'create' ? ' selected' : '') + '>仍然新增</option></select>';
+    }
+    return '<tr>' +
+      '<td>' + escHtml(row && row.line) + '</td>' +
+      '<td><strong style="color:' + statusColor + '">' + escHtml(localBatchStatusText(status)) + '</strong></td>' +
+      '<td>' + errorHtml + '</td>' +
+      '<td>' + duplicateHtml + '</td>' +
+      '<td><code style="white-space:pre-wrap;word-break:break-word">' + escHtml(normalizedText) + '</code></td>' +
+      '<td><code style="white-space:pre-wrap;word-break:break-word">' + escHtml(actionText) + '</code></td>' +
+      '</tr>';
+  }).join('');
+}
+function localBatchSummaryHtml(summary, execution) {
+  summary = summary && typeof summary === 'object' ? summary : {};
+  var total = Number.isInteger(summary.total) ? summary.total : 0;
+  if (execution) {
+    var succeeded = Number.isInteger(summary.succeeded) ? summary.succeeded : 0;
+    var failed = Number.isInteger(summary.failed) ? summary.failed : 0;
+    var affected = Number.isInteger(summary.affected) ? summary.affected : 0;
+    return '共 ' + total + ' 行；成功 ' + succeeded + '，失败 ' + failed + '，影响 ' + affected + ' 条记录。';
+  }
+  var ready = Number.isInteger(summary.ready) ? summary.ready : 0;
+  var errors = Number.isInteger(summary.errors) ? summary.errors : 0;
+  var duplicates = Number.isInteger(summary.duplicates) ? summary.duplicates : 0;
+  return '共 ' + total + ' 行；可执行 ' + ready + '，错误 ' + errors + '，重复行 ' + duplicates + '。';
+}
+function renderLocalBatchPreview(preview) {
+  var blocked = !preview || preview.can_execute !== true ||
+    !Array.isArray(preview.rows) || preview.rows.some(function(row) {
+      return row.status !== 'ready' || (Array.isArray(row.errors) && row.errors.length > 0);
+    });
+  var stateText = blocked ? '阻止执行：请修正所有错误行后重新预览。' : '可执行：确认后将先创建服务器快照，再在一个事务中写入。';
+  var isTaskImport = taskImportRows.length > 0 && preview && preview.entity === 'tasks';
+  var isItemImport = itemImportRows.length > 0 && preview && preview.entity === 'items';
+  var isAchievementImport = achievementImportRows.length > 0 && preview && preview.entity === 'achievements';
+  var importFileName = isTaskImport ? taskImportFileName :
+    (isItemImport ? itemImportFileName : (isAchievementImport ? achievementImportFileName : ''));
+  return '<div class="source-page-note" style="margin-bottom:12px"><strong>' + escHtml(stateText) + '</strong></div>' +
+    (importFileName ? '<div style="margin-bottom:10px;color:var(--text2)">文件：<strong>' + escHtml(importFileName) + '</strong></div>' : '') +
+    '<div style="margin-bottom:10px;color:var(--text2)">' + escHtml(localBatchSummaryHtml(preview && preview.summary, false)) + '</div>' +
+    '<div style="overflow:auto;max-height:52vh"><table><thead><tr><th>行号</th><th>状态</th><th>错误</th><th>重复项</th><th>规范化数据</th><th>计划动作</th></tr></thead><tbody>' +
+    renderLocalBatchPreviewRows(preview && preview.rows) + '</tbody></table></div>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="cancelLocalBatchPreview()">取消</button>' +
+    (isTaskImport ? '<button class="btn btn-cyan" onclick="openTaskImportDialog()">重新选择文件</button>' : '') +
+    (isTaskImport ? '<button class="btn btn-cyan" onclick="previewTaskImportRows()">按选择重新预览</button>' : '') +
+    (isItemImport ? '<button class="btn btn-cyan" onclick="openItemImportDialog()">重新选择文件</button>' : '') +
+    (isItemImport ? '<button class="btn btn-cyan" onclick="previewItemImportRows()">按选择重新预览</button>' : '') +
+    (isAchievementImport ? '<button class="btn btn-cyan" onclick="openAchievementImportDialog()">重新选择文件</button>' : '') +
+    (isAchievementImport ? '<button class="btn btn-cyan" onclick="previewAchievementImportRows()">按选择重新预览</button>' : '') +
+    '<button class="btn btn-primary" id="localBatchExecuteBtn" onclick="executeLocalBatchPreview()"' +
+    (blocked ? ' disabled' : '') + '>创建快照并执行</button></div>';
+}
+function renderLocalBatchExecution(result) {
+  var snapshot = result && result.snapshot || {};
+  return '<div class="source-page-note" style="margin-bottom:12px"><strong>执行完成，服务器快照已保留。</strong><br>' +
+    '快照：' + escHtml(snapshot.name || '未命名快照') + '（' + escHtml(snapshot.id || '未知 ID') + '）</div>' +
+    '<div style="margin-bottom:10px;color:var(--text2)">' + escHtml(localBatchSummaryHtml(result && result.summary, true)) + '</div>' +
+    '<div style="overflow:auto;max-height:52vh"><table><thead><tr><th>行号</th><th>状态</th><th>错误</th><th>重复项</th><th>规范化数据</th><th>计划动作</th></tr></thead><tbody>' +
+    renderLocalBatchPreviewRows(result && result.rows) + '</tbody></table></div>' +
+    '<div class="modal-actions"><button class="btn btn-primary" onclick="closeModal()">完成</button></div>';
+}
+function openLocalBatchPreview(entity, rows) {
+  if (dataSource === 'cloud') {
+    toast('手机云人升模式下已有数据只读，不能进入本地批量预览', 'error');
+    return Promise.resolve(null);
+  }
+  resetLocalBatchPreview();
+  var generation = localBatchPreviewGeneration;
+  return api('/api/local/batch-previews', {
+    method: 'POST',
+    body: JSON.stringify({ entity: entity, rows: rows })
+  }).then(function(preview) {
+    if (generation !== localBatchPreviewGeneration || dataSource !== 'local') return null;
+    var hasErrors = !Array.isArray(preview.rows) || preview.rows.some(function(row) {
+      return row.status !== 'ready' || !Array.isArray(row.errors) || row.errors.length > 0;
+    });
+    localBatchPreviewState = {
+      token: String(preview.preview_token || ''),
+      digest: String(preview.digest || ''),
+      entity: entity,
+      rows: preview.rows || [],
+      canExecute: preview.can_execute === true && !hasErrors,
+      inFlight: false,
+      generation: generation
+    };
+    var importTitle = taskImportRows.length ? '📥 任务批量导入预览' :
+      (itemImportRows.length ? '📥 商品批量导入预览' :
+        (achievementImportRows.length ? '📥 成就批量导入预览' :
+          (entity === 'icons' ? '🖼️ 图标批量替换预览' : '🛡️ 本地批量操作预览')));
+    showModal(importTitle, renderLocalBatchPreview(preview), true);
+    return preview;
+  }).catch(function(error) {
+    if (generation === localBatchPreviewGeneration) {
+      resetLocalBatchPreview();
+      toast('❌ 无法创建批量预览：' + error.message, 'error');
+    }
+    return null;
+  });
+}
+function openTaskImportDialog() {
+  if (dataSource === 'cloud') {
+    toast('手机云人升模式不能批量写入本地备份', 'error');
+    return;
+  }
+  resetLocalBatchPreview();
+  resetTaskImportState();
+  resetItemImportState();
+  resetAchievementImportState();
+  showModal('📥 CSV/JSON 批量导入任务',
+    '<div class="source-page-note">支持一次导入重要/困难等级、最多 3 个关联属性、金币、经验、备注和商品奖励。CSV 商品奖励写成“商品名*数量|商品名*数量”；上传后逐行校验，执行前自动创建快照。单次最多 200 条、文件最大 1 MiB。</div>' +
+    '<div class="btn-group">' +
+      '<a class="btn btn-cyan" href="/api/local/task-import-templates/csv" download="task_import_template.csv">下载 CSV 模板</a>' +
+      '<a class="btn btn-cyan" href="/api/local/task-import-templates/json" download="task_import_template.json">下载 JSON 模板</a>' +
+    '</div>' +
+    '<div class="form-group"><label for="taskImportFile">选择 UTF-8 CSV 或 JSON 文件</label>' +
+      '<input id="taskImportFile" type="file" accept=".csv,.json,text/csv,application/json" onchange="showTaskImportFileName(this)">' +
+      '<div id="taskImportFileName" style="margin-top:6px;font-size:12px;color:var(--text2)">尚未选择文件</div></div>' +
+    '<div id="taskImportStatus" aria-live="polite" style="font-size:12px;color:var(--text2)"></div>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="cancelLocalBatchPreview()">取消</button>' +
+      '<button class="btn btn-primary" id="taskImportParseBtn" onclick="parseTaskImportFile()">解析并预览</button></div>');
+}
+function showTaskImportFileName(input) {
+  var file = input && input.files && input.files[0];
+  var label = document.getElementById('taskImportFileName');
+  if (label) label.textContent = file ? file.name + '（' + file.size + ' 字节）' : '尚未选择文件';
+}
+function parseTaskImportFile() {
+  var input = document.getElementById('taskImportFile');
+  var file = input && input.files && input.files[0];
+  var status = document.getElementById('taskImportStatus');
+  var button = document.getElementById('taskImportParseBtn');
+  if (!file) {
+    if (status) status.textContent = '请先选择 CSV 或 JSON 文件。';
+    return Promise.resolve(null);
+  }
+  if (file.size < 1 || file.size > 1024 * 1024) {
+    if (status) status.textContent = '文件必须大于 0 字节且不能超过 1 MiB。';
+    return Promise.resolve(null);
+  }
+  resetLocalBatchPreview();
+  resetTaskImportState();
+  resetItemImportState();
+  resetAchievementImportState();
+  if (button) { button.disabled = true; button.textContent = '正在解析...'; }
+  if (status) status.textContent = '正在上传并解析文件...';
+  var formData = new FormData();
+  formData.append('file', file, file.name);
+  return api('/api/local/task-import-files', {
+    method: 'POST',
+    body: formData
+  }).then(function(parsed) {
+    taskImportRows = Array.isArray(parsed.rows) ? parsed.rows : [];
+    taskImportFileName = file.name;
+    return previewTaskImportRows();
+  }).catch(function(error) {
+    if (status) status.textContent = '解析失败：' + error.message + (error.suggestion ? '；' + error.suggestion : '');
+    if (button) { button.disabled = false; button.textContent = '解析并预览'; }
+    return null;
+  });
+}
+function setTaskImportDuplicatePolicy(rowIndex, policy) {
+  var row = taskImportRows[rowIndex];
+  if (!row || !row.data) return;
+  row.data.duplicate_policy = policy === 'skip' || policy === 'create' ? policy : '';
+  resetLocalBatchPreview();
+  toast('重复策略已更新，请点击“按选择重新预览”', 'success');
+}
+function previewTaskImportRows() {
+  if (!Array.isArray(taskImportRows) || taskImportRows.length === 0) {
+    toast('请重新选择并解析导入文件', 'error');
+    return Promise.resolve(null);
+  }
+  return openLocalBatchPreview('tasks', taskImportRows);
+}
+function openItemImportDialog() {
+  if (dataSource === 'cloud') {
+    toast('手机云人升模式不能批量写入本地备份', 'error');
+    return;
+  }
+  resetLocalBatchPreview();
+  resetTaskImportState();
+  resetItemImportState();
+  resetAchievementImportState();
+  showModal('📥 商品 CSV/JSON 批量导入',
+    '<div class="source-page-note">支持批量新增商品和固定值/增减值/百分比改价。上传后逐行校验，执行前自动创建快照；单次最多 200 行、文件最大 1 MiB。</div>' +
+    '<div class="btn-group">' +
+      '<a class="btn btn-cyan" href="/api/local/item-import-templates/csv" download="item_import_template.csv">下载 CSV 模板</a>' +
+      '<a class="btn btn-cyan" href="/api/local/item-import-templates/json" download="item_import_template.json">下载 JSON 模板</a>' +
+    '</div>' +
+    '<div class="form-group"><label for="itemImportFile">选择 UTF-8 CSV 或 JSON 文件</label>' +
+      '<input id="itemImportFile" type="file" accept=".csv,.json,text/csv,application/json" onchange="showItemImportFileName(this)">' +
+      '<div id="itemImportFileName" style="margin-top:6px;font-size:12px;color:var(--text2)">尚未选择文件</div></div>' +
+    '<div id="itemImportStatus" aria-live="polite" style="font-size:12px;color:var(--text2)"></div>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="cancelLocalBatchPreview()">取消</button>' +
+      '<button class="btn btn-primary" id="itemImportParseBtn" onclick="parseItemImportFile()">解析并预览</button></div>');
+}
+function showItemImportFileName(input) {
+  var file = input && input.files && input.files[0];
+  var label = document.getElementById('itemImportFileName');
+  if (label) label.textContent = file ? file.name + '（' + file.size + ' 字节）' : '尚未选择文件';
+}
+function parseItemImportFile() {
+  var input = document.getElementById('itemImportFile');
+  var file = input && input.files && input.files[0];
+  var status = document.getElementById('itemImportStatus');
+  var button = document.getElementById('itemImportParseBtn');
+  if (!file) {
+    if (status) status.textContent = '请先选择 CSV 或 JSON 文件。';
+    return Promise.resolve(null);
+  }
+  if (file.size < 1 || file.size > 1024 * 1024) {
+    if (status) status.textContent = '文件必须大于 0 字节且不能超过 1 MiB。';
+    return Promise.resolve(null);
+  }
+  resetLocalBatchPreview();
+  resetTaskImportState();
+  resetItemImportState();
+  resetAchievementImportState();
+  if (button) { button.disabled = true; button.textContent = '正在解析...'; }
+  if (status) status.textContent = '正在上传并解析文件...';
+  var formData = new FormData();
+  formData.append('file', file, file.name);
+  return api('/api/local/item-import-files', {
+    method: 'POST',
+    body: formData
+  }).then(function(parsed) {
+    itemImportRows = Array.isArray(parsed.rows) ? parsed.rows : [];
+    itemImportFileName = file.name;
+    return previewItemImportRows();
+  }).catch(function(error) {
+    if (status) status.textContent = '解析失败：' + error.message + (error.suggestion ? '；' + error.suggestion : '');
+    if (button) { button.disabled = false; button.textContent = '解析并预览'; }
+    return null;
+  });
+}
+function setItemImportDuplicatePolicy(rowIndex, policy) {
+  var row = itemImportRows[rowIndex];
+  if (!row || !row.data) return;
+  row.data.duplicate_policy = policy === 'skip' || policy === 'create' ? policy : '';
+  resetLocalBatchPreview();
+  toast('重复策略已更新，请点击“按选择重新预览”', 'success');
+}
+function previewItemImportRows() {
+  if (!Array.isArray(itemImportRows) || itemImportRows.length === 0) {
+    toast('请重新选择并解析导入文件', 'error');
+    return Promise.resolve(null);
+  }
+  return openLocalBatchPreview('items', itemImportRows);
+}
+function openAchievementImportDialog() {
+  if (dataSource === 'cloud') {
+    toast('手机云人升模式不能批量写入本地备份', 'error');
+    return;
+  }
+  resetLocalBatchPreview();
+  resetTaskImportState();
+  resetItemImportState();
+  resetAchievementImportState();
+  showModal('📥 成就 CSV/JSON 批量导入',
+    '<div class="source-page-note">只支持新增基础自定义成就。上传后逐行校验，执行前自动创建快照；单次最多 200 行、文件最大 1 MiB，文件必须使用 UTF-8。</div>' +
+    '<div class="source-page-note" style="border-color:var(--red);color:var(--red)">Task 9 不支持解锁条件：conditions 必须省略或留空。系统成就始终只读。</div>' +
+    '<div class="btn-group">' +
+      '<a class="btn btn-cyan" href="/api/local/achievement-import-templates/csv" download="achievement_import_template.csv">下载 CSV 模板</a>' +
+      '<a class="btn btn-cyan" href="/api/local/achievement-import-templates/json" download="achievement_import_template.json">下载 JSON 模板</a>' +
+    '</div>' +
+    '<div class="form-group"><label for="achievementImportFile">选择 UTF-8 CSV 或 JSON 文件</label>' +
+      '<input id="achievementImportFile" type="file" accept=".csv,.json,text/csv,application/json" onchange="showAchievementImportFileName(this)">' +
+      '<div id="achievementImportFileName" style="margin-top:6px;font-size:12px;color:var(--text2)">尚未选择文件</div></div>' +
+    '<div id="achievementImportStatus" aria-live="polite" style="font-size:12px;color:var(--text2)"></div>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="cancelLocalBatchPreview()">取消</button>' +
+      '<button class="btn btn-primary" id="achievementImportParseBtn" onclick="parseAchievementImportFile()">解析并预览</button></div>');
+}
+function showAchievementImportFileName(input) {
+  var file = input && input.files && input.files[0];
+  var label = document.getElementById('achievementImportFileName');
+  if (label) label.textContent = file ? file.name + '（' + file.size + ' 字节）' : '尚未选择文件';
+}
+function parseAchievementImportFile() {
+  var input = document.getElementById('achievementImportFile');
+  var file = input && input.files && input.files[0];
+  var status = document.getElementById('achievementImportStatus');
+  var button = document.getElementById('achievementImportParseBtn');
+  if (!file) {
+    if (status) status.textContent = '请先选择 CSV 或 JSON 文件。';
+    return Promise.resolve(null);
+  }
+  if (file.size < 1 || file.size > 1024 * 1024) {
+    if (status) status.textContent = '文件必须大于 0 字节且不能超过 1 MiB。';
+    return Promise.resolve(null);
+  }
+  resetLocalBatchPreview();
+  resetTaskImportState();
+  resetItemImportState();
+  resetAchievementImportState();
+  if (button) { button.disabled = true; button.textContent = '正在解析...'; }
+  if (status) status.textContent = '正在上传并解析文件...';
+  var formData = new FormData();
+  formData.append('file', file, file.name);
+  return api('/api/local/achievement-import-files', {
+    method: 'POST',
+    body: formData
+  }).then(function(parsed) {
+    achievementImportRows = Array.isArray(parsed.rows) ? parsed.rows : [];
+    achievementImportFileName = file.name;
+    return previewAchievementImportRows();
+  }).catch(function(error) {
+    if (status) status.textContent = '解析失败：' + error.message + (error.suggestion ? '；' + error.suggestion : '');
+    if (button) { button.disabled = false; button.textContent = '解析并预览'; }
+    return null;
+  });
+}
+function setAchievementImportDuplicatePolicy(rowIndex, policy) {
+  var row = achievementImportRows[rowIndex];
+  if (!row || !row.data) return;
+  row.data.duplicate_policy = policy === 'skip' || policy === 'create' ? policy : '';
+  resetLocalBatchPreview();
+  toast('重复策略已更新，请点击“按选择重新预览”', 'success');
+}
+function previewAchievementImportRows() {
+  if (!Array.isArray(achievementImportRows) || achievementImportRows.length === 0) {
+    toast('请重新选择并解析导入文件', 'error');
+    return Promise.resolve(null);
+  }
+  return openLocalBatchPreview('achievements', achievementImportRows);
+}
+function executeLocalBatchPreview() {
+  var state = localBatchPreviewState;
+  var blocked = !state || state.canExecute !== true || state.inFlight ||
+    !Array.isArray(state.rows) || state.rows.some(function(row) {
+      return row.status !== 'ready' || !Array.isArray(row.errors) || row.errors.length > 0;
+    });
+  if (dataSource === 'cloud' || blocked) {
+    toast('当前预览存在错误、已失效或正在执行，不能提交', 'error');
+    return Promise.resolve(null);
+  }
+  state.inFlight = true;
+  var button = document.getElementById('localBatchExecuteBtn');
+  if (button) {
+    button.disabled = true;
+    button.textContent = '正在创建快照并执行...';
+  }
+  return api('/api/local/batch-previews/' + encodeURIComponent(state.token) + '/executions', {
+    method: 'POST',
+    body: JSON.stringify({ digest: state.digest })
+  }).then(function(result) {
+    if (localBatchPreviewState !== state) return null;
+    var wasTaskImport = taskImportRows.length > 0;
+    var wasItemImport = itemImportRows.length > 0;
+    var wasAchievementImport = achievementImportRows.length > 0;
+    showModal('✅ 本地批量操作完成', renderLocalBatchExecution(result), true);
+    toast('✅ 已处理 ' + ((result.summary && result.summary.affected) || 0) + ' 项；执行前快照已创建');
+    var entity = state.entity;
+    clearAllChecks();
+    if (entity === 'tasks') loadTasks(pageStates.tasks.filter);
+    else if (entity === 'items') loadItems();
+    else if (entity === 'achievements') loadAchievements();
+    else if (entity === 'icons') loadIcons();
+    if (wasTaskImport) resetTaskImportState();
+    if (wasItemImport) resetItemImportState();
+    if (wasAchievementImport) resetAchievementImportState();
+    return result;
+  }).catch(function(error) {
+    if (localBatchPreviewState === state) resetLocalBatchPreview();
+    toast('❌ 批量执行失败：' + error.message, 'error');
+    return null;
+  });
+}
 function batchAction(type, action) {
   if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量修改', 'error');
   var ids = getSelectedIds();
   if (!validateLocalBatchIds(ids)) return;
-  if (action === 'delete' && !confirm('确定删除选中的 ' + ids.length + ' 项吗？此操作不可撤销。')) return;
-  // freeze/unfreeze 使用专用端点
-  if (action === 'freeze' || action === 'unfreeze') {
-    var frozen = action === 'freeze';
-    api('/api/tasks/batch/freeze', { method: 'POST', body: JSON.stringify({ ids: ids, isfrozen: frozen }) }).then(function(r) {
-      toast('❄️ 已' + (frozen ? '冻结' : '解冻') + ' ' + (r.affected || ids.length) + ' 项');
-      clearAllChecks();
-      loadTasks(pageStates.tasks.filter);
-    }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
-    return;
-  }
-  var body = { ids: ids, action: action };
-  api('/api/' + type + '/batch', { method: 'POST', body: JSON.stringify(body) }).then(function(r) {
-    toast('✅ 已处理 ' + (r.affected || ids.length) + ' 项');
-    clearAllChecks();
-    if (type === 'tasks') loadTasks(pageStates.tasks.filter);
-    else loadItems();
-  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+  if (action === 'delete' && !confirm('确定预览删除选中的 ' + ids.length + ' 项吗？真正执行前会先创建快照。')) return;
+  var rows = ids.map(function(id, index) {
+    return { line: index + 1, action: action, data: { id: id } };
+  });
+  return openLocalBatchPreview(type, rows);
 }
 function batchPriceDialog() {
   if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量改价', 'error');
+  resetLocalBatchPreview();
   var ids = getSelectedIds();
   if (!validateLocalBatchIds(ids)) return;
-  showModal('💰 批量改价', '<div class="form-group"><label>新价格</label><input id="f_batchprice" type="number" min="0" max="2147483647" step="1" value="0" style="font-size:18px"></div><div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doBatchPrice()">确认修改 ' + ids.length + ' 件商品</button></div>');
+  showModal('💰 批量改价',
+    '<div class="source-page-note">固定值直接设置新价格；增减值可填正数或负数；百分比填写整数变化，例如 10 表示涨 10%，-20 表示降 20%。</div>' +
+    '<div class="form-group"><label>改价方式</label><select id="f_batchpricemode">' +
+      '<option value="set">固定值</option><option value="add">增减值</option><option value="percent">百分比</option>' +
+    '</select></div>' +
+    '<div class="form-group"><label>改价值</label><input id="f_batchprice" type="number" min="-2147483647" max="2147483647" step="1" value="0" style="font-size:18px"></div>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="doBatchPrice()">预览修改 ' + ids.length + ' 件商品</button></div>');
   setTimeout(function() { var inp = document.getElementById('f_batchprice'); if (inp) inp.focus(); }, 100);
 }
 function doBatchPrice() {
   if (dataSource === 'cloud') return toast('手机云人升模式下已有数据只读，不能批量改价', 'error');
   var ids = getSelectedIds();
   if (!validateLocalBatchIds(ids)) return;
+  var modeElement = document.getElementById('f_batchpricemode');
+  var mode = modeElement && modeElement.value || 'set';
   var rawPrice = document.getElementById('f_batchprice').value.trim();
-  var price = Number(rawPrice);
-  if (rawPrice === '' || !Number.isInteger(price) || price < 0 || price > MAX_LOCAL_ITEM_PRICE) {
-    return toast('请输入 0～' + MAX_LOCAL_ITEM_PRICE + ' 之间的整数价格', 'error');
+  var priceValue = Number(rawPrice);
+  var validMode = mode === 'set' || mode === 'add' || mode === 'percent';
+  var validRange = mode === 'set' ? priceValue >= 0 && priceValue <= MAX_LOCAL_ITEM_PRICE :
+    (mode === 'add' ? priceValue >= -MAX_LOCAL_ITEM_PRICE && priceValue <= MAX_LOCAL_ITEM_PRICE :
+      priceValue >= -100 && priceValue <= MAX_LOCAL_ITEM_PRICE);
+  if (!validMode || rawPrice === '' || !Number.isInteger(priceValue) || !validRange) {
+    return toast('请输入所选改价方式允许范围内的整数', 'error');
   }
   closeModal();
-  api('/api/items/batch', { method: 'POST', body: JSON.stringify({ ids: ids, action: 'price', price: price }) }).then(function(r) {
-    toast('✅ 已更新 ' + (r.affected || ids.length) + ' 件商品价格为 ' + price);
-    clearAllChecks();
-    loadItems();
-  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+  var rows = ids.map(function(id, index) {
+    var data = { id: id, price_mode: mode, price_value: priceValue };
+    if (mode === 'set') data.price = priceValue;
+    return { line: index + 1, action: 'price', data: data };
+  });
+  return openLocalBatchPreview('items', rows);
 }
 
 // ====== Archive Open / Save ======
@@ -1872,12 +2375,82 @@ async function loadDashboard() {
 /* =================================================================================
  *  PAGE 1B: Daily — 日常功课（筑基日常/试炼悬赏/位面征服）
  * ================================================================================= */
+async function fetchActivityHeatmap(period) {
+  var source = dataSource === 'cloud' ? 'cloud' : 'local';
+  return api('/api/activity/heatmap?source=' + source + '&period=' + period);
+}
+
+function activityRangeButtons(scope, selected) {
+  return '<div class="tabs" style="margin-bottom:12px">' + [
+    ['day', '今日'], ['week', '本周'], ['month', '本月']
+  ].map(function(item) {
+    var fn = scope === 'focus' ? 'setFocusActivityPeriod' : 'setDailyActivityPeriod';
+    return '<div class="tab ' + (selected === item[0] ? 'active' : '') + '" onclick="' + fn + '(\'' + item[0] + '\')">' + item[1] + '</div>';
+  }).join('') + '</div>';
+}
+
+function activityMetricValue(activity, key) {
+  var metric = activity && activity.metrics ? activity.metrics[key] : null;
+  if (!metric || !metric.available) return '不可用';
+  return Number(metric.value || 0).toLocaleString();
+}
+
+function activityHeatmapData(activity, key) {
+  var series = activity && Array.isArray(activity.series) ? activity.series : [];
+  if (!series.length) return [];
+  var first = new Date(series[0].date + 'T00:00:00');
+  var weekday = first.getDay() || 7;
+  var cells = [];
+  for (var blank = 1; blank < weekday; blank++) cells.push({ label: '', value: -1, date: '' });
+  series.forEach(function(row) {
+    cells.push({
+      label: String(Number(row.date.slice(8, 10))),
+      value: row[key] == null ? 0 : Number(row[key] || 0),
+      date: row.date
+    });
+  });
+  return cells;
+}
+
+function activityGapHtml(activity) {
+  var gaps = activity && Array.isArray(activity.gaps) ? activity.gaps : [];
+  if (!gaps.length) return '';
+  return '<div class="dashboard-warning" style="margin-bottom:16px"><strong>数据说明：</strong><ul style="margin:6px 0 0 18px">' +
+    gaps.map(function(gap){ return '<li>' + escHtml(gap) + '</li>'; }).join('') + '</ul></div>';
+}
+
+function activityRecordsHtml(activity, key, title) {
+  var records = activity && activity.records && Array.isArray(activity.records[key]) ? activity.records[key] : [];
+  var rows = records.slice(0, 100).map(function(record) {
+    return '<tr><td>' + escHtml(record.time || record.date || '-') + '</td><td>' + escHtml(record.name || '-') + '</td><td>' +
+      escHtml(record.value == null ? '-' : record.value) + '</td><td>' + escHtml(record.source_label || '-') + '</td></tr>';
+  }).join('');
+  return '<details style="margin-top:12px"><summary style="cursor:pointer;color:var(--cyan)">' + escHtml(title) + '来源明细（' + records.length + ' 条）</summary>' +
+    (records.length ? '<table class="data-table" style="margin-top:8px"><thead><tr><th>时间</th><th>记录</th><th>数值</th><th>来源</th></tr></thead><tbody>' + rows + '</tbody></table>' :
+      '<div class="empty" style="padding:18px">所选范围暂无真实记录</div>') + '</details>';
+}
+
 async function loadDaily() {
   var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
-    var tasks = await api('/api/tasks?filter=all');
-    var cats = await api('/api/categories/tasks').catch(function(){ return []; });
+    var period = window._dailyActivityPeriod || 'month';
+    var loaded = await Promise.all([
+      api('/api/tasks?filter=all'),
+      api('/api/categories/tasks').catch(function(){ return []; }),
+      fetchActivityHeatmap(period)
+    ]);
+    var tasks = loaded[0];
+    var cats = loaded[1];
+    var activity = loaded[2];
+    var activityMeta = activity.meta || {};
+    var activityWindow = activity.window || {};
+    var taskStreak = activity.streaks && activity.streaks.tasks ? activity.streaks.tasks : { current: 0, longest: 0 };
+
+    window.setDailyActivityPeriod = function(nextPeriod) {
+      window._dailyActivityPeriod = nextPeriod;
+      loadDaily();
+    };
 
     // 找到三大功课分类
     var targetNames = ['筑基日常', '试炼悬赏', '位面征服'];
@@ -1888,12 +2461,8 @@ async function loadDaily() {
     var dailyTasks = tasks.filter(function(t){ return targetIds.indexOf(t.categoryid) !== -1; });
 
     var totalTasks = dailyTasks.length;
-    if (totalTasks === 0) {
-      c.innerHTML = '<div class="empty"><div class="empty-icon">📿</div><h3 style="color:var(--gold);margin-bottom:8px">未找到日常功课</h3>' +
-        '<p style="color:var(--text2);margin-bottom:12px">需要在 LifeUp 中创建「筑基日常」「试炼悬赏」「位面征服」分类下的任务</p>' +
-        '<button class="btn btn-cyan btn-sm" onclick="loadDaily()">🔄 刷新</button></div>';
-      return;
-    }
+    var categoryGuide = totalTasks === 0 ? '<div class="empty" style="margin-bottom:16px"><div class="empty-icon">📿</div><h3 style="color:var(--gold);margin-bottom:8px">尚未找到三大功课分类</h3>' +
+      '<p style="color:var(--text2)">任务列表需要「筑基日常」「试炼悬赏」「位面征服」分类；下方热力图仍会按全部真实任务完成记录统计。</p></div>' : '';
 
     // 按分类分组
     var groups = {};
@@ -1915,9 +2484,14 @@ async function loadDaily() {
     var pendingExp = dailyTasks.filter(function(t){ return t.done === 0; }).reduce(function(s,t){ return s + (t.exp||0); }, 0);
 
     // 顶部统计卡片
-    var statCards = '<div class="stats-grid">' +
+    var statCards = '<div class="source-page-note"><span class="badge ' + (activityMeta.source === 'cloud' ? 'badge-cyan' : 'badge-purple') + '">' + escHtml(activityMeta.source_label || '真实记录') + '</span> ' +
+      escHtml((activityWindow.label || '') + ' ' + (activityWindow.start || '') + ' 至 ' + (activityWindow.end || '')) +
+      '；按' + escHtml(activityWindow.timezone_label || '电脑本地时区') + '分桶' + (activityMeta.refreshed_at ? '；刷新于 ' + escHtml(activityMeta.refreshed_at) : '') + '</div>' +
+      activityRangeButtons('daily', period) + '<div class="stats-grid">' +
       '<div class="stat-card"><div class="stat-label">📿 今日完成率</div><div class="stat-value cyan">' + completionRate + '%</div>' +
         '<div class="progress-bar"><div class="progress-fill cyan" style="width:' + completionRate + '%"></div></div></div>' +
+      '<div class="stat-card"><div class="stat-label">✅ ' + escHtml(activityWindow.label || '所选范围') + '真实完成</div><div class="stat-value green">' + activityMetricValue(activity, 'tasks_completed') + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">🔥 任务连续天数</div><div class="stat-value gold">连续 ' + Number(taskStreak.current || 0) + ' 天</div><div style="font-size:11px;color:var(--text2);margin-top:5px">范围内最长 ' + Number(taskStreak.longest || 0) + ' 天</div></div>' +
       '<div class="stat-card"><div class="stat-label">📋 待完成功课</div><div class="stat-value" style="color:' + (pendingTasks > 0 ? 'var(--orange)' : 'var(--green)') + '">' + pendingTasks + '<span style="font-size:14px;color:var(--text2)">/' + totalTasks + '</span></div></div>' +
       '<div class="stat-card"><div class="stat-label">💰 可获金币/修为</div><div class="stat-value gold" style="font-size:22px">' + (pendingCoin||0).toLocaleString() + ' <span style="font-size:14px;color:var(--purple)">✨' + (pendingExp||0) + '</span></div></div>' +
     '</div>';
@@ -1948,22 +2522,23 @@ async function loadDaily() {
     var sectionsHtml = targetCats.map(function(cat){
       var g = groups[cat.id];
       if (!g || g.tasks.length === 0) {
-        return '<div class="section-title" style="margin-top:16px">' + (catIcons[cat.name]||'📋') + ' ' + cat.name +
+        return '<div class="section-title" style="margin-top:16px">' + escHtml(catIcons[cat.name]||'📋') + ' ' + escHtml(cat.name) +
           '<span style="font-size:12px;color:var(--text2);margin-left:8px">暂无任务</span></div>';
       }
       var rows = g.tasks.map(function(t){
         var done = t.done > 0;
+        var taskIconUrl = safeImageUrl(t.icon);
         return '<tr' + (done ? ' style="opacity:0.5"' : '') + '>' +
-          '<td>' + (t.icon && t.icon.startsWith('http') ? '<img src="' + t.icon + '" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:3px">' : '') +
-          '<span style="font-size:14px;' + (done ? 'text-decoration:line-through;' : '') + '">' + (t.title||'?') + '</span></td>' +
-          '<td><span class="badge badge-cyan">' + (freqMap[t.frequency]||'每日') + '</span></td>' +
+          '<td>' + (taskIconUrl ? '<img src="' + escAttr(taskIconUrl) + '" alt="" loading="lazy" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:3px">' : '') +
+          '<span style="font-size:14px;' + (done ? 'text-decoration:line-through;' : '') + '">' + escHtml(t.title||'?') + '</span></td>' +
+          '<td><span class="badge badge-cyan">' + escHtml(freqMap[t.frequency]||'每日') + '</span></td>' +
           '<td style="color:var(--gold)">🪙 ' + (t.coin||0) + '</td>' +
           '<td style="color:var(--purple)">✨ ' + (t.exp||0) + '</td>' +
           '<td>' + (t.difficulty ? '<span class="badge" style="background:' + difColors[t.difficulty] + '">💀LV' + t.difficulty + '</span>' : '-') + '</td>' +
           '<td>' + (done ? '<span style="color:var(--green);font-weight:600">✅ 已完成</span>' : '<span style="color:var(--text2)">⏳ ' + (t.done_count||0) + '/' + (t.target_count||1) + '</span>') + '</td>' +
         '</tr>';
       }).join('');
-      return '<div class="section-title" style="margin-top:16px">' + (catIcons[cat.name]||'📋') + ' ' + cat.name +
+      return '<div class="section-title" style="margin-top:16px">' + escHtml(catIcons[cat.name]||'📋') + ' ' + escHtml(cat.name) +
         '<span style="font-size:11px;color:var(--text2);margin-left:8px">' + g.doneCount + '/' + g.tasks.length + '</span>' +
         '<span style="float:right;font-size:11px;color:var(--gold)">🪙' + g.coin + '</span>' +
         '<span style="float:right;font-size:11px;color:var(--purple);margin-right:8px">✨' + g.exp + '</span>' +
@@ -1971,20 +2546,15 @@ async function loadDaily() {
       '<table class="data-table"><thead><tr><th>功课名称</th><th>频率</th><th>金币</th><th>修为</th><th>难度</th><th>状态</th></tr></thead><tbody>' + rows + '</tbody></table>';
     }).join('');
 
-    // 月度热力图（mock）
-    var now2 = new Date();
-    var dim = new Date(now2.getFullYear(), now2.getMonth()+1, 0).getDate();
-    var fow = new Date(now2.getFullYear(), now2.getMonth(), 1).getDay() || 7;
-    var heatData = [];
-    for (var b = 1; b < fow; b++) { heatData.push({ label: '', value: -1, date: '' }); }
-    for (var d = 1; d <= dim; d++) {
-      var dk = now2.getFullYear() + '-' + String(now2.getMonth()+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-      var val = _mockDailyCheck[dk] ? (_mockDailyCheck[dk].habitsDone || 0) : 0;
-      heatData.push({ label: String(d), value: val, date: dk });
-    }
-    var heatmapHtml = buildHeatmap(heatData, '📅 ' + (now2.getMonth()+1) + '月 每日功课完成热力图', ['一','二','三','四','五','六','日']);
+    var heatData = activityHeatmapData(activity, 'tasks_completed');
+    var heatmapHtml = buildHeatmap(
+      heatData,
+      '📅 ' + (activityWindow.label || '所选范围') + '真实任务完成热力图',
+      ['一','二','三','四','五','六','日'],
+      '条'
+    ) + activityRecordsHtml(activity, 'tasks', '任务完成');
 
-    c.innerHTML = statCards + summaryBar + sectionsHtml + heatmapHtml +
+    c.innerHTML = statCards + activityGapHtml(activity) + categoryGuide + summaryBar + sectionsHtml + heatmapHtml +
       '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadDaily()">🔄 刷新</button></div>';
 
   } catch(e) {
@@ -2039,9 +2609,20 @@ async function loadFocus() {
   var c = document.getElementById('content');
   c.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在读取 LifeUp 番茄记录...</p></div>';
   try {
-    var m = await fetchFocusOverview();
+    var period = window._focusActivityPeriod || 'month';
+    var loaded = await Promise.all([fetchFocusOverview(), fetchActivityHeatmap(period)]);
+    var m = loaded[0];
+    var activity = loaded[1];
     var meta = m.meta || {};
+    var activityMeta = activity.meta || {};
+    var activityWindow = activity.window || {};
+    var focusStreak = activity.streaks && activity.streaks.focus ? activity.streaks.focus : { current: 0, longest: 0 };
     var sourceClass = meta.source === 'cloud' ? 'badge-cyan' : 'badge-purple';
+
+    window.setFocusActivityPeriod = function(nextPeriod) {
+      window._focusActivityPeriod = nextPeriod;
+      loadFocus();
+    };
 
     var focusTypes = ['打坐修炼','研读功法','炼丹制器','斩妖除魔'];
     var focusMinutes = [15, 30, 45, 60];
@@ -2105,14 +2686,28 @@ async function loadFocus() {
       return '<tr><td>' + escHtml(s.date || '-') + '</td><td>' + escHtml(s.type || '-') + '</td><td>' + formatMinutes(s.duration || 0) + '</td><td style="color:var(--purple)">' + escHtml(reward) + '</td></tr>';
     }).join('');
 
+    var focusHeatmapHtml = '<div class="source-page-note"><span class="badge ' + (activityMeta.source === 'cloud' ? 'badge-cyan' : 'badge-purple') + '">' +
+      escHtml(activityMeta.source_label || '真实番茄记录') + '</span> ' +
+      escHtml((activityWindow.label || '') + ' ' + (activityWindow.start || '') + ' 至 ' + (activityWindow.end || '')) +
+      '；按' + escHtml(activityWindow.timezone_label || '电脑本地时区') + '分桶' + (activityMeta.refreshed_at ? '；刷新于 ' + escHtml(activityMeta.refreshed_at) : '') + '</div>' +
+      activityRangeButtons('focus', period) +
+      buildHeatmap(
+        activityHeatmapData(activity, 'focus_minutes'),
+        '🧘 ' + (activityWindow.label || '所选范围') + '真实番茄热力图',
+        ['一','二','三','四','五','六','日'],
+        '分钟'
+      ) + activityRecordsHtml(activity, 'focus', '番茄专注') + activityGapHtml(activity);
+
   c.innerHTML =
     timerBtnHtml +
     '<div class="stats-grid">' +
       '<div class="stat-card"><div class="stat-label">🧘 今日闭关</div><div class="stat-value gold">' + formatMinutes(m.todayFocusMin || 0) + '</div></div>' +
       '<div class="stat-card"><div class="stat-label">📅 本周闭关</div><div class="stat-value cyan">' + formatMinutes(m.weekFocusMin || 0) + '</div></div>' +
       '<div class="stat-card"><div class="stat-label">📆 本月闭关</div><div class="stat-value purple">' + formatMinutes(m.monthFocusMin || 0) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">🔥 番茄连续天数</div><div class="stat-value gold">连续 ' + Number(focusStreak.current || 0) + ' 天</div><div style="font-size:11px;color:var(--text2);margin-top:5px">范围内最长 ' + Number(focusStreak.longest || 0) + ' 天</div></div>' +
     '</div>' +
     '<div class="source-page-note">' + escHtml(m.rewardHint || '') + '</div>' +
+    focusHeatmapHtml +
     buildBarChart(m.weekBarData || [], '📊 近7天闭关时长', 'cyan') +
     '<div class="chart-container"><h4>🕐 一日时辰修炼分布</h4>' +
       '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-bottom:6px"><span style="font-size:9px;color:var(--text2);grid-column:1/-1;margin-bottom:2px">0时 → 23时（颜色越深闭关越多）</span>' + hourGridCells + '</div>' +
@@ -2137,184 +2732,268 @@ function demoDataBanner(pageName) {
     escHtml(pageName) + ' 尚未接入 LifeUp 真实字段，当前数值用于界面演示，刷新时可能变化；不会写入手机或本地备份。</div>';
 }
 
+var _goalOverviewCache = null;
+
 async function loadGoals() {
   var c = document.getElementById('content');
-  var m = getMockCultivationData();
-  var goals = m.goals;
-  var now = new Date();
-
-  if (!goals || goals.length === 0) {
-    c.innerHTML = demoDataBanner('大道宏愿') + '<div class="empty"><div class="empty-icon">🌟</div>暂无大道宏愿<br><small>设定你的修行目标，步步登仙</small></div>';
+  if (dataSource === 'cloud') {
+    _goalOverviewCache = null;
+    c.innerHTML = '<div class="source-page-note"><span class="badge badge-cyan">手机实时数据</span> ' +
+      '真实宏愿映射当前只支持本地备份，不会读取或修改手机数据。</div>' +
+      '<div class="empty"><div class="empty-icon">🌟</div>请先切换到“本地备份”<br><small>宏愿配置与本地 LifeUp 数据严格分开保存。</small></div>';
     return;
   }
-
-  var cardsHtml = goals.map(function(g) {
-    var deadline = new Date(g.deadline);
-    var daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-    var isUrgent = daysLeft <= 3 && daysLeft >= 0;
-    var progress = g.progress || 0;
-
-    // 环形进度条 SVG
-    var R = 40, cx = 50, cy = 50, sw = 8;
-    var circumference = 2 * Math.PI * R;
-    var dashLen = (progress / 100) * circumference;
-    var dashGap = circumference - dashLen;
-    var ringColor = isUrgent ? 'var(--red)' : 'var(--cyan)';
-    var ringSvg = '<svg viewBox="0 0 100 100" style="width:80px;height:80px;flex-shrink:0">' +
-      '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="var(--border)" stroke-width="' + sw + '"/>' +
-      '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" fill="none" stroke="' + ringColor + '" stroke-width="' + sw + '" stroke-dasharray="' + dashLen + ' ' + dashGap + '" stroke-dashoffset="' + (-0.25 * circumference) + '" stroke-linecap="round" transform="rotate(-90 50 50)"/>' +
-      '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dy="0.35em" font-size="16" font-weight="700" fill="' + ringColor + '">' + progress + '%</text>' +
-    '</svg>';
-
-    // 里程碑时间轴
-    var msHtml = g.milestones.map(function(ms, mi) {
-      var stateClass = ms.done ? 'done' : (mi === g.milestones.filter(function(x){return x.done;}).length ? 'active' : 'pending');
-      return '<div class="timeline-node ' + stateClass + '">' +
-        '<span style="font-size:13px">' + ms.name + '</span>' +
-        (ms.done ? '<span style="color:var(--green);margin-left:6px">✓</span>' : '') +
-      '</div>';
+  c.innerHTML = '<div class="empty"><div class="empty-icon">⏳</div>正在读取真实宏愿...</div>';
+  try {
+    var payload = await api('/api/goals?source=local');
+    _goalOverviewCache = payload;
+    var meta = payload.meta || {};
+    var sourceNote = '<div class="source-page-note"><span class="badge badge-cyan">本地备份数据</span> ' +
+      '进度来自真实任务和自定义成就；映射独立保存在 <code>' + escHtml(meta.config_source || 'lifeup_goal_mappings.json') + '</code>。' +
+      (meta.refreshed_at ? ' 刷新：' + escHtml(meta.refreshed_at) : '') + '</div>';
+    if (payload.config_error) {
+      sourceNote += '<div class="dashboard-warning">⚠️ ' + escHtml(payload.config_error) + '</div>';
+    }
+    if (!payload.configured) {
+      c.innerHTML = sourceNote + '<div class="section-title">🌟 大道宏愿</div>' +
+        '<div class="empty"><div class="empty-icon">🧭</div>尚未配置真实宏愿<br>' +
+        '<small>选择任务分类或成就分类后才会计算进度；没有配置时不会生成随机数字。</small><br>' +
+        '<button class="btn btn-primary" style="margin-top:16px" onclick="openGoalConfig()">⚙️ 配置第一个宏愿</button></div>';
+      return;
+    }
+    var goals = payload.goals || [];
+    var now = new Date();
+    var cardsHtml = goals.map(function(g, index) {
+      var progress = Math.max(0, Math.min(100, Number(g.progress) || 0));
+      var daysLeft = null;
+      if (g.deadline) {
+        var deadline = new Date(g.deadline + 'T00:00:00');
+        if (!isNaN(deadline.getTime())) daysLeft = Math.ceil((deadline - now) / 86400000);
+      }
+      var isUrgent = daysLeft !== null && daysLeft <= 3 && daysLeft >= 0 && progress < 100;
+      var circumference = 2 * Math.PI * 40;
+      var dashLen = progress / 100 * circumference;
+      var ringColor = isUrgent ? 'var(--red)' : 'var(--cyan)';
+      var ringSvg = '<svg viewBox="0 0 100 100" style="width:80px;height:80px;flex-shrink:0" aria-label="进度 ' + escAttr(String(progress)) + '%">' +
+        '<circle cx="50" cy="50" r="40" fill="none" stroke="var(--border)" stroke-width="8"/>' +
+        '<circle cx="50" cy="50" r="40" fill="none" stroke="' + ringColor + '" stroke-width="8" stroke-dasharray="' + dashLen + ' ' + (circumference-dashLen) + '" stroke-linecap="round" transform="rotate(-90 50 50)"/>' +
+        '<text x="50" y="50" text-anchor="middle" dy="0.35em" font-size="16" font-weight="700" fill="' + ringColor + '">' + escHtml(String(progress)) + '%</text></svg>';
+      var categories = [];
+      (g.mapped_categories && g.mapped_categories.tasks || []).forEach(function(row) { categories.push('任务：' + row.name); });
+      (g.mapped_categories && g.mapped_categories.achievements || []).forEach(function(row) { categories.push('成就：' + row.name); });
+      var categoryHtml = categories.map(function(name) { return '<span class="badge badge-cyan" style="margin:2px">' + escHtml(name) + '</span>'; }).join('');
+      var missingHtml = (g.missing_mappings || []).length ?
+        '<div class="dashboard-warning" style="margin-top:8px">⚠️ 有 ' + escHtml(g.missing_mappings.length) + ' 个分类映射已删除或不存在，请重新配置。</div>' : '';
+      var records = (g.related_records || []).slice(0, 100);
+      var recordRows = records.map(function(row) {
+        return '<tr><td>' + (row.kind === 'task' ? '📋 任务' : '🏆 成就') + '</td><td>' + escHtml(row.name || '-') +
+          '</td><td>' + escHtml(row.category_name || '-') + '</td><td>' +
+          '<span class="badge ' + (row.completed ? 'badge-green' : 'badge-cyan') + '">' + escHtml(row.status_label || '-') +
+          '</span></td><td>' + escHtml(row.updated_date || '-') + '</td></tr>';
+      }).join('');
+      var detailHtml = '<div style="margin-top:12px">' + categoryHtml + missingHtml +
+        '<div style="overflow:auto;max-height:320px;margin-top:10px"><table class="data-table"><thead><tr><th>类型</th><th>关联记录</th><th>分类</th><th>状态</th><th>最近更新</th></tr></thead><tbody>' +
+        (recordRows || '<tr><td colspan="5">当前映射分类下没有有效记录</td></tr>') + '</tbody></table></div>' +
+        ((g.related_records || []).length > records.length ? '<small>页面仅显示最近 100 条，API 保留全部关联记录。</small>' : '') + '</div>';
+      var deadlineHtml = g.deadline ? '⏰ 截止：' + escHtml(g.deadline) +
+        (daysLeft !== null ? (daysLeft >= 0 ? '（剩余 ' + escHtml(String(daysLeft)) + ' 天）' : '（已过期）') : '') : '⏰ 未设置截止日期';
+      return '<div class="goal-card' + (isUrgent ? ' urgent' : '') + '" onclick="toggleGoalDetail(' + index + ')" style="display:flex;gap:16px;align-items:flex-start">' +
+        ringSvg + '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">' + escHtml(g.title) + '</div>' +
+        '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + escHtml(g.description || '未填写说明') + '</div>' +
+        '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin-bottom:6px"><span>✅ ' + escHtml(String(g.current_count == null ? 0 : g.current_count)) + ' / ' + escHtml(String(g.target_count)) + '</span>' +
+        '<span>📎 关联 ' + escHtml(String(g.related_count == null ? 0 : g.related_count)) + ' 条</span><span>📈 近 ' + escHtml(String(g.recent_days)) + ' 天 +' + escHtml(String(g.recent_count == null ? 0 : g.recent_count)) + '</span></div>' +
+        '<div style="font-size:11px;color:' + (isUrgent ? 'var(--red)' : 'var(--text2)') + '">' + deadlineHtml + '</div>' +
+        '<div id="goalDetail' + index + '" style="display:none">' + detailHtml + '</div></div>' +
+        '<span style="font-size:11px;color:var(--text2)">▶</span></div>';
     }).join('');
-    var timelineHtml = '<div class="timeline" style="margin-top:12px">' + msHtml + '</div>';
+    c.innerHTML = sourceNote + '<div class="section-title">🌟 大道宏愿</div>' +
+      '<div style="font-size:12px;color:var(--text2);margin-bottom:16px">完成进度：' + goals.filter(function(g) { return g.progress >= 100; }).length + '/' + goals.length + ' 个宏愿</div>' +
+      cardsHtml + '<div class="btn-group" style="margin-top:16px"><button class="btn btn-primary btn-sm" onclick="openGoalConfig()">⚙️ 修改配置</button>' +
+      '<button class="btn btn-cyan btn-sm" onclick="loadGoals()">🔄 刷新真实数据</button></div>';
+  } catch(e) {
+    _goalOverviewCache = null;
+    c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>真实宏愿加载失败：' + escHtml(e.message) +
+      '<br><small>' + escHtml(e.suggestion || '请先载入有效的本地备份。') + '</small></div>';
+  }
+}
 
-    var goalClass = 'goal-card' + (isUrgent ? ' urgent' : '');
-    return '<div class="' + goalClass + '" onclick="toggleGoalDetail(' + g.id + ')" style="display:flex;gap:16px;align-items:flex-start">' +
-      ringSvg +
-      '<div style="flex:1">' +
-        '<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">' + g.title + '</div>' +
-        '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + g.desc + '</div>' +
-        '<div style="font-size:11px;color:' + (isUrgent?'var(--red)':'var(--text2)') + '">⏰ 截止：' + g.deadline +
-          (daysLeft >= 0 ? '（剩余 <b>' + daysLeft + '</b> 天）' : '（已过期）') +
-        '</div>' +
-        '<div id="goalDetail' + g.id + '" style="display:none">' + timelineHtml + '</div>' +
-      '</div>' +
-      '<span style="font-size:11px;color:var(--text2);cursor:pointer" onclick="event.stopPropagation();toggleGoalDetail(' + g.id + ')">▶</span>' +
-    '</div>';
+var _goalDraftRows = [];
+
+function newGoalDraft() {
+  return {
+    id: 'goal-' + Date.now() + '-' + (_goalDraftRows.length + 1),
+    title: '', description: '', target_count: 1, deadline: '',
+    task_category_ids: [], achievement_category_ids: []
+  };
+}
+
+function syncGoalDraftFromForm() {
+  _goalDraftRows.forEach(function(goal, index) {
+    var title = document.getElementById('goalTitle' + index);
+    if (!title) return;
+    goal.title = title.value.trim();
+    goal.description = (document.getElementById('goalDescription' + index).value || '').trim();
+    goal.target_count = Number(document.getElementById('goalTarget' + index).value);
+    goal.deadline = document.getElementById('goalDeadline' + index).value || '';
+    goal.task_category_ids = Array.from(document.querySelectorAll('.goal-task-' + index + ':checked')).map(function(input) { return Number(input.value); });
+    goal.achievement_category_ids = Array.from(document.querySelectorAll('.goal-achievement-' + index + ':checked')).map(function(input) { return Number(input.value); });
+  });
+}
+
+function goalCategoryCheckboxes(kind, goalIndex, options, selectedIds) {
+  var selected = new Set((selectedIds || []).map(Number));
+  if (!options || options.length === 0) return '<span style="font-size:12px;color:var(--text2)">没有可用分类</span>';
+  return options.map(function(option) {
+    var checkboxClass = kind === 'task' ? 'goal-task-' + goalIndex : 'goal-achievement-' + goalIndex;
+    return '<label style="display:inline-flex;align-items:center;gap:5px;margin:3px 8px 3px 0;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer">' +
+      '<input type="checkbox" class="' + checkboxClass + '" value="' + escAttr(option.id) + '"' + (selected.has(Number(option.id)) ? ' checked' : '') + '>' +
+      escHtml(option.name || '-') + '</label>';
   }).join('');
+}
 
-  c.innerHTML =
-    demoDataBanner('大道宏愿') +
-    '<div class="section-title">🌟 大道宏愿</div>' +
-    '<div style="font-size:12px;color:var(--text2);margin-bottom:16px">完成进度：' + goals.filter(function(g){ return g.progress >= 100; }).length + '/' + goals.length + ' 个宏愿</div>' +
-    cardsHtml +
-    '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadGoals()">🔄 刷新</button></div>';
+function renderGoalConfigModal() {
+  var options = (_goalOverviewCache && _goalOverviewCache.category_options) || { tasks: [], achievements: [] };
+  var rowsHtml = _goalDraftRows.map(function(goal, index) {
+    return '<div class="card" style="padding:14px;margin-bottom:12px">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><strong>宏愿 ' + (index + 1) + '</strong>' +
+      '<button class="btn btn-red btn-sm" onclick="removeGoalDraft(' + index + ')">移除</button></div>' +
+      '<div class="form-row"><div class="form-group"><label>标题</label><input id="goalTitle' + index + '" maxlength="100" value="' + escAttr(goal.title || '') + '" placeholder="例如：完成筑基修炼"></div>' +
+      '<div class="form-group"><label>目标完成数</label><input id="goalTarget' + index + '" type="number" min="1" max="1000000" step="1" value="' + escAttr(goal.target_count || 1) + '"></div></div>' +
+      '<div class="form-row"><div class="form-group"><label>截止日期（可选）</label><input id="goalDeadline' + index + '" type="date" value="' + escAttr(goal.deadline || '') + '"></div>' +
+      '<div class="form-group"><label>配置 ID</label><input value="' + escAttr(goal.id) + '" readonly style="background:var(--bg3)"></div></div>' +
+      '<div class="form-group"><label>说明（可选）</label><textarea id="goalDescription' + index + '" maxlength="500" placeholder="说明这个宏愿为什么重要">' + escHtml(goal.description || '') + '</textarea></div>' +
+      '<div class="form-group"><label>映射任务分类</label><div>' + goalCategoryCheckboxes('task', index, options.tasks, goal.task_category_ids) + '</div></div>' +
+      '<div class="form-group"><label>映射自定义成就分类</label><div>' + goalCategoryCheckboxes('achievement', index, options.achievements, goal.achievement_category_ids) + '</div></div>' +
+      '<small style="color:var(--text2)">至少选择一个分类。进度按映射分类中已完成的任务和自定义成就数量计算。</small></div>';
+  }).join('');
+  showModal('⚙️ 配置真实宏愿',
+    '<div class="source-page-note">配置保存在独立的 <code>lifeup_goal_mappings.json</code>，不会写入或改变 LifeUp 备份。保存后页面会重新读取真实记录。</div>' +
+    (rowsHtml || '<div class="empty" style="padding:24px">当前没有宏愿。点击下方按钮新增。</div>') +
+    '<button class="btn btn-cyan btn-sm" onclick="addGoalDraft()">➕ 添加宏愿</button>' +
+    '<div id="goalConfigStatus" aria-live="polite" style="margin-top:10px;font-size:12px;color:var(--text2)"></div>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+    '<button class="btn btn-primary" id="goalConfigSaveBtn" onclick="saveGoalConfig()">保存配置</button></div>', true);
+}
+
+async function openGoalConfig() {
+  if (dataSource === 'cloud') return toast('请先切换到本地备份模式', 'error');
+  try {
+    if (!_goalOverviewCache) _goalOverviewCache = await api('/api/goals?source=local');
+    _goalDraftRows = JSON.parse(JSON.stringify(((_goalOverviewCache.config || {}).goals) || []));
+    if (_goalDraftRows.length === 0) _goalDraftRows.push(newGoalDraft());
+    renderGoalConfigModal();
+  } catch(e) {
+    toast('读取宏愿配置失败：' + e.message, 'error');
+  }
+}
+
+function addGoalDraft() {
+  syncGoalDraftFromForm();
+  _goalDraftRows.push(newGoalDraft());
+  renderGoalConfigModal();
+}
+
+function removeGoalDraft(index) {
+  syncGoalDraftFromForm();
+  _goalDraftRows.splice(index, 1);
+  renderGoalConfigModal();
+}
+
+async function saveGoalConfig() {
+  syncGoalDraftFromForm();
+  var status = document.getElementById('goalConfigStatus');
+  var button = document.getElementById('goalConfigSaveBtn');
+  if (button) button.disabled = true;
+  if (status) status.textContent = '正在校验并保存...';
+  try {
+    await api('/api/goals/config', {
+      method: 'POST',
+      body: JSON.stringify({ source: 'local', version: 1, goals: _goalDraftRows })
+    });
+    closeModal();
+    _goalOverviewCache = null;
+    toast('宏愿配置已保存，正在刷新真实进度');
+    await loadGoals();
+  } catch(e) {
+    if (status) status.textContent = '保存失败：' + e.message;
+    toast('宏愿配置保存失败：' + e.message, 'error');
+    if (button) button.disabled = false;
+  }
 }
 
 /* =================================================================================
  *  PAGE 1E: Review — 道行复盘
  * ================================================================================= */
+function reviewMetricValue(metric, key) {
+  if (!metric || metric.available !== true || metric.value === null || metric.value === undefined) return '--';
+  if (key === 'focus_minutes') return formatMinutes(Number(metric.value) || 0);
+  var value = Number(metric.value) || 0;
+  return (key === 'coin_change' || key === 'exp_change') && value > 0 ? '+' + value : String(value);
+}
+function reviewRecordTable(records, key, emptyText) {
+  records = Array.isArray(records) ? records : [];
+  if (!records.length) return '<div class="empty" style="padding:14px">' + escHtml(emptyText) + '</div>';
+  var rows = records.map(function(record) {
+    var rawValue = Number(record.value) || 0;
+    var value = key === 'focus_minutes' ? formatMinutes(rawValue) :
+      ((key === 'coin_change' || key === 'exp_change') && rawValue > 0 ? '+' + rawValue : String(rawValue));
+    return '<tr><td>' + escHtml(record.time || record.date || '-') + '</td>' +
+      '<td><strong>' + escHtml(record.name || '未命名记录') + '</strong><div style="font-size:11px;color:var(--text2)">' + escHtml(record.detail || '') + '</div></td>' +
+      '<td>' + escHtml(value) + '</td><td><code>' + escHtml(record.source_label || '-') + '</code></td></tr>';
+  }).join('');
+  return '<div style="overflow:auto"><table><thead><tr><th>时间</th><th>记录</th><th>计入值</th><th>来源</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+function reviewMetricDetails(key, metric, windowInfo) {
+  if (!metric || metric.available !== true) {
+    return '<details class="stat-card" style="text-align:left"><summary><strong>' + escHtml((metric && metric.label) || key) + '：暂无足够数据</strong></summary>' +
+      '<div class="dashboard-warning" style="margin-top:12px">' + escHtml((metric && metric.missing_reason) || '没有可追溯的来源记录。') + '</div></details>';
+  }
+  return '<details class="stat-card" style="text-align:left"><summary><strong>' + escHtml(metric.label || key) + ' 来源明细</strong> ' +
+    '<span style="color:var(--text2);font-size:11px">本期 ' + Number(metric.record_count || 0) + ' 条 / 对比期 ' + Number(metric.previous_record_count || 0) + ' 条</span></summary>' +
+    '<div class="section-title" style="margin-top:14px">' + escHtml(windowInfo.label || '本期') + '</div>' +
+    reviewRecordTable(metric.current_records, key, '本期没有对应记录，数值为 0。') +
+    '<div class="section-title" style="margin-top:14px">' + escHtml(windowInfo.comparison_label || '上一周期') + '</div>' +
+    reviewRecordTable(metric.previous_records, key, '对比期没有对应记录，数值为 0。') + '</details>';
+}
 async function loadReview() {
   var c = document.getElementById('content');
-  var m = getMockCultivationData();
   var period = _reviewPeriod;
-
-  // 周期切换
-  var periodBtns = '<div class="lvl-group" style="margin-bottom:16px">' +
-    '<button class="lvl-btn' + (period==='week'?' active':'') + '" onclick="setReviewPeriod(\'week\')">📅 本周</button>' +
-    '<button class="lvl-btn' + (period==='month'?' active':'') + '" onclick="setReviewPeriod(\'month\')">📆 本月</button>' +
-    '<button class="lvl-btn' + (period==='year'?' active':'') + '" onclick="setReviewPeriod(\'year\')">📊 本年</button>' +
-  '</div>';
-
-  // 根据周期获取数据
-  var focusMin, lastFocusMin, habitsDone, lastHabitsDone, expGained, lastExpGained, goalsDone, lastGoalsDone;
-  if (period === 'week') {
-    focusMin = m.weekFocusMin; lastFocusMin = m.lastWeekFocus;
-    habitsDone = m.weekHabits; lastHabitsDone = m.lastWeekHabits;
-    expGained = m.weekExp; lastExpGained = m.lastWeekExp;
-    goalsDone = m.weekGoals; lastGoalsDone = m.lastWeekGoals;
-  } else if (period === 'month') {
-    focusMin = m.monthFocusMin; lastFocusMin = m.lastMonthFocus;
-    habitsDone = m.monthHabits; lastHabitsDone = m.lastMonthHabits;
-    expGained = m.monthExp; lastExpGained = m.lastMonthExp;
-    goalsDone = m.monthGoals; lastGoalsDone = m.lastMonthGoals;
-  } else {
-    focusMin = m.monthFocusMin * 8; lastFocusMin = m.lastMonthFocus * 7;
-    habitsDone = m.monthHabits * 8; lastHabitsDone = m.lastMonthHabits * 7;
-    expGained = m.monthExp * 8; lastExpGained = m.lastMonthExp * 7;
-    goalsDone = m.monthGoals * 6; lastGoalsDone = m.lastMonthGoals * 5;
+  var source = dataSource === 'cloud' ? 'cloud' : 'local';
+  c.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在读取真实任务、番茄、经济和成就记录...</p></div>';
+  try {
+    var payload = await api('/api/review?source=' + source + '&period=' + encodeURIComponent(period));
+    if (dataSource !== source || !payload.meta || payload.meta.source !== source) return;
+    var meta = payload.meta || {}, windowInfo = payload.window || {}, metrics = payload.metrics || {};
+    var periodBtns = '<div class="lvl-group" style="margin-bottom:16px">' +
+      '<button class="lvl-btn' + (period==='week'?' active':'') + '" onclick="setReviewPeriod(\'week\')">📅 本周</button>' +
+      '<button class="lvl-btn' + (period==='month'?' active':'') + '" onclick="setReviewPeriod(\'month\')">📆 本月</button>' +
+      '<button class="lvl-btn' + (period==='year'?' active':'') + '" onclick="setReviewPeriod(\'year\')">📊 本年</button></div>';
+    var sourceNote = '<div class="source-page-note"><span class="badge ' + (source === 'cloud' ? 'badge-cyan' : 'badge-purple') + '">' + escHtml(meta.source_label || source) + '</span> ' +
+      escHtml((windowInfo.start || '-') + ' 至 ' + (windowInfo.end || '-') + '，与 ' + (windowInfo.previous_start || '-') + ' 至 ' + (windowInfo.previous_end || '-') + ' 对比；' + (windowInfo.timezone_label || '电脑本地时区')) +
+      (meta.refreshed_at ? '。刷新：' + escHtml(meta.refreshed_at) : '') + '</div>';
+    var order = ['focus_minutes','tasks_completed','coin_change','exp_change','achievements_completed'];
+    var icons = { focus_minutes:'🧘', tasks_completed:'📿', coin_change:'💎', exp_change:'✨', achievements_completed:'🌟' };
+    var colors = { focus_minutes:'gold', tasks_completed:'cyan', coin_change:'gold', exp_change:'purple', achievements_completed:'green' };
+    var cards = '<div class="stats-grid">' + order.map(function(key) {
+      var metric = metrics[key] || {};
+      var trend = metric.available === true ? trendArrow(Number(metric.value) || 0, Number(metric.previous_value) || 0) : '<span class="trend-flat">暂无足够数据</span>';
+      return '<div class="stat-card"><div class="stat-label">' + icons[key] + ' ' + escHtml(metric.label || key) + '</div><div class="stat-value ' + colors[key] + '">' + escHtml(reviewMetricValue(metric, key)) + '</div>' +
+        '<div style="font-size:11px;margin-top:4px">' + trend + ' <span style="color:var(--text2)">对比 ' + escHtml(windowInfo.comparison_label || '上一周期') + '</span></div></div>';
+    }).join('') + '</div>';
+    var focusBars = (payload.series || []).filter(function(row){ return row.focus_minutes !== null; }).map(function(row){ return { label: row.label, value: Number(row.focus_minutes) || 0 }; });
+    var taskBars = (payload.series || []).filter(function(row){ return row.tasks_completed !== null; }).map(function(row){ return { label: row.label, value: Number(row.tasks_completed) || 0 }; });
+    var gaps = (payload.gaps || []).map(function(text){ return '<div class="dashboard-warning">⚠️ ' + escHtml(text) + '</div>'; }).join('');
+    var insights = (payload.insights || []).map(function(item){ return '<div class="insight-card"><span style="font-size:18px;margin-right:8px">' + escHtml(item.icon || 'ℹ️') + '</span><span style="font-size:13px;color:var(--text)">' + escHtml(item.text || '') + '</span></div>'; }).join('');
+    var details = order.map(function(key){ return reviewMetricDetails(key, metrics[key] || {}, windowInfo); }).join('');
+    c.innerHTML = sourceNote + periodBtns + gaps + cards +
+      buildBarChart(focusBars, '📊 ' + escHtml(windowInfo.label || '本期') + '番茄分钟', 'cyan') +
+      buildBarChart(taskBars, '📋 ' + escHtml(windowInfo.label || '本期') + '完成任务', 'gold') +
+      '<div class="section-title">🔎 来源明细</div>' + details +
+      '<div class="section-title">🧠 基于真实记录的观察</div>' + (insights || '<div class="empty">暂无足够数据生成观察。</div>') +
+      '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadReview()">🔄 刷新</button></div>';
+  } catch(e) {
+    c.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div>真实复盘加载失败<br><small>' + escHtml(e.message) + '</small><br><button class="btn btn-cyan" style="margin-top:14px" onclick="loadReview()">重试</button></div>';
   }
-
-  // 汇总卡片
-  var summaryCards = '<div class="stats-grid">' +
-    '<div class="stat-card"><div class="stat-label">🧘 总闭关时长</div><div class="stat-value gold">' + formatMinutes(focusMin) + '</div><div style="font-size:11px;margin-top:4px">' + trendArrow(focusMin, lastFocusMin) + '</div></div>' +
-    '<div class="stat-card"><div class="stat-label">📿 完成功课数</div><div class="stat-value cyan">' + habitsDone + '</div><div style="font-size:11px;margin-top:4px">' + trendArrow(habitsDone, lastHabitsDone) + '</div></div>' +
-    '<div class="stat-card"><div class="stat-label">✨ 获得修为</div><div class="stat-value purple">' + expGained + '</div><div style="font-size:11px;margin-top:4px">' + trendArrow(expGained, lastExpGained) + '</div></div>' +
-    '<div class="stat-card"><div class="stat-label">🌟 目标达成</div><div class="stat-value green">' + goalsDone + '</div><div style="font-size:11px;margin-top:4px">' + trendArrow(goalsDone, lastGoalsDone) + '</div></div>' +
-  '</div>';
-
-  // 周期对比柱状图
-  var now = new Date();
-  var barData = [];
-  var labelPrefix = period === 'year' ? '月' : '日';
-  var count = period === 'year' ? 12 : 7;
-  for (var i = count-1; i >= 0; i--) {
-    var bd = new Date(now);
-    if (period === 'year') bd.setMonth(now.getMonth() - i);
-    else bd.setDate(now.getDate() - i);
-    var lbl = period === 'year' ? (bd.getMonth()+1)+'月' : (bd.getMonth()+1)+'/'+bd.getDate();
-    var val = Math.floor(Math.random() * 120) + 30;
-    barData.push({ label: lbl, value: val, color: (i >= count/2?'cyan':'border') });
-  }
-
-  // 雷达图：六维属性增长
-  var radarData = [
-    { label: '体质', value: Math.floor(Math.random()*30)+50 },
-    { label: '神识', value: Math.floor(Math.random()*30)+45 },
-    { label: '灵力', value: Math.floor(Math.random()*30)+55 },
-    { label: '悟性', value: Math.floor(Math.random()*30)+60 },
-    { label: '根骨', value: Math.floor(Math.random()*30)+40 },
-    { label: '机缘', value: Math.floor(Math.random()*30)+48 }
-  ];
-
-  // 修行洞察
-  var insights = [];
-  if (focusMin < lastFocusMin) {
-    insights.push({ icon: '⏱️', text: '本周期闭关时长有所下降，建议每日至少留出30分钟专注修炼时间。' });
-  } else if (focusMin > lastFocusMin * 1.2) {
-    insights.push({ icon: '🚀', text: '闭关时长大幅提升！保持这股势头，突破大境界指日可待。' });
-  } else {
-    insights.push({ icon: '✅', text: '闭关时长稳定，修行节奏良好。可以尝试增加单次修炼时长以获取更多修为。' });
-  }
-
-  if (m.dailyCompletion < 70) {
-    insights.push({ icon: '📋', text: '日常功课完成率偏低（' + m.dailyCompletion + '%），建议重点补上未完成的功课以维持修炼连续性。' });
-  } else if (m.dailyCompletion >= 90) {
-    insights.push({ icon: '🏆', text: '功课完成率优秀（' + m.dailyCompletion + '%），每日精进，功不唐捐！' });
-  } else {
-    insights.push({ icon: '📿', text: '功课完成率良好，再坚持一下就能达到圆满。薄弱环节需要额外关注。' });
-  }
-
-  var maxStreak = Math.max.apply(null, m.habits.map(function(h){ return h.streak; }));
-  if (maxStreak < 10) {
-    insights.push({ icon: '🔥', text: '连续打卡天数偏少，建议保持每日修炼习惯，连续打卡奖励会越来越丰厚。' });
-  } else {
-    insights.push({ icon: '💪', text: '连续打卡记录优秀（最高' + maxStreak + '天），自律成就自由！' });
-  }
-
-  var urgentGoals = m.goals.filter(function(g){
-    var dl = new Date(g.deadline);
-    var days = Math.ceil((dl - new Date()) / (1000*60*60*24));
-    return days <= 7 && days >= 0 && g.progress < 100;
-  });
-  if (urgentGoals.length > 0) {
-    insights.push({ icon: '⚠️', text: '有 ' + urgentGoals.length + ' 个宏愿临近截止（' + urgentGoals.map(function(g){ return g.title; }).join('、') + '），请优先推进。' });
-  } else if (m.goals.filter(function(g){ return g.progress >= 100; }).length === m.goals.length) {
-    insights.push({ icon: '🌟', text: '所有大道宏愿均已完成！是时候设立新的目标，继续攀登更高境界了。' });
-  } else {
-    insights.push({ icon: '📈', text: '目标进度正常推进中，继续保持。建议每周回顾一次里程碑完成情况。' });
-  }
-
-  // 追加一条通用建议
-  insights.push({ icon: '💡', text: '修行如逆水行舟，不进则退。建议每天早晨查看功课清单，晚上复盘当日修行成果。' });
-
-  var insightHtml = insights.map(function(item) {
-    return '<div class="insight-card"><span style="font-size:18px;margin-right:8px">' + item.icon + '</span><span style="font-size:13px;color:var(--text)">' + item.text + '</span></div>';
-  }).join('');
-
-  c.innerHTML = demoDataBanner('道行复盘') + periodBtns + summaryCards +
-    buildBarChart(barData, period==='week'?'📊 本周 vs 上周 每日修炼对比':'📊 周期修炼对比', 'cyan') +
-    buildRadarChart(radarData, '🛡️ 六维属性增长雷达图', 100) +
-    '<div class="section-title">🧠 修行洞察</div>' + insightHtml +
-    '<div class="btn-group" style="margin-top:16px"><button class="btn btn-cyan btn-sm" onclick="loadReview()">🔄 刷新</button></div>';
 }
 
 /* =================================================================================
@@ -2381,6 +3060,7 @@ async function loadTasks(filterArg) {
       '</div>' +
       '<div class="btn-group">' +
         (dataSource === 'cloud' ? '<button class="btn btn-primary" onclick="openCloudTaskComposer()">➕ 新增手机任务</button>' : '<button class="btn btn-primary" onclick="showAddTask()">➕ 新建任务</button>') +
+        (dataSource === 'cloud' ? '' : '<button class="btn btn-green" onclick="openTaskImportDialog()">📥 CSV/JSON 批量导入</button>') +
         '<button class="btn btn-cyan btn-sm" onclick="loadTasks()">🔄 刷新</button>' +
         '<span style="color:var(--text2);font-size:12px">筛选：</span>' +
         '<span class="filter-tag' + (filter==='all'?' active':'') + '" onclick="loadTasks(\'all\')">全部</span>' +
@@ -3058,7 +3738,7 @@ async function loadItems() {
       return '<tr>' +
         '<td>' + (cloudReadOnly ? '' : '<input type="checkbox" class="batch-check item-check" value="' + escAttr(i.id) + '" onchange="updateBatchBar(\'items\')">') + '</td>' +
         '<td>' + escHtml(i.id||'') + '</td>' +
-        '<td>' + safeIconHtml(i.icon, '📦') + ' ' + escHtml(i.name||'?') + '</td>' +
+        '<td>' + safeIconHtml(i.icon_url || i.icon, '📦') + ' ' + escHtml(i.name||'?') + '</td>' +
         '<td><span class="badge badge-gold">🪙 ' + escHtml(i.price||0) + '</span></td>' +
         '<td>' + escHtml(i.count == -1 ? '∞' : i.count||0) + '</td>' +
         '<td>📦 ' + escHtml(i.inventory_count||0) + '</td>' +
@@ -3084,6 +3764,7 @@ async function loadItems() {
       '</div>' +
       '<div class="btn-group">' +
         (dataSource === 'cloud' ? '<span class="badge badge-cyan">商品云端新增放到下一版</span>' : '<button class="btn btn-primary" onclick="showAddItem()">➕ 新建商品</button>') +
+        (dataSource === 'cloud' ? '' : '<button class="btn btn-green" onclick="openItemImportDialog()">📥 商品 CSV/JSON 批量导入</button>') +
         '<button class="btn btn-cyan btn-sm" onclick="loadItems()">🔄 刷新</button>' +
         '<span style="color:var(--text2);font-size:12px">共 ' + items.length + ' 件</span>' +
         '<span style="margin-left:auto"></span>' +
@@ -3911,6 +4592,12 @@ function deleteItem(id) {
 /* =================================================================================
  *  PAGE 4: Achievements — 成就管理
  * ================================================================================= */
+var achievementCollapsedSubcategories = {};
+var achievementFormRecords = [];
+var achievementFormEditingId = null;
+var achievementFormOriginalType = null;
+var achievementFormTypeChanged = false;
+
 async function loadAchievements() {
   var search = pageStates.achievements.search;
   var catId = pageStates.achievements.category;
@@ -3927,17 +4614,43 @@ async function loadAchievements() {
     var sysAch = dataSource === 'cloud' ? [] : await api('/api/achievements/system').catch(function(){ return []; });
     var statusMap = {0:'🔒 未解锁', 1:'🔓 已解锁', 2:'🎁 已领取'};
 
+    var normalAchievements = ach.filter(function(a) { return Number(a.type) !== 1; });
+    var subcategories = ach.filter(function(a) { return Number(a.type) === 1; });
     var rows = ach.map(function(a) {
       var cloudReadOnly = dataSource === 'cloud' || a.read_only;
-      return '<tr>' +
+      var isSubcategory = Number(a.type) === 1 || a.record_kind === 'subcategory';
+      if (isSubcategory) {
+        var collapsed = !search && !!achievementCollapsedSubcategories[a.id];
+        return '<tr class="achievement-subcategory-row">' +
+          '<td>' + escHtml(a.id||'') + '</td>' +
+          '<td><button type="button" class="achievement-subcategory-toggle" onclick="toggleAchievementSubcategory(' + Number(a.id) + ')" aria-expanded="' + (!collapsed) + '">' +
+            '<span class="chevron" id="achSubToggle' + escAttr(a.id) + '">' + (collapsed ? '▸' : '▾') + '</span>' +
+            '<span>📁 ' + escHtml(a.name||'未命名子分类') + '</span></button>' +
+            '<small style="color:var(--text2);margin-left:8px">' + escHtml(String(a.subcategory_child_count||0)) + ' 个成就</small></td>' +
+          '<td><span class="badge badge-purple">' + escHtml(a.category_name||'-') + '</span></td>' +
+          '<td><span class="badge badge-cyan">子分类</span></td>' +
+          '<td>—</td><td>可折叠分组标题</td>' +
+          '<td>' + (cloudReadOnly ? '<span class="badge badge-cyan">只读</span>' :
+            '<button class="btn btn-cyan btn-sm" onclick="editAchievement(' + Number(a.id) + ')">✏️</button>' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteAchievement(' + Number(a.id) + ',1)">🗑️</button>') + '</td>' +
+          '</tr>';
+      }
+      var childClass = a.subcategory_id ? ' achievement-child-row' : '';
+      var childAttr = a.subcategory_id ? ' data-achievement-subcategory="' + escAttr(a.subcategory_id) + '"' : '';
+      var childStyle = a.subcategory_id && !search && achievementCollapsedSubcategories[a.subcategory_id] ? ' style="display:none"' : '';
+      var nameHtml = a.subcategory_id
+        ? '<span class="achievement-child-name"><span class="achievement-child-guide">↳</span>' + safeIconHtml(a.icon_url || a.icon, '🏆') + ' <strong>' + escHtml(a.name||'?') + '</strong></span>'
+        : safeIconHtml(a.icon_url || a.icon, '🏆') + ' <strong>' + escHtml(a.name||'?') + '</strong>';
+      return '<tr class="achievement-row' + childClass + '"' + childAttr + childStyle + '>' +
         '<td>' + escHtml(a.id||'') + '</td>' +
-        '<td>' + safeIconHtml(a.icon, '🏆') + ' <strong>' + escHtml(a.name||'?') + '</strong></td>' +
-        '<td><span class="badge badge-purple">' + escHtml(a.category_name||'-') + '</span></td>' +
+        '<td>' + nameHtml + '</td>' +
+        '<td><span class="badge badge-purple">' + escHtml(a.category_name||'-') + '</span>' +
+          (a.subcategory_name ? '<br><small style="color:var(--text2)">↳ ' + escHtml(a.subcategory_name) + '</small>' : '') + '</td>' +
         '<td><span class="badge badge-' + (a.achievementstatus>=1?'green':'red') + '">' + escHtml(statusMap[a.achievementstatus]||a.achievementstatus) + '</span></td>' +
         '<td>🪙 ' + escHtml(a.coin||0) + '</td>' +
         '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + escHtml(a.description||'') + '</td>' +
         '<td>' +
-          (cloudReadOnly ? '<span class="badge badge-cyan">只读</span>' : '<button class="btn btn-cyan btn-sm" onclick="editAchievement(' + a.id + ')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteAchievement(' + a.id + ')">🗑️</button>') +
+          (cloudReadOnly ? '<span class="badge badge-cyan">只读</span>' : '<button class="btn btn-cyan btn-sm" onclick="editAchievement(' + Number(a.id) + ')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteAchievement(' + Number(a.id) + ',0)">🗑️</button>') +
         '</td>' +
       '</tr>';
     }).join('');
@@ -3952,18 +4665,19 @@ async function loadAchievements() {
         '<input class="search-input" id="achSearch" placeholder="🔍 搜索成就名称或描述..." value="' + escHtml(search) + '" onkeydown="if(event.key===\'Enter\')achSearch()">' +
         '<button class="btn btn-cyan btn-sm" onclick="achSearch()">搜索</button>' +
         (search ? '<span class="search-clear" onclick="achClearSearch()">✕ 清除</span>' : '') +
-        '<span style="margin-left:8px;color:var(--text2);font-size:12px">分类：</span>' +
+        '<span style="margin-left:8px;color:var(--text2);font-size:12px">大类：</span>' +
         '<select id="achCatFilter" onchange="achFilterCat()" style="padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:13px;max-width:150px">' + catOptsAch + '</select>' +
       '</div>' +
       '<div class="btn-group">' +
         (dataSource === 'cloud' ? '<span class="badge badge-cyan">成就云端新增/编辑放到下一版</span>' : '<button class="btn btn-primary" onclick="showAddAchievement()">➕ 新建成就</button>') +
+        (dataSource === 'cloud' ? '' : '<button class="btn btn-green" onclick="openAchievementImportDialog()">📥 成就 CSV/JSON 批量导入</button>') +
         '<button class="btn btn-cyan btn-sm" onclick="loadAchievements()">🔄 刷新</button>' +
-        '<span style="color:var(--text2);font-size:12px">自定义 ' + ach.length + ' 个 | 系统成就 ' + sysAch.length + ' 个</span>' +
+        '<span style="color:var(--text2);font-size:12px">自定义成就 ' + normalAchievements.length + ' 个 | 子分类 ' + subcategories.length + ' 个 | 系统成就 ' + sysAch.length + ' 个</span>' +
         '<span style="margin-left:auto"></span>' +
         '<button class="btn btn-sm btn-purple" onclick="exportTable(\'achievements\')">📥 导出</button>' +
       '</div>' +
       '<div style="overflow-x:auto"><table class="data-table">' +
-        '<thead><tr><th>ID</th><th>名称</th><th>分类</th><th>状态</th><th>奖励</th><th>描述</th><th>操作</th></tr></thead>' +
+        '<thead><tr><th>ID</th><th>名称</th><th>大类 / 子分类</th><th>状态</th><th>奖励</th><th>描述</th><th>操作</th></tr></thead>' +
         '<tbody>' + (rows || '<tr><td colspan="7" class="empty">暂无成就</td></tr>') + '</tbody>' +
       '</table></div>' +
       (sysAch.length > 0 ?
@@ -3978,6 +4692,20 @@ async function loadAchievements() {
     c.innerHTML = dataSource === 'cloud'
       ? '<div class="empty">❌ 手机云人升成就读取失败：' + escHtml(e.message) + '<br><small>请到“手机连接/新增任务”页检测连接，或切回本地备份。</small></div>'
       : '<div class="empty">❌ ' + escHtml(e.message) + '<br><small>请先打开备份存档</small></div>';
+  }
+}
+
+function toggleAchievementSubcategory(id) {
+  achievementCollapsedSubcategories[id] = !achievementCollapsedSubcategories[id];
+  var collapsed = achievementCollapsedSubcategories[id];
+  document.querySelectorAll('[data-achievement-subcategory="' + id + '"]').forEach(function(row) {
+    row.style.display = collapsed ? 'none' : '';
+  });
+  var icon = document.getElementById('achSubToggle' + id);
+  if (icon) {
+    icon.textContent = collapsed ? '▸' : '▾';
+    var button = icon.closest('button');
+    if (button) button.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   }
 }
 
@@ -3997,111 +4725,174 @@ function achFilterCat() {
 
 function showAddAchievement() {
   if (cloudReadOnlyGuard('新增成就')) return;
-  api('/api/categories/achievements').then(function(cats) {
-    var opts = cats.map(function(c) { return '<option value="' + c.id + '">' + (c.name||c.categoryname) + '</option>'; }).join('');
-    showAchievementForm('➕ 新建成就', '', 0, 100, 0, '', '', opts);
-  }).catch(function() { showAchievementForm('➕ 新建成就', '', 0, 100, 0, '', '', ''); });
+  Promise.all([
+    api('/api/categories/achievements').catch(function(){ return []; }),
+    api('/api/achievements').catch(function(){ return []; })
+  ]).then(function(results) {
+    var cats = results[0];
+    showAchievementForm('➕ 新建成就', {
+      id: null, name: '', type: 0, categoryid: cats.length ? cats[0].id : 0,
+      subcategory_id: null, coin: 100, exp: 0, icon: '', description: ''
+    }, cats, results[1], false);
+  }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
-function showAchievementForm(title, name, catId, coin, exp, icon, desc, catOpts) {
+
+function achievementCategoryOptions(cats, selectedId) {
+  return (cats || []).map(function(c) {
+    return '<option value="' + escAttr(c.id) + '"' + (String(c.id)===String(selectedId)?' selected':'') + '>' +
+      escHtml(c.name||c.categoryname||('大类 #' + c.id)) + '</option>';
+  }).join('');
+}
+
+function showAchievementForm(title, record, cats, allRecords, isEdit) {
+  achievementFormRecords = allRecords || [];
+  achievementFormEditingId = record.id == null ? null : Number(record.id);
+  var originalType = Number(record.type);
+  achievementFormOriginalType = isEdit && Number.isFinite(originalType) ? originalType : null;
+  achievementFormTypeChanged = false;
+  var type = originalType === 1 ? 1 : 0;
+  var conditionButton = isEdit
+    ? '<button class="btn" id="achConditionAction" style="background:var(--purple);color:#fff" onclick="closeModal();manageConditions(' + Number(record.id) + ')">🔗 条件管理</button>'
+    : '';
   showModal(title,
-    '<div class="form-group"><label>成就名称</label><input id="f_name" value="' + escAttr(name) + '" placeholder="如：筑基"></div>' +
-    '<div class="form-row">' +
-      '<div class="form-group"><label>分类</label>' + (catOpts ? '<select id="f_cat">' + catOpts + '</select>' : '<input id="f_catid" type="number" value="' + catId + '">') + '</div>' +
-      '<div class="form-group"><label>🪙 金币奖励</label><input id="f_coin" type="number" value="' + coin + '"></div>' +
+    '<input id="f_type" type="hidden" value="' + type + '">' +
+    '<div class="achievement-kind-toggle" role="group" aria-label="记录类型">' +
+      '<button type="button" id="f_type_normal" onclick="setAchievementFormType(0,null,true)">成就</button>' +
+      '<button type="button" id="f_type_subcategory" onclick="setAchievementFormType(1,null,true)">子分类</button>' +
     '</div>' +
+    '<div class="achievement-form-note">大类是顶部筛选中的成就分类；子分类是大类内部可折叠的分组标题。普通成就可放在某个子分类下，也可直属大类。</div>' +
+    '<div class="form-group"><label id="f_name_label">成就名称</label><input id="f_name" value="' + escAttr(record.name||'') + '" placeholder="如：筑基"></div>' +
     '<div class="form-row">' +
-      '<div class="form-group"><label>✨ 经验值</label><input id="f_exp" type="number" value="' + (exp||0) + '"></div>' +
-      '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(icon) + '" placeholder="https://..."></div>' +
+      '<div class="form-group"><label>大类</label><select id="f_cat" onchange="refreshAchievementSubcategoryOptions()">' + achievementCategoryOptions(cats, record.categoryid) + '</select></div>' +
+      '<div class="form-group" id="f_subcategory_group"><label>子分类（可选）</label><select id="f_subcategory"></select></div>' +
     '</div>' +
-    '<div class="form-group"><label>描述</label><textarea id="f_desc" placeholder="如：本源等级达到3级">' + escHtml(desc) + '</textarea></div>' +
+    '<div id="f_achievement_details">' +
+      '<div class="form-row">' +
+        '<div class="form-group"><label>🪙 金币奖励</label><input id="f_coin" type="number" value="' + escAttr(record.coin||0) + '"></div>' +
+        '<div class="form-group"><label>✨ 经验值</label><input id="f_exp" type="number" value="' + escAttr(record.exp||0) + '"></div>' +
+      '</div>' +
+      '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(record.icon||'') + '" placeholder="https://..."></div>' +
+      '<div class="form-group"><label>描述</label><textarea id="f_desc" placeholder="如：本源等级达到3级">' + escHtml(record.description||'') + '</textarea></div>' +
+    '</div>' +
     '<div class="modal-actions">' +
-      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
-      '<button class="btn btn-primary" id="achSubmitBtn" onclick="addAchievement()">创建</button>' +
+      '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' + conditionButton +
+      '<button class="btn btn-primary" id="achSubmitBtn" onclick="' + (isEdit ? 'updateAchievement(' + Number(record.id) + ')' : 'addAchievement()') + '">' + (isEdit ? '保存' : '创建') + '</button>' +
     '</div>'
   );
+  setAchievementFormType(type, record.subcategory_id, false);
+}
+
+function setAchievementFormType(type, selectedSubcategoryId, userInitiated) {
+  type = Number(type) === 1 ? 1 : 0;
+  if (userInitiated) achievementFormTypeChanged = true;
+  var input = document.getElementById('f_type');
+  if (!input) return;
+  input.value = type;
+  var normalButton = document.getElementById('f_type_normal');
+  var subcategoryButton = document.getElementById('f_type_subcategory');
+  if (normalButton) normalButton.classList.toggle('active', type === 0);
+  if (subcategoryButton) subcategoryButton.classList.toggle('active', type === 1);
+  var details = document.getElementById('f_achievement_details');
+  var subcategoryGroup = document.getElementById('f_subcategory_group');
+  if (details) details.style.display = type === 0 ? '' : 'none';
+  if (subcategoryGroup) subcategoryGroup.style.display = type === 0 ? '' : 'none';
+  var nameLabel = document.getElementById('f_name_label');
+  if (nameLabel) nameLabel.textContent = type === 0 ? '成就名称' : '子分类名称';
+  var conditionAction = document.getElementById('achConditionAction');
+  if (conditionAction) conditionAction.style.display = type === 0 ? '' : 'none';
+  refreshAchievementSubcategoryOptions(selectedSubcategoryId);
+}
+
+function refreshAchievementSubcategoryOptions(selectedId) {
+  var select = document.getElementById('f_subcategory');
+  var categorySelect = document.getElementById('f_cat');
+  if (!select || !categorySelect) return;
+  var categoryId = String(categorySelect.value);
+  var currentValue = selectedId == null ? select.value : String(selectedId);
+  var options = achievementFormRecords.filter(function(row) {
+    return Number(row.type) === 1 && String(row.categoryid) === categoryId &&
+      Number(row.id) !== Number(achievementFormEditingId);
+  });
+  select.innerHTML = '<option value="">大类直属（不放入子分类）</option>' + options.map(function(row) {
+    return '<option value="' + escAttr(row.id) + '"' + (String(row.id)===currentValue?' selected':'') + '>' + escHtml(row.name||('子分类 #' + row.id)) + '</option>';
+  }).join('');
+}
+
+function collectAchievementData(id) {
+  var type = Number(document.getElementById('f_type').value) === 1 ? 1 : 0;
+  var categoryId = parseInt(document.getElementById('f_cat').value, 10) || 0;
+  var subcategorySelect = document.getElementById('f_subcategory');
+  var name = document.getElementById('f_name').value.trim();
+  if (!name) {
+    toast(type === 1 ? '请输入子分类名称' : '请输入成就名称', 'error');
+    return null;
+  }
+  if (!categoryId) {
+    toast('请选择大类', 'error');
+    return null;
+  }
+  var data = {
+    name: name,
+    category_id: categoryId,
+    subcategory_id: type === 0 && subcategorySelect && subcategorySelect.value ? parseInt(subcategorySelect.value, 10) : null,
+    coin: type === 0 ? (parseInt(document.getElementById('f_coin').value, 10) || 0) : 0,
+    exp: type === 0 ? (parseInt(document.getElementById('f_exp').value, 10) || 0) : 0,
+    icon: type === 0 ? document.getElementById('f_icon').value : '',
+    description: type === 0 ? document.getElementById('f_desc').value : ''
+  };
+  if (achievementFormOriginalType === null || achievementFormTypeChanged ||
+      achievementFormOriginalType === 0 || achievementFormOriginalType === 1) {
+    data.type = type;
+  }
+  if (id != null) data.id = id;
+  return data;
 }
 
 function addAchievement() {
   if (cloudReadOnlyGuard('新增成就')) return;
-  var data = {
-    name: document.getElementById('f_name').value,
-    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0,
-    coin: parseInt(document.getElementById('f_coin').value) || 0,
-    exp: parseInt(document.getElementById('f_exp').value) || 0,
-    icon: document.getElementById('f_icon').value,
-    description: document.getElementById('f_desc').value,
-    type: 0
-  };
-  if (!data.name) return toast('请输入成就名称', 'error');
+  var data = collectAchievementData(null);
+  if (!data) return;
   api('/api/achievements/add', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
     loadAchievements();
-    toast('✅ 成就创建成功');
+    toast(data.type === 1 ? '✅ 子分类创建成功' : '✅ 成就创建成功');
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
 function editAchievement(id) {
   if (cloudReadOnlyGuard('编辑成就')) return;
-  api('/api/achievements').then(function(ach) {
-    var a = ach.find(function(x) { return x.id === id; });
+  Promise.all([
+    api('/api/achievements'),
+    api('/api/categories/achievements')
+  ]).then(function(results) {
+    var ach = results[0];
+    var a = ach.find(function(x) { return Number(x.id) === Number(id); });
     if (!a) return toast('未找到成就', 'error');
-    api('/api/categories/achievements').then(function(cats) {
-      var opts = cats.map(function(c) {
-        return '<option value="' + c.id + '"' + (c.id===a.categoryid?' selected':'') + '>' + (c.name||c.categoryname) + '</option>';
-      }).join('');
-      showModal('✏️ 编辑成就 #' + id,
-        '<div class="form-group"><label>成就名称</label><input id="f_name" value="' + escAttr(a.name||'') + '"></div>' +
-        '<div class="form-row">' +
-          '<div class="form-group"><label>分类</label><select id="f_cat">' + opts + '</select></div>' +
-          '<div class="form-group"><label>🪙 金币</label><input id="f_coin" type="number" value="' + (a.coin||0) + '"></div>' +
-        '</div>' +
-        '<div class="form-row">' +
-          '<div class="form-group"><label>✨ 经验值</label><input id="f_exp" type="number" value="' + (a.exp||0) + '"></div>' +
-          '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(a.icon||'') + '"></div>' +
-        '</div>' +
-        '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(a.description||'') + '</textarea></div>' +
-        '<div class="modal-actions">' +
-          '<button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
-          '<button class="btn" style="background:var(--purple);color:#fff" onclick="closeModal();manageConditions(' + id + ')">🔗 条件管理</button>' +
-          '<button class="btn btn-primary" onclick="updateAchievement(' + id + ')">保存</button>' +
-        '</div>'
-      );
-    }).catch(function() {
-      showModal('✏️ 编辑成就 #' + id,
-        '<div class="form-group"><label>成就名称</label><input id="f_name" value="' + escAttr(a.name||'') + '"></div>' +
-        '<div class="form-row"><div class="form-group"><label>分类ID</label><input id="f_catid" type="number" value="' + (a.categoryid||0) + '"></div><div class="form-group"><label>💎 金币</label><input id="f_coin" type="number" value="' + (a.coin||0) + '"></div></div>' +
-        '<div class="form-group"><label>图标 URL</label><input id="f_icon" value="' + escAttr(a.icon||'') + '"></div>' +
-        '<div class="form-group"><label>描述</label><textarea id="f_desc">' + escHtml(a.description||'') + '</textarea></div>' +
-        '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="updateAchievement(' + id + ')">保存</button></div>'
-      );
-    });
+    showAchievementForm(
+      Number(a.type) === 1 ? '✏️ 编辑子分类 #' + id : '✏️ 编辑成就 #' + id,
+      a, results[1], ach, true
+    );
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
 function updateAchievement(id) {
   if (cloudReadOnlyGuard('保存成就修改')) return;
-  var data = {
-    id: id,
-    name: document.getElementById('f_name').value,
-    category_id: parseInt((document.getElementById('f_cat')||document.getElementById('f_catid')).value) || 0,
-    coin: parseInt(document.getElementById('f_coin').value) || 0,
-    exp: parseInt(document.getElementById('f_exp').value) || 0,
-    icon: document.getElementById('f_icon').value,
-    description: document.getElementById('f_desc').value
-  };
+  var data = collectAchievementData(id);
+  if (!data) return;
   api('/api/achievements/update', { method: 'POST', body: JSON.stringify(data) }).then(function() {
     closeModal();
     loadAchievements();
-    toast('✅ 已更新');
+    toast(data.type === 1 ? '✅ 子分类已更新' : '✅ 成就已更新');
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
-function deleteAchievement(id) {
-  if (cloudReadOnlyGuard('删除成就')) return;
-  if (!confirm('确定删除此成就？')) return;
+function deleteAchievement(id, type) {
+  var isSubcategory = Number(type) === 1;
+  if (cloudReadOnlyGuard(isSubcategory ? '删除子分类' : '删除成就')) return;
+  if (!confirm(isSubcategory ? '确定删除此子分类？只有空子分类可以删除。' : '确定删除此成就？')) return;
   api('/api/achievements/delete', { method: 'POST', body: JSON.stringify({id: id}) }).then(function() {
     loadAchievements();
-    toast('🗑️ 已删除');
+    toast(isSubcategory ? '🗑️ 子分类已删除' : '🗑️ 成就已删除');
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
 }
 
@@ -4197,6 +4988,226 @@ function addCondition(achId) {
     toast('✅ 条件已添加');
     manageConditions(achId);
   }).catch(function(e) { toast('❌ ' + e.message, 'error'); });
+}
+
+/* =================================================================================
+ *  Task 10: Icons — 图标资源管理器
+ * ================================================================================= */
+function iconFileSize(value) {
+  var size = Number(value);
+  if (!Number.isFinite(size) || size < 0) return '未知';
+  if (size >= 1024 * 1024) return (size / (1024 * 1024)).toFixed(2) + ' MiB';
+  if (size >= 1024) return (size / 1024).toFixed(1) + ' KiB';
+  return size + ' B';
+}
+function iconReferenceNames(references) {
+  if (!Array.isArray(references) || !references.length) return '无直接文件名引用';
+  return references.map(function(reference) {
+    var labels = { items: '商品', achievements: '自定义成就', skills: '技能' };
+    return escHtml(labels[reference.entity] || reference.entity || '实体') + ' #' +
+      escHtml(reference.id) + ' ' + escHtml(reference.name || '');
+  }).join('<br>');
+}
+function renderIconManager(payload) {
+  payload = payload || {};
+  var summary = payload.summary || {};
+  var files = Array.isArray(payload.files) ? payload.files : [];
+  var groups = Array.isArray(payload.reference_groups) ? payload.reference_groups : [];
+  var targets = Array.isArray(payload.replacement_targets) ? payload.replacement_targets : [];
+  var pagination = payload.pagination || {};
+  var state = pageStates.icons;
+  var fileRows = files.map(function(icon) {
+    var preview = icon.signature_valid
+      ? '<img src="' + escAttr(safeImageUrl(icon.media_url)) + '" alt="" loading="lazy" style="width:36px;height:36px;object-fit:contain;border-radius:6px">'
+      : '<span class="badge badge-red">内容无法识别</span>';
+    var stateBadge = icon.referenced
+      ? '<span class="badge badge-green">已直接引用</span>'
+      : '<span class="badge badge-purple">无直接引用</span>';
+    if (icon.signature_valid && icon.extension_matches_signature === false) {
+      stateBadge += ' <span class="badge badge-gold">扩展名不匹配</span>';
+    }
+    return '<tr><td>' + preview + '</td><td><strong>' + escHtml(icon.filename || '') + '</strong>' +
+      '<div style="font-size:11px;color:var(--text2);word-break:break-all">' + escHtml(icon.path || '') + '</div></td>' +
+      '<td>' + escHtml(icon.folder || '') + '</td><td>' + escHtml(icon.format || '') + '</td>' +
+      '<td>' + escHtml(iconFileSize(icon.size)) + '</td><td>' + stateBadge + '</td>' +
+      '<td style="max-width:320px">' + iconReferenceNames(icon.references) + '</td></tr>';
+  }).join('');
+  var editableGroups = groups.filter(function(group) {
+    return group && group.editable && Array.isArray(group.references) &&
+      group.references.some(function(reference) { return reference.editable; });
+  });
+  var sourceOptions = editableGroups.map(function(group) {
+    var editableCount = group.references.filter(function(reference) { return reference.editable; }).length;
+    return '<option value="' + escAttr(group.reference) + '">' +
+      escHtml(group.reference) + ' · ' + editableCount + ' 条' +
+      (group.exists ? '' : ' · 文件缺失') + '</option>';
+  }).join('');
+  var targetOptions = targets.map(function(target) {
+    return '<option value="' + escAttr(target.reference) + '">' +
+      escHtml(target.reference) + ' · ' + escHtml(iconFileSize(target.size)) + '</option>';
+  }).join('');
+  var missingGroups = groups.filter(function(group) { return group && !group.exists; });
+  var missingHtml = missingGroups.length ? missingGroups.map(function(group) {
+    return '<div style="padding:8px 0;border-bottom:1px solid var(--border)"><code>' +
+      escHtml(group.reference) + '</code><div style="font-size:11px;color:var(--text2)">预期位置：' +
+      escHtml(group.expected_path || '无法安全解析') + '</div><div style="margin-top:4px">' +
+      iconReferenceNames(group.references) + '</div></div>';
+  }).join('') : '<div style="color:var(--green)">没有发现失效的本地文件引用。</div>';
+  var folderOptions = ['all','download','attr','shop','userAch','custom'].map(function(folder) {
+    var label = folder === 'all' ? '全部目录' : 'media/' + folder;
+    return '<option value="' + folder + '"' + (state.folder === folder ? ' selected' : '') + '>' + label + '</option>';
+  }).join('');
+  var statusOptions = [
+    ['all','全部状态'], ['referenced','已直接引用'], ['unreferenced','无直接引用'],
+    ['invalid','内容无法识别'], ['mismatch','扩展名与实际格式不同']
+  ].map(function(option) {
+    return '<option value="' + option[0] + '"' + (state.status === option[0] ? ' selected' : '') + '>' + option[1] + '</option>';
+  }).join('');
+  var offset = Number(pagination.offset) || 0;
+  var limit = Number(pagination.limit) || state.limit;
+  var total = Number(pagination.total) || 0;
+  return '<div class="source-page-note"><strong>只管理当前本地工作副本。</strong>上传文件会生成新文件名，不覆盖原文件；批量替换会先预览并创建快照。系统成就和技能图标保持只读。</div>' +
+    '<div class="source-page-note" style="border-color:var(--orange)">“无直接文件名引用”只表示数据库没有直接写这个文件名；它仍可能是 App 的图片缓存，本功能不会自动删除。</div>' +
+    '<div class="stats-grid">' +
+      '<div class="stat-card"><div class="stat-label">图片文件</div><div class="stat-value">' + escHtml(String(summary.files || 0)) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">已直接引用</div><div class="stat-value green">' + escHtml(String(summary.referenced_files || 0)) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">无直接引用</div><div class="stat-value purple">' + escHtml(String(summary.unreferenced_files || 0)) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">失效引用</div><div class="stat-value red">' + escHtml(String(summary.missing_references || 0)) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">内容无法识别</div><div class="stat-value red">' + escHtml(String(summary.invalid_files || 0)) + '</div></div>' +
+      '<div class="stat-card"><div class="stat-label">扩展名不匹配</div><div class="stat-value gold">' + escHtml(String(summary.extension_mismatches || 0)) + '</div></div></div>' +
+    '<div class="section-title">⬆️ 上传安全图标</div>' +
+    '<div class="btn-group"><input id="iconUploadFile" type="file" accept=".png,.jpg,.jpeg,.gif,.webp,image/png,image/jpeg,image/gif,image/webp">' +
+      '<button class="btn btn-primary" id="iconUploadButton" onclick="uploadIconFile()">上传到工作副本</button>' +
+      '<span style="font-size:12px;color:var(--text2)">PNG/JPEG/GIF/WebP，最大 5 MiB；SVG 不允许。</span></div>' +
+    '<div class="section-title">🔁 批量替换数据库引用</div>' +
+    '<div class="form-row" style="margin-bottom:10px"><div class="form-group"><label for="iconReplaceSource">原引用</label><select id="iconReplaceSource"><option value="">请选择</option>' + sourceOptions + '</select></div>' +
+      '<div class="form-group"><label for="iconReplaceTarget">目标图标（media/download）</label><select id="iconReplaceTarget"><option value="">请选择</option>' + targetOptions + '</select></div></div>' +
+    '<div class="btn-group"><button class="btn btn-green" onclick="previewIconReplacement()">预览受影响商品/成就</button></div>' +
+    '<div class="section-title">⚠️ 失效本地引用</div><div class="card" style="padding:12px;margin-bottom:18px">' + missingHtml + '</div>' +
+    '<div class="section-title">🖼️ 工作副本图片</div>' +
+    '<div class="search-bar"><input class="search-input" id="iconSearch" value="' + escAttr(state.search) + '" placeholder="搜索文件名或路径" onkeydown="if(event.key===\'Enter\')applyIconFilters()">' +
+      '<select id="iconFolderFilter">' + folderOptions + '</select><select id="iconStatusFilter">' + statusOptions + '</select>' +
+      '<button class="btn btn-cyan" onclick="applyIconFilters()">筛选</button><button class="btn btn-cyan" onclick="clearIconFilters()">清除</button>' +
+      '<button class="btn btn-cyan" onclick="loadIcons()">刷新检查</button></div>' +
+    '<div style="overflow:auto"><table><thead><tr><th>预览</th><th>文件</th><th>目录</th><th>格式</th><th>大小</th><th>状态</th><th>直接引用实体</th></tr></thead><tbody>' +
+      (fileRows || '<tr><td colspan="7" class="empty">当前筛选条件下没有图片文件</td></tr>') + '</tbody></table></div>' +
+    '<div class="btn-group" style="justify-content:flex-end;margin-top:12px"><span style="color:var(--text2);font-size:12px">' +
+      escHtml(total) + ' 个结果，第 ' + escHtml(offset + (files.length ? 1 : 0)) + '～' + escHtml(offset + files.length) + ' 个</span>' +
+      '<button class="btn btn-cyan" onclick="changeIconPage(-1)"' + (offset <= 0 ? ' disabled' : '') + '>上一页</button>' +
+      '<button class="btn btn-cyan" onclick="changeIconPage(1)"' + (pagination.has_more ? '' : ' disabled') + '>下一页</button></div>';
+}
+async function loadIcons() {
+  var c = document.getElementById('content');
+  if (dataSource === 'cloud') {
+    c.innerHTML = '<div class="source-page-note">图标资源管理器只处理本地备份工作副本。请把顶部数据源切回“本地备份”。</div>';
+    return;
+  }
+  c.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  var state = pageStates.icons;
+  var query = new URLSearchParams({
+    search: state.search, folder: state.folder, status: state.status,
+    offset: String(state.offset), limit: String(state.limit)
+  });
+  try {
+    var payload = await api('/api/local/icons?' + query.toString());
+    if (currentPage !== 'icons' || dataSource !== 'local') return;
+    iconManagerState = {
+      files: payload.files || [], referenceGroups: payload.reference_groups || [],
+      replacementTargets: payload.replacement_targets || [], summary: payload.summary || {},
+      pagination: payload.pagination || {}
+    };
+    c.innerHTML = renderIconManager(payload);
+  } catch (error) {
+    if (currentPage !== 'icons') return;
+    c.innerHTML = '<div class="empty"><div class="empty-icon">❌</div>图标检查失败：' + escHtml(error.message) + '</div>';
+  }
+}
+function applyIconFilters() {
+  pageStates.icons.search = (document.getElementById('iconSearch') || {}).value || '';
+  pageStates.icons.folder = (document.getElementById('iconFolderFilter') || {}).value || 'all';
+  pageStates.icons.status = (document.getElementById('iconStatusFilter') || {}).value || 'all';
+  pageStates.icons.offset = 0;
+  loadIcons();
+}
+function clearIconFilters() {
+  pageStates.icons.search = '';
+  pageStates.icons.folder = 'all';
+  pageStates.icons.status = 'all';
+  pageStates.icons.offset = 0;
+  loadIcons();
+}
+function changeIconPage(direction) {
+  var state = pageStates.icons;
+  state.offset = Math.max(0, state.offset + direction * state.limit);
+  loadIcons();
+}
+function uploadIconFile() {
+  if (dataSource === 'cloud') {
+    toast('请先切回本地备份模式', 'error');
+    return Promise.resolve(null);
+  }
+  var input = document.getElementById('iconUploadFile');
+  var file = input && input.files && input.files[0];
+  var button = document.getElementById('iconUploadButton');
+  if (!file) {
+    toast('请先选择图片文件', 'error');
+    return Promise.resolve(null);
+  }
+  if (file.size < 1 || file.size > 5 * 1024 * 1024) {
+    toast('图片必须大于 0 字节且不能超过 5 MiB', 'error');
+    return Promise.resolve(null);
+  }
+  var formData = new FormData();
+  formData.append('file', file, file.name);
+  if (button) { button.disabled = true; button.textContent = '正在安全检查...'; }
+  return api('/api/local/icon-files', { method: 'POST', body: formData }).then(function(result) {
+    toast(result.deduplicated ? '相同内容已存在，已复用安全文件名' : '✅ 图标已写入工作副本');
+    if (input) input.value = '';
+    return loadIcons().then(function() { return result; });
+  }).catch(function(error) {
+    toast('❌ 图标上传失败：' + error.message, 'error');
+    return null;
+  }).finally(function() {
+    if (button) { button.disabled = false; button.textContent = '上传到工作副本'; }
+  });
+}
+function previewIconReplacement() {
+  if (dataSource === 'cloud') {
+    toast('请先切回本地备份模式', 'error');
+    return Promise.resolve(null);
+  }
+  var source = (document.getElementById('iconReplaceSource') || {}).value || '';
+  var target = (document.getElementById('iconReplaceTarget') || {}).value || '';
+  if (!source || !target) {
+    toast('请选择原引用和目标图标', 'error');
+    return Promise.resolve(null);
+  }
+  var group = iconManagerState.referenceGroups.find(function(row) {
+    return row && row.reference === source;
+  });
+  var references = group && Array.isArray(group.references)
+    ? group.references.filter(function(reference) { return reference.editable; }) : [];
+  if (!references.length) {
+    toast('这个引用没有可编辑的商品或自定义成就', 'error');
+    return Promise.resolve(null);
+  }
+  if (references.length > MAX_LOCAL_BATCH_SIZE) {
+    toast('受影响记录超过 200 条，请缩小替换范围', 'error');
+    return Promise.resolve(null);
+  }
+  var rows = references.map(function(reference, index) {
+    return {
+      line: index + 1,
+      action: 'replace',
+      data: {
+        entity_type: reference.entity,
+        id: Number(reference.id),
+        old_icon: source,
+        new_icon: target
+      }
+    };
+  });
+  return openLocalBatchPreview('icons', rows);
 }
 
 /* =================================================================================
@@ -4964,6 +5975,164 @@ async function loadEconomy() {
 }
 
 /* =================================================================================
+ *  SYSTEM: Local workspace maintenance
+ * ================================================================================= */
+var workspaceCleanupPreview = null;
+var workspaceCleanupBusy = false;
+
+function workspaceCleanupCategoryLabel(category) {
+  var labels = {
+    browser_import: '旧导入副本', restore: '旧恢复副本',
+    export: '自动导出', work: '日志/临时文件'
+  };
+  return labels[category] || '本机临时文件';
+}
+
+function loadMaintenance() {
+  var c = document.getElementById('content');
+  c.innerHTML = '<div class="source-page-note">本页只维护电脑上的项目临时文件，不读取或修改手机数据。原始备份、当前工作副本、快照和本机配置永远不会进入清理列表。</div>' +
+    '<div class="card"><div class="card-header"><div><h3>🧹 工作区清理</h3>' +
+      '<p style="color:var(--text2);font-size:12px;margin-top:6px">先扫描预览，再勾选要删除的文件。扫描本身不会删除任何内容。</p></div>' +
+      '<button class="btn btn-cyan" id="workspaceCleanupScanBtn" onclick="scanWorkspaceCleanup()">🔍 扫描可清理文件</button></div>' +
+      '<div id="workspaceCleanupPanel"><div class="empty"><div class="empty-icon">🛡️</div><h3>尚未扫描</h3><p>点击“扫描可清理文件”生成一次性预览。</p></div></div></div>' +
+    '<div class="card"><h3 style="margin-bottom:10px">不会自动清理的内容</h3>' +
+      '<div style="color:var(--text2);font-size:12px;line-height:1.9">' +
+      '• 原始 LifeUp 备份和当前正在使用的工作副本<br>' +
+      '• 快照管理中的恢复点<br>' +
+      '• 手机云人升数据、连接 Token 和本机配置<br>' +
+      '• 不符合项目命名规则的普通文件</div></div>';
+  workspaceCleanupPreview = null;
+  workspaceCleanupBusy = false;
+}
+
+async function scanWorkspaceCleanup() {
+  if (workspaceCleanupBusy) return;
+  workspaceCleanupBusy = true;
+  workspaceCleanupPreview = null;
+  var button = document.getElementById('workspaceCleanupScanBtn');
+  var panel = document.getElementById('workspaceCleanupPanel');
+  if (button) { button.disabled = true; button.textContent = '扫描中...'; }
+  if (panel) panel.innerHTML = '<div class="empty"><p>正在检查项目托管目录...</p></div>';
+  try {
+    workspaceCleanupPreview = await api('/api/workspace-cleanup/preview', {
+      method: 'POST', body: '{}'
+    });
+    if (currentPage === 'maintenance') renderWorkspaceCleanupPreview();
+  } catch (error) {
+    if (currentPage === 'maintenance' && panel) {
+      panel.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><h3>扫描失败</h3><p>' +
+        escHtml(error.message || '无法生成清理预览') + '</p></div>';
+    }
+  } finally {
+    workspaceCleanupBusy = false;
+    if (currentPage === 'maintenance') {
+      button = document.getElementById('workspaceCleanupScanBtn');
+      if (button) { button.disabled = false; button.textContent = '🔄 重新扫描'; }
+    }
+  }
+}
+
+function renderWorkspaceCleanupPreview() {
+  var panel = document.getElementById('workspaceCleanupPanel');
+  if (!panel || !workspaceCleanupPreview) return;
+  var items = Array.isArray(workspaceCleanupPreview.items) ? workspaceCleanupPreview.items : [];
+  if (!items.length) {
+    panel.innerHTML = '<div class="empty"><div class="empty-icon">✅</div><h3>没有可清理文件</h3><p>当前工作区已经很干净。</p></div>';
+    return;
+  }
+  var rows = items.map(function(item) {
+    return '<tr><td><input type="checkbox" class="workspace-cleanup-check" data-cleanup-id="' +
+      escAttr(item.id) + '"></td>' +
+      '<td><strong>' + escHtml(item.name || '未命名文件') + '</strong><div style="font-size:10px;color:var(--text2)">' +
+      escHtml(item.relative_path || '') + '</div></td>' +
+      '<td><span class="badge badge-purple">' + escHtml(workspaceCleanupCategoryLabel(item.category)) + '</span></td>' +
+      '<td>' + escHtml(snapshotSizeText(item.size)) + '</td>' +
+      '<td style="font-size:11px;color:var(--text2)">' + escHtml(item.modified_at || '') + '</td>' +
+      '<td style="font-size:11px;color:var(--text2)">' + escHtml(item.reason || '') + '</td></tr>';
+  }).join('');
+  panel.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0">' +
+      '<label style="display:flex;align-items:center;gap:7px"><input type="checkbox" id="workspaceCleanupSelectAll"> 全选本次预览</label>' +
+      '<div><span id="workspaceCleanupSelectionText" style="color:var(--text2);font-size:12px;margin-right:10px">已选 0 项</span>' +
+      '<button class="btn btn-danger" id="workspaceCleanupDeleteBtn" disabled onclick="confirmWorkspaceCleanup()">删除选中项</button></div></div>' +
+    '<div class="table-wrap"><table><thead><tr><th></th><th>文件</th><th>类型</th><th>大小</th><th>修改时间</th><th>识别依据</th></tr></thead><tbody>' +
+      rows + '</tbody></table></div>' +
+    '<p style="font-size:11px;color:var(--text2);margin-top:10px">预览 10 分钟内有效且只能执行一次。文件若在预览后变化，服务端会拒绝删除该文件。</p>';
+  panel.querySelectorAll('.workspace-cleanup-check').forEach(function(checkbox) {
+    checkbox.addEventListener('change', updateWorkspaceCleanupSelection);
+  });
+  var selectAll = document.getElementById('workspaceCleanupSelectAll');
+  if (selectAll) selectAll.addEventListener('change', function() {
+    panel.querySelectorAll('.workspace-cleanup-check').forEach(function(checkbox) {
+      checkbox.checked = selectAll.checked;
+    });
+    updateWorkspaceCleanupSelection();
+  });
+}
+
+function selectedWorkspaceCleanupIds() {
+  return Array.from(document.querySelectorAll('.workspace-cleanup-check:checked')).map(function(checkbox) {
+    return checkbox.getAttribute('data-cleanup-id');
+  }).filter(Boolean);
+}
+
+function updateWorkspaceCleanupSelection() {
+  var selected = selectedWorkspaceCleanupIds();
+  var text = document.getElementById('workspaceCleanupSelectionText');
+  var button = document.getElementById('workspaceCleanupDeleteBtn');
+  var all = document.querySelectorAll('.workspace-cleanup-check');
+  var selectAll = document.getElementById('workspaceCleanupSelectAll');
+  if (text) text.textContent = '已选 ' + selected.length + ' 项';
+  if (button) button.disabled = selected.length === 0 || workspaceCleanupBusy;
+  if (selectAll) {
+    selectAll.checked = all.length > 0 && selected.length === all.length;
+    selectAll.indeterminate = selected.length > 0 && selected.length < all.length;
+  }
+}
+
+function confirmWorkspaceCleanup() {
+  var selected = selectedWorkspaceCleanupIds();
+  if (!workspaceCleanupPreview || !selected.length || workspaceCleanupBusy) return;
+  var selectedSet = new Set(selected);
+  var bytes = (workspaceCleanupPreview.items || []).reduce(function(total, item) {
+    return total + (selectedSet.has(item.id) ? Number(item.size || 0) : 0);
+  }, 0);
+  showModal('⚠️ 确认删除本机临时文件',
+    '<p>将删除 <strong>' + selected.length + '</strong> 项，共 <strong>' +
+      escHtml(snapshotSizeText(bytes)) + '</strong>。此操作不会删除原始备份、当前工作副本或快照，但删除的临时文件无法从应用内恢复。</p>' +
+    '<div class="modal-actions"><button class="btn btn-cyan" onclick="closeModal()">取消</button>' +
+    '<button class="btn btn-danger" id="workspaceCleanupConfirmBtn" onclick="executeWorkspaceCleanup()">确认删除选中项</button></div>');
+}
+
+async function executeWorkspaceCleanup() {
+  var selected = selectedWorkspaceCleanupIds();
+  if (!workspaceCleanupPreview || !selected.length || workspaceCleanupBusy) return;
+  workspaceCleanupBusy = true;
+  var button = document.getElementById('workspaceCleanupConfirmBtn');
+  if (button) { button.disabled = true; button.textContent = '删除中...'; }
+  try {
+    var result = await api('/api/workspace-cleanup/execute', {
+      method: 'POST',
+      body: JSON.stringify({
+        preview_token: workspaceCleanupPreview.preview_token,
+        item_ids: selected
+      })
+    });
+    closeModal();
+    toast('已删除 ' + Number(result.deleted || 0) + ' 项，释放 ' + snapshotSizeText(result.freed_bytes || 0) +
+      (result.failed ? '；' + result.failed + ' 项因变化或占用未删除' : ''), result.failed ? 'error' : 'success');
+    workspaceCleanupPreview = null;
+    workspaceCleanupBusy = false;
+    if (currentPage === 'maintenance') await scanWorkspaceCleanup();
+  } catch (error) {
+    closeModal();
+    toast(error.message || '清理失败，请重新扫描', 'error');
+    workspaceCleanupPreview = null;
+    workspaceCleanupBusy = false;
+    if (currentPage === 'maintenance') await scanWorkspaceCleanup();
+  }
+}
+
+/* =================================================================================
  *  PAGE 13: Snapshots — 快照管理
  * ================================================================================= */
 var snapshotCache = [];
@@ -5300,6 +6469,7 @@ function exportTable(table) {
  * ================================================================================= */
 var cloudRows = [];
 var cloudBatchRows = [];
+var cloudAchievementLoad = { runId: 0, categories: [], categoriesCache: null };
 var cloudTaskUrl = '';
 var cloudTaskPreviewToken = '';
 var cloudTaskIdempotencyKey = '';
@@ -5309,10 +6479,110 @@ var cloudBatchPreviewToken = '';
 var cloudBatchIdempotencyKey = '';
 var cloudBatchPreviewVersion = 0;
 var cloudBatchExecuting = false;
+var cloudComposerOptions = { categories: [], skills: [], selectedSkillIds: [] };
 
 function cloudNewIdempotencyKey(prefix) {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return prefix + '-' + crypto.randomUUID();
   return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+}
+
+function cloudOptionId(row) {
+  var value = row && (row.id != null ? row.id : row.categoryId);
+  var id = Number(value);
+  return Number.isInteger(id) && id >= 0 ? id : null;
+}
+
+function cloudOptionName(row, fallback) {
+  return String((row && (row.name || row.content || row.title)) || fallback || '').trim();
+}
+
+function cloudNormalizeOptions(rows, prefix) {
+  return (rows || []).map(function(row) {
+    var id = cloudOptionId(row);
+    if (id === null) return null;
+    return { id: id, name: cloudOptionName(row, prefix + ' ' + id) };
+  }).filter(Boolean).sort(function(a, b) {
+    return a.name.localeCompare(b.name, 'zh-CN');
+  });
+}
+
+function cloudFilterComposerOptions(kind) {
+  var isCategory = kind === 'category';
+  var search = document.getElementById(isCategory ? 'cloudCategorySearch' : 'cloudSkillSearch');
+  var query = String(search && search.value || '').trim().toLocaleLowerCase('zh-CN');
+  var options = isCategory ? cloudComposerOptions.categories : cloudComposerOptions.skills;
+  var filtered = options.filter(function(item) {
+    return !query || item.name.toLocaleLowerCase('zh-CN').indexOf(query) >= 0 || String(item.id).indexOf(query) >= 0;
+  });
+  if (isCategory) {
+    var select = document.getElementById('cloudCategory');
+    if (!select) return;
+    var selected = select.value;
+    select.innerHTML = '<option value="">不指定分类</option>' + filtered.map(function(item) {
+      return '<option value="' + item.id + '">' + escHtml(item.name) + '（#' + item.id + '）</option>';
+    }).join('');
+    if (filtered.some(function(item) { return String(item.id) === selected; })) select.value = selected;
+    return;
+  }
+  var box = document.getElementById('cloudSkillOptions');
+  if (!box) return;
+  if (!filtered.length) {
+    box.innerHTML = '<span style="font-size:12px;color:var(--text2)">没有匹配技能。</span>';
+    return;
+  }
+  box.innerHTML = filtered.map(function(item) {
+    var active = cloudComposerOptions.selectedSkillIds.indexOf(item.id) >= 0;
+    return '<label class="cloud-option-chip' + (active ? ' active' : '') + '">' +
+      '<input type="checkbox" value="' + item.id + '"' + (active ? ' checked' : '') +
+      ' onchange="cloudToggleComposerSkill(' + item.id + ',this.checked)">' +
+      '<span>' + escHtml(item.name) + '（#' + item.id + '）</span></label>';
+  }).join('');
+}
+
+function cloudToggleComposerSkill(id, checked) {
+  id = Number(id);
+  var selected = cloudComposerOptions.selectedSkillIds.slice();
+  var index = selected.indexOf(id);
+  if (checked && index < 0) selected.push(id);
+  if (!checked && index >= 0) selected.splice(index, 1);
+  cloudComposerOptions.selectedSkillIds = selected;
+  var hidden = document.getElementById('cloudSkills');
+  if (hidden) hidden.value = selected.join(',');
+  cloudFilterComposerOptions('skill');
+  cloudInvalidateTaskPreview(true);
+}
+
+async function cloudLoadComposerOptions(forceRefresh) {
+  var status = document.getElementById('cloudComposerStatus');
+  if (status) status.textContent = '正在从当前手机连接读取任务分类和技能...';
+  try {
+    var results = await Promise.all([
+      api('/api/cloud/data', {
+        method: 'POST',
+        body: JSON.stringify(cloudPayload({ dataset: 'task_categories', force_refresh: !!forceRefresh }))
+      }),
+      api('/api/cloud/data', {
+        method: 'POST',
+        body: JSON.stringify(cloudPayload({ dataset: 'skills', force_refresh: !!forceRefresh }))
+      })
+    ]);
+    cloudComposerOptions.categories = cloudNormalizeOptions(results[0].rows, '分类');
+    cloudComposerOptions.skills = cloudNormalizeOptions(results[1].rows, '技能');
+    cloudComposerOptions.selectedSkillIds = cloudComposerOptions.selectedSkillIds.filter(function(id) {
+      return cloudComposerOptions.skills.some(function(item) { return item.id === id; });
+    });
+    cloudFilterComposerOptions('category');
+    cloudFilterComposerOptions('skill');
+    if (status) status.textContent =
+      '当前手机连接：' + cloudComposerOptions.categories.length + ' 个任务分类、' +
+      cloudComposerOptions.skills.length + ' 个技能 · 分类' + cloudCacheLabel(results[0].cache) +
+      ' · 技能' + cloudCacheLabel(results[1].cache);
+    return results;
+  } catch (error) {
+    if (status) status.innerHTML = cloudErrorHtml(error,
+      '<div style="margin-top:8px"><button class="btn btn-danger btn-sm" onclick="cloudLoadComposerOptions(true)">重试读取分类和技能</button></div>');
+    return [];
+  }
 }
 
 function cloudInvalidateTaskPreview(showMessage) {
@@ -5350,10 +6620,39 @@ function cloudPayload(extra) {
   }, extra);
 }
 
+function cloudCacheLabel(cache) {
+  cache = cache || {};
+  var source = cache.source === 'memory_cache' ? '内存缓存' : '手机实时读取';
+  var refreshed = cache.fetched_at ? ' · 刷新 ' + cache.fetched_at : '';
+  return source + refreshed;
+}
+
+function cloudErrorTitle(error) {
+  var labels = {
+    configuration: '连接配置有误',
+    network: '手机网络不可达',
+    authentication: 'Token 认证失败',
+    timeout: '手机响应超时',
+    response: '手机响应格式异常'
+  };
+  return labels[error && error.category] || '云端读取失败';
+}
+
+function cloudErrorHtml(error, retryHtml) {
+  error = error || {};
+  return '<div style="border:1px solid rgba(201,75,87,.35);background:rgba(201,75,87,.06);border-radius:8px;padding:10px;text-align:left">' +
+    '<strong style="color:var(--red)">' + escHtml(cloudErrorTitle(error)) + '</strong>' +
+    (error.code ? ' <span class="badge badge-red">' + escHtml(error.code) + '</span>' : '') +
+    '<div style="margin-top:5px">' + escHtml(error.message || '未知错误') + '</div>' +
+    (error.suggestion ? '<div style="margin-top:5px;color:var(--text2)">建议：' + escHtml(error.suggestion) + '</div>' : '') +
+    (retryHtml || '') + '</div>';
+}
+
 async function loadCloud() {
   var c = document.getElementById('content');
   c.innerHTML =
     '<div class="source-page-note">手机连接/新增任务页只负责连接云人升、读取实时数据、以及通过官方 lifeup://api/ 新增任务。不会同步本地备份，也不会编辑或删除手机已有数据。</div>' +
+    '<div class="source-page-note">只读结果会在服务器进程内缓存 30 秒，并显示“手机实时读取”或“内存缓存”及刷新时间；缓存和磁盘文件都不保存 Token。</div>' +
     '<div class="btn-group">' +
       '<input class="search-input" id="cloudHost" placeholder="手机 IP，例如 192.168.3.45" style="width:210px">' +
       '<input class="search-input" id="cloudPort" type="number" value="13276" style="width:110px">' +
@@ -5372,19 +6671,20 @@ async function loadCloud() {
       '<button class="btn btn-sm" onclick="cloudLoadData(\'achievements\')">读取成就</button>' +
     '</div>' +
     '<div class="section-title">新增单个任务</div>' +
+    '<div id="cloudComposerStatus" class="source-page-note">填写 Host 后读取当前手机的任务分类和技能；不再需要手填 ID。</div>' +
+    '<div class="btn-group"><button class="btn btn-cyan btn-sm" onclick="cloudLoadComposerOptions(true)">刷新分类和技能</button></div>' +
     '<div class="form-row">' +
       '<div class="form-group"><label>todo 任务标题 *</label><input id="cloudTodo" placeholder="例如：写日记"></div>' +
-      '<div class="form-group"><label>category 清单 ID</label><input id="cloudCategory" type="number" min="0" placeholder="可选"></div>' +
+      '<div class="form-group"><label>任务分类（来自当前手机）</label><input id="cloudCategorySearch" placeholder="搜索分类名称"><select id="cloudCategory"><option value="">不指定分类</option></select></div>' +
     '</div>' +
     '<div class="form-group"><label>notes 备注</label><textarea id="cloudNotes" placeholder="可选"></textarea></div>' +
     '<div class="form-row">' +
       '<div class="form-group"><label>coin 金币</label><input id="cloudCoin" type="number" min="0" placeholder="可选"></div>' +
       '<div class="form-group"><label>exp 经验</label><input id="cloudExp" type="number" min="0" placeholder="可选"></div>' +
     '</div>' +
-    '<div class="form-row">' +
-      '<div class="form-group"><label>skills 技能 ID，逗号分隔</label><input id="cloudSkills" placeholder="例如 1,2"></div>' +
-      '<div class="form-group"><label>importance / difficulty</label><input id="cloudLevels" placeholder="可选，例如 2,3"></div>' +
-    '</div>' +
+    '<input id="cloudSkills" type="hidden" value="">' +
+    '<div class="form-group"><label>奖励技能（来自当前手机，可多选）</label><input id="cloudSkillSearch" placeholder="搜索技能名称"><div id="cloudSkillOptions" class="cloud-option-list"><span style="font-size:12px;color:var(--text2)">请先读取分类和技能。</span></div></div>' +
+    '<div class="form-group"><label>importance / difficulty</label><input id="cloudLevels" placeholder="可选，例如 2,3"></div>' +
     '<div class="btn-group">' +
       '<button class="btn btn-primary" onclick="cloudPreviewTask()">生成预览</button>' +
       '<button class="btn btn-green" id="cloudExecuteTaskBtn" onclick="cloudExecuteTask()" disabled>确认新增任务</button>' +
@@ -5392,12 +6692,18 @@ async function loadCloud() {
     '<pre id="cloudTaskPreview" class="stat-card" style="white-space:pre-wrap;text-align:left;overflow:auto">先生成预览，不会自动发送到手机。</pre>' +
     '<div class="section-title">CSV / JSON 批量新增任务</div>' +
     '<div class="btn-group">' +
+      '<a class="btn btn-cyan btn-sm" href="/api/cloud/task-import-templates/csv" download="cloud_task_import_template.csv">下载 CSV 模板</a>' +
+      '<a class="btn btn-cyan btn-sm" href="/api/cloud/task-import-templates/json" download="cloud_task_import_template.json">下载 JSON 模板</a>' +
       '<input id="cloudBatchFile" type="file" accept=".csv,.json,text/csv,application/json">' +
       '<button class="btn btn-primary" onclick="cloudPreviewBatch()">导入并预览</button>' +
       '<button class="btn btn-green" id="cloudExecuteBatchBtn" onclick="cloudExecuteBatch()" disabled>确认批量新增</button>' +
     '</div>' +
     '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">CSV 列名：todo, notes, coin, coin_var, exp, skills, category, frequency, importance, difficulty。JSON 使用对象数组。</div>' +
     '<div id="cloudBatchTable" class="stat-card" style="text-align:left">还没有批量导入预览。</div>' +
+    '<div class="section-title">云端操作记录</div>' +
+    '<div class="btn-group"><button class="btn btn-sm" onclick="cloudLoadOperations()">刷新记录</button>' +
+      '<a class="btn btn-cyan btn-sm" href="/api/cloud/operations/export" download="lifeup_cloud_operation_report.json">导出操作报告</a></div>' +
+    '<div id="cloudOperationLog" class="stat-card" style="text-align:left">正在读取本机操作记录...</div>' +
     '<div class="section-title">云人升读取结果</div>' +
     '<div id="cloudDataTable" class="stat-card" style="text-align:left">还没有读取数据。</div>';
   ['cloudTodo','cloudCategory','cloudNotes','cloudCoin','cloudExp','cloudSkills','cloudLevels'].forEach(function(id) {
@@ -5406,40 +6712,64 @@ async function loadCloud() {
   });
   var batchFile = document.getElementById('cloudBatchFile');
   if (batchFile) batchFile.addEventListener('change', function() { cloudInvalidateBatchPreview(true); });
+  var categorySearch = document.getElementById('cloudCategorySearch');
+  if (categorySearch) categorySearch.addEventListener('input', function() { cloudFilterComposerOptions('category'); });
+  var skillSearch = document.getElementById('cloudSkillSearch');
+  if (skillSearch) skillSearch.addEventListener('input', function() { cloudFilterComposerOptions('skill'); });
   try {
     var cfg = await api('/api/cloud/config');
     document.getElementById('cloudHost').value = cfg.host || '';
     document.getElementById('cloudPort').value = cfg.port || 13276;
     if (cfg.api_token_in_memory) document.getElementById('cloudToken').placeholder = 'Token 已在内存中（留空沿用）';
+    if (cfg.host) cloudLoadComposerOptions(false);
   } catch(e) {}
+  cloudLoadOperations();
 }
 
 async function cloudSaveConfig() {
-  var cfg = await api('/api/cloud/config', { method:'POST', body: JSON.stringify(cloudPayload()) });
-  setDataSource('cloud', false);
-  document.getElementById('cloudStatus').textContent = '已保存 Host/端口：' + cfg.base_url + '。Token 不会保存。';
+  var status = document.getElementById('cloudStatus');
+  try {
+    var cfg = await api('/api/cloud/config', { method:'POST', body: JSON.stringify(cloudPayload()) });
+    setDataSource('cloud', false);
+    status.textContent = '已保存 Host/端口：' + cfg.base_url + '。Token 不会保存。';
+    cloudLoadComposerOptions(true);
+  } catch(e) {
+    status.innerHTML = cloudErrorHtml(e);
+  }
 }
 
 async function cloudClearToken() {
-  var r = await api('/api/cloud/config', {
-    method:'POST',
-    body: JSON.stringify(cloudPayload({ clear_token: true }))
-  });
-  var input = document.getElementById('cloudToken');
-  if (input) {
-    input.value = '';
-    input.placeholder = 'Token 可选，不保存';
+  var status = document.getElementById('cloudStatus');
+  try {
+    var r = await api('/api/cloud/config', {
+      method:'POST',
+      body: JSON.stringify(cloudPayload({ clear_token: true }))
+    });
+    var input = document.getElementById('cloudToken');
+    if (input) {
+      input.value = '';
+      input.placeholder = 'Token 可选，不保存';
+    }
+    status.textContent = r.api_token_in_memory ? 'Token 仍在内存中。' : '内存 Token 已清除，磁盘中从未保存 Token。';
+  } catch(e) {
+    status.innerHTML = cloudErrorHtml(e);
   }
-  document.getElementById('cloudStatus').textContent = r.api_token_in_memory ? 'Token 仍在内存中。' : '内存 Token 已清除，磁盘中从未保存 Token。';
 }
 
 async function cloudTest(save) {
-  document.getElementById('cloudStatus').textContent = '正在检测连接...';
-  var r = await api('/api/cloud/test', { method:'POST', body: JSON.stringify(cloudPayload({ save: save })) });
-  setDataSource('cloud', false);
-  var info = r.info || {};
-  document.getElementById('cloudStatus').textContent =
-    '连接成功：' + r.base_url + ' · ' + (info.appVersionName || info.appVersion || '') + ' · API ' + (info.apiVersion || '');
+  var status = document.getElementById('cloudStatus');
+  status.textContent = '正在检测连接...';
+  try {
+    var r = await api('/api/cloud/test', { method:'POST', body: JSON.stringify(cloudPayload({ save: save })) });
+    setDataSource('cloud', false);
+    var info = r.info || {};
+    status.textContent =
+      '连接成功：' + r.base_url + ' · ' + (info.appVersionName || info.appVersion || '') + ' · API ' + (info.apiVersion || '');
+    cloudLoadComposerOptions(true);
+  } catch(e) {
+    status.innerHTML = cloudErrorHtml(e,
+      '<div style="margin-top:8px"><button class="btn btn-danger btn-sm" onclick="cloudTest(false)">重新检测</button></div>');
+  }
 }
 
 function openCloudTaskComposer() {
@@ -5455,19 +6785,54 @@ function openCloudTaskComposer() {
   }, 200);
 }
 
+function cloudFieldError(field, message) {
+  var error = new Error(message);
+  error.field = field || 'record';
+  return error;
+}
+
 function cloudNum(value, field, min, max) {
   var raw = String(value || '').trim();
   if (!raw) return '';
   var n = Number(raw);
-  if (!Number.isInteger(n)) throw new Error(field + ' 必须是整数');
-  if (min !== undefined && n < min) throw new Error(field + ' 不能小于 ' + min);
-  if (max !== undefined && n > max) throw new Error(field + ' 不能大于 ' + max);
+  if (!Number.isInteger(n)) throw cloudFieldError(field, field + ' 必须是整数');
+  if (min !== undefined && n < min) throw cloudFieldError(field, field + ' 不能小于 ' + min);
+  if (max !== undefined && n > max) throw cloudFieldError(field, field + ' 不能大于 ' + max);
   return String(n);
+}
+
+function cloudResolveNamedOption(value, options, field) {
+  var raw = String(value == null ? '' : value).trim();
+  if (!raw) return '';
+  if (/^\d+$/.test(raw)) {
+    var id = Number(raw);
+    if (options.length && !options.some(function(item) { return item.id === id; })) {
+      throw cloudFieldError(field, field + ' 找不到 ID #' + id + '，请刷新当前手机选项');
+    }
+    return String(id);
+  }
+  var matches = options.filter(function(item) {
+    return item.name.toLocaleLowerCase('zh-CN') === raw.toLocaleLowerCase('zh-CN');
+  });
+  if (!matches.length) throw cloudFieldError(field, field + ' 找不到“' + raw + '”，请使用当前手机中的名称');
+  if (matches.length > 1) throw cloudFieldError(field, field + ' 存在多个同名选项“' + raw + '”，请使用 ID');
+  return String(matches[0].id);
+}
+
+function cloudResolveBatchSkills(value) {
+  var values = Array.isArray(value) ? value : String(value || '').split(/[,;，；|]/);
+  var resolved = values.map(function(item) {
+    return cloudResolveNamedOption(item, cloudComposerOptions.skills, 'skills');
+  }).filter(Boolean);
+  if (new Set(resolved).size !== resolved.length) {
+    throw cloudFieldError('skills', 'skills 不能包含重复技能');
+  }
+  return resolved.join(',');
 }
 
 function cloudBuildTaskUrl(input) {
   var todo = String(input.todo || '').trim();
-  if (!todo) throw new Error('todo 任务标题不能为空');
+  if (!todo) throw cloudFieldError('todo', 'todo 任务标题不能为空');
   var params = new URLSearchParams();
   params.append('todo', todo);
   if (input.notes) params.append('notes', String(input.notes).trim());
@@ -5517,6 +6882,7 @@ async function cloudPreviewTask() {
   var btn = document.getElementById('cloudExecuteTaskBtn');
   if (btn) btn.disabled = false;
   document.getElementById('cloudStatus').textContent = '预览已生成，10 分钟内可确认一次。修改输入后必须重新预览。';
+  cloudLoadOperations();
   return url;
 }
 
@@ -5538,7 +6904,15 @@ async function cloudExecuteTask() {
     });
     cloudTaskPreviewToken = '';
     cloudTaskIdempotencyKey = '';
-    document.getElementById('cloudStatus').textContent = '新增请求已发送：' + r.count + ' 条。请在手机端确认。';
+    var report = (r.results || [])[0] || {};
+    document.getElementById('cloudTaskPreview').textContent =
+      '执行报告\n任务：' + (report.title || document.getElementById('cloudTodo').value) +
+      '\n状态：' + (report.status || 'unknown') + '\n说明：' + (report.message || '请刷新手机任务确认');
+    document.getElementById('cloudStatus').textContent =
+      '新增请求已处理：成功 ' + ((r.summary || {}).success || 0) +
+      '，失败 ' + ((r.summary || {}).failed || 0) +
+      '，待确认 ' + ((r.summary || {}).unknown || 0) + '。';
+    cloudLoadOperations();
     cloudLoadData('tasks');
   } finally {
     cloudTaskExecuting = false;
@@ -5546,22 +6920,29 @@ async function cloudExecuteTask() {
   }
 }
 
-async function cloudLoadData(dataset) {
-  document.getElementById('cloudDataTable').textContent = '正在读取 ' + dataset + ' ...';
+async function cloudLoadData(dataset, forceRefresh) {
+  if (dataset === 'achievements') return cloudLoadAchievements(!!forceRefresh);
+  var box = document.getElementById('cloudDataTable');
+  box.textContent = '正在读取 ' + dataset + ' ...';
   try {
-    var r = await api('/api/cloud/data', { method:'POST', body: JSON.stringify(cloudPayload({ dataset: dataset })) });
+    var r = await api('/api/cloud/data', {
+      method:'POST',
+      body: JSON.stringify(cloudPayload({ dataset: dataset, force_refresh: !!forceRefresh }))
+    });
     cloudRows = r.rows || [];
-    cloudRenderRows(r.dataset || dataset, cloudRows, r.errors || []);
+    cloudRenderRows(r.dataset || dataset, cloudRows, r.errors || [], r.cache || {});
   } catch(e) {
-    document.getElementById('cloudDataTable').textContent = e.message;
+    box.innerHTML = cloudErrorHtml(e,
+      '<div style="margin-top:8px"><button class="btn btn-danger btn-sm" onclick="cloudLoadData(' +
+      JSON.stringify(String(dataset)) + ',true)">重试并忽略缓存</button></div>');
   }
 }
 
-function cloudRenderRows(dataset, rows, errors) {
-  var box = document.getElementById('cloudDataTable');
+function cloudRowsTableHtml(dataset, rows, cache) {
+  rows = rows || [];
   if (!rows.length) {
-    box.innerHTML = '<div class="empty">没有读取到数据。' + (errors.length ? escHtml(JSON.stringify(errors)) : '') + '</div>';
-    return;
+    return '<div class="empty">没有读取到数据。</div>' +
+      '<div style="font-size:11px;color:var(--text2);margin-top:6px">' + escHtml(cloudCacheLabel(cache)) + '</div>';
   }
   var keys = [];
   rows.slice(0, 10).forEach(function(row) {
@@ -5575,9 +6956,139 @@ function cloudRenderRows(dataset, rows, errors) {
       return '<td>' + escHtml(v == null ? '' : v) + '</td>';
     }).join('') + '</tr>';
   }).join('');
-  box.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + escHtml(dataset) + ' · 共 ' + rows.length + ' 条，表格最多显示 200 条</div>' +
+  return '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + escHtml(dataset) + ' · 共 ' + rows.length + ' 条，表格最多显示 200 条 · ' + escHtml(cloudCacheLabel(cache)) + '</div>' +
     '<div style="overflow:auto"><table class="data-table"><thead><tr>' + keys.map(function(k){ return '<th>' + escHtml(k) + '</th>'; }).join('') +
     '</tr></thead><tbody>' + body + '</tbody></table></div>';
+}
+
+function cloudRenderRows(dataset, rows, errors, cache) {
+  var box = document.getElementById('cloudDataTable');
+  box.innerHTML = cloudRowsTableHtml(dataset, rows, cache);
+}
+
+async function cloudLoadAchievements(forceRefresh) {
+  var box = document.getElementById('cloudDataTable');
+  var runId = cloudAchievementLoad.runId + 1;
+  cloudAchievementLoad = { runId: runId, categories: [], categoriesCache: null };
+  box.innerHTML = '<div class="loading"><div class="spinner"></div><p>正在读取成就分类...</p></div>';
+  try {
+    var result = await api('/api/cloud/data', {
+      method:'POST',
+      body: JSON.stringify(cloudPayload({
+        dataset: 'achievement_categories', force_refresh: !!forceRefresh
+      }))
+    });
+    if (cloudAchievementLoad.runId !== runId) return;
+    cloudAchievementLoad.categoriesCache = result.cache || {};
+    cloudAchievementLoad.categories = (result.rows || []).filter(function(cat) {
+      return cat && Number.isInteger(Number(cat.id)) && Number(cat.id) > 0;
+    }).map(function(cat) {
+      return {
+        id: Number(cat.id),
+        name: String(cat.name || ('分类 ' + cat.id)),
+        status: 'pending', rows: [], cache: null, error: null
+      };
+    });
+    cloudRenderAchievementProgress();
+    var nextIndex = 0;
+    async function worker() {
+      while (cloudAchievementLoad.runId === runId) {
+        var index = nextIndex++;
+        if (index >= cloudAchievementLoad.categories.length) return;
+        await cloudFetchAchievementCategory(cloudAchievementLoad.categories[index], runId, !!forceRefresh);
+      }
+    }
+    var workerCount = Math.min(3, cloudAchievementLoad.categories.length);
+    var workers = [];
+    for (var i = 0; i < workerCount; i++) workers.push(worker());
+    await Promise.all(workers);
+  } catch(e) {
+    if (cloudAchievementLoad.runId !== runId) return;
+    box.innerHTML = cloudErrorHtml(e,
+      '<div style="margin-top:8px"><button class="btn btn-danger btn-sm" onclick="cloudLoadAchievements(true)">重新读取全部分类</button></div>');
+  }
+}
+
+async function cloudFetchAchievementCategory(category, runId, forceRefresh) {
+  category.status = 'loading';
+  category.error = null;
+  cloudRenderAchievementProgress();
+  try {
+    var result = await api('/api/cloud/data', {
+      method:'POST',
+      body: JSON.stringify(cloudPayload({
+        dataset: 'achievement_category',
+        category_id: category.id,
+        force_refresh: !!forceRefresh
+      }))
+    });
+    if (cloudAchievementLoad.runId !== runId) return;
+    category.rows = (result.rows || []).map(function(row) {
+      if (row && typeof row === 'object') {
+        row = Object.assign({}, row);
+        if (!row.category_name) row.category_name = category.name;
+      }
+      return row;
+    });
+    category.cache = result.cache || {};
+    category.status = 'success';
+  } catch(e) {
+    if (cloudAchievementLoad.runId !== runId) return;
+    category.error = e;
+    category.status = 'error';
+  }
+  cloudRenderAchievementProgress();
+}
+
+async function cloudRetryAchievementCategory(categoryId) {
+  var category = cloudAchievementLoad.categories.find(function(item) {
+    return item.id === Number(categoryId);
+  });
+  if (!category) return;
+  await cloudFetchAchievementCategory(category, cloudAchievementLoad.runId, true);
+}
+
+function cloudRenderAchievementProgress() {
+  var box = document.getElementById('cloudDataTable');
+  if (!box) return;
+  var categories = cloudAchievementLoad.categories || [];
+  if (!categories.length) {
+    box.innerHTML = '<div class="empty">手机没有返回可读取的成就分类。</div>';
+    return;
+  }
+  var success = categories.filter(function(item) { return item.status === 'success'; }).length;
+  var failed = categories.filter(function(item) { return item.status === 'error'; }).length;
+  var finished = success + failed;
+  var rows = [];
+  categories.forEach(function(item) {
+    if (item.status === 'success') rows = rows.concat(item.rows || []);
+  });
+  cloudRows = rows;
+  var cards = categories.map(function(item) {
+    var body = '';
+    if (item.status === 'pending') body = '<span style="color:var(--text2)">等待读取</span>';
+    if (item.status === 'loading') body = '<span style="color:var(--cyan)">正在读取...</span>';
+    if (item.status === 'success') {
+      body = '<span style="color:var(--green)">成功 · ' + (item.rows || []).length + ' 条</span>' +
+        '<div style="font-size:11px;color:var(--text2);margin-top:4px">' + escHtml(cloudCacheLabel(item.cache)) + '</div>';
+    }
+    if (item.status === 'error') {
+      body = cloudErrorHtml(item.error,
+        '<div style="margin-top:8px"><button class="btn btn-danger btn-xs" onclick="cloudRetryAchievementCategory(' +
+        item.id + ')">只重试此分类</button></div>');
+    }
+    return '<div class="stat-card" style="text-align:left;padding:12px">' +
+      '<strong>' + escHtml(item.name) + '</strong>' +
+      '<div style="margin-top:6px;font-size:12px">' + body + '</div></div>';
+  }).join('');
+  var summary = '<div class="source-page-note"><strong>成就分类加载 ' + finished + '/' + categories.length + '</strong>' +
+    ' · 成功 ' + success + ' · 失败 ' + failed + ' · 已保留 ' + rows.length + ' 条成功数据' +
+    '<div style="margin-top:4px">分类清单：' + escHtml(cloudCacheLabel(cloudAchievementLoad.categoriesCache)) + '</div>' +
+    '<div style="margin-top:8px"><button class="btn btn-cyan btn-sm" onclick="cloudLoadAchievements(true)">忽略缓存刷新全部</button></div></div>';
+  box.innerHTML = summary +
+    '<div class="dashboard-section-grid" style="margin-bottom:16px">' + cards + '</div>' +
+    '<div class="section-title">已成功读取的成就</div>' +
+    cloudRowsTableHtml('achievements', rows, {});
 }
 
 function cloudParseCsv(text) {
@@ -5585,6 +7096,8 @@ function cloudParseCsv(text) {
   var row = [];
   var cell = '';
   var q = false;
+  var physicalLine = 1;
+  var rowStartLine = 1;
   for (var i = 0; i < text.length; i++) {
     var ch = text[i], next = text[i + 1];
     if (ch === '"') {
@@ -5594,33 +7107,82 @@ function cloudParseCsv(text) {
     } else if ((ch === '\n' || ch === '\r') && !q) {
       if (ch === '\r' && next === '\n') i++;
       row.push(cell);
-      if (row.some(function(v){ return String(v).trim(); })) rows.push(row);
+      if (row.some(function(v){ return String(v).trim(); })) rows.push({ values: row, sourceRow: rowStartLine });
       row = []; cell = '';
+      physicalLine += 1;
+      rowStartLine = physicalLine;
     } else {
       cell += ch;
+      if (ch === '\n') physicalLine += 1;
     }
   }
+  if (q) throw cloudFieldError('file', 'CSV 引号没有闭合');
   row.push(cell);
-  if (row.some(function(v){ return String(v).trim(); })) rows.push(row);
+  if (row.some(function(v){ return String(v).trim(); })) rows.push({ values: row, sourceRow: rowStartLine });
   if (!rows.length) return [];
-  var headers = rows.shift().map(function(h){ return String(h).trim(); });
-  return rows.map(function(values) {
+  var headers = rows.shift().values.map(function(h, index){
+    var value = String(h).trim();
+    return index === 0 ? value.replace(/^\uFEFF/, '') : value;
+  });
+  return rows.map(function(record) {
     var item = {};
-    headers.forEach(function(h, idx) { if (h) item[h] = values[idx] || ''; });
+    headers.forEach(function(h, idx) { if (h) item[h] = record.values[idx] || ''; });
+    item.__sourceRow = record.sourceRow;
     return item;
   });
 }
 
 async function cloudReadBatchFile() {
   var file = document.getElementById('cloudBatchFile').files[0];
-  if (!file) throw new Error('请先选择 CSV 或 JSON 文件');
+  if (!file) throw cloudFieldError('file', '请先选择 CSV 或 JSON 文件');
+  if (file.size > 1024 * 1024) throw cloudFieldError('file', '文件不能超过 1 MiB');
   var text = await file.text();
   if (file.name.toLowerCase().endsWith('.json') || file.type.indexOf('json') >= 0) {
-    var parsed = JSON.parse(text);
-    if (!Array.isArray(parsed)) throw new Error('JSON 必须是任务对象数组');
-    return parsed;
+    var parsed;
+    try { parsed = JSON.parse(text); }
+    catch (error) { throw cloudFieldError('file', 'JSON 格式错误：' + error.message); }
+    if (!Array.isArray(parsed)) throw cloudFieldError('file', 'JSON 必须是任务对象数组');
+    if (parsed.length > 200) throw cloudFieldError('file', '单次最多导入 200 条任务');
+    return parsed.map(function(item, index) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        return { __invalidRecord: item, __sourceRow: index + 1 };
+      }
+      return Object.assign({}, item, { __sourceRow: index + 1 });
+    });
   }
-  return cloudParseCsv(text);
+  var rows = cloudParseCsv(text);
+  if (rows.length > 200) throw cloudFieldError('file', '单次最多导入 200 条任务');
+  return rows;
+}
+
+function cloudNormalizeBatchRow(item, index) {
+  var sourceRow = Number(item && item.__sourceRow) || index + 1;
+  if (!item || item.__invalidRecord !== undefined) {
+    throw cloudFieldError('record', '这一项必须是任务对象');
+  }
+  var allowed = [
+    'todo', 'content', 'name', 'notes', 'remark', 'coin', 'coin_var', 'exp',
+    'skills', 'category', 'category_id', 'categoryId', 'frequency',
+    'importance', 'difficulty', '__sourceRow'
+  ];
+  var unknown = Object.keys(item).filter(function(key) { return allowed.indexOf(key) < 0; });
+  if (unknown.length) throw cloudFieldError(unknown[0], '不支持的字段：' + unknown[0]);
+  return {
+    sourceRow: sourceRow,
+    todo: item.todo || item.content || item.name || '',
+    notes: item.notes || item.remark || '',
+    coin: item.coin == null ? '' : item.coin,
+    coin_var: item.coin_var == null ? '' : item.coin_var,
+    exp: item.exp == null ? '' : item.exp,
+    skills: cloudResolveBatchSkills(item.skills),
+    category: cloudResolveNamedOption(
+      item.category || item.category_id || item.categoryId || '',
+      cloudComposerOptions.categories, 'category'
+    ),
+    frequency: item.frequency == null ? '' : item.frequency,
+    importance: item.importance == null ? '' : item.importance,
+    difficulty: item.difficulty == null ? '' : item.difficulty
+  };
 }
 
 async function cloudPreviewBatch() {
@@ -5629,23 +7191,17 @@ async function cloudPreviewBatch() {
   var imported = await cloudReadBatchFile();
   if (previewVersion !== cloudBatchPreviewVersion) return;
   cloudBatchRows = imported.map(function(item, idx) {
+    var sourceRow = Number(item && item.__sourceRow) || idx + 1;
     try {
-      var normalized = {
-        todo: item.todo || item.content || item.name || '',
-        notes: item.notes || item.remark || '',
-        coin: item.coin || '',
-        coin_var: item.coin_var || '',
-        exp: item.exp || '',
-        skills: Array.isArray(item.skills) ? item.skills.join(',') : (item.skills || ''),
-        category: item.category || item.category_id || item.categoryId || '',
-        frequency: item.frequency || '',
-        importance: item.importance || '',
-        difficulty: item.difficulty || ''
-      };
+      var normalized = cloudNormalizeBatchRow(item, idx);
       var url = cloudBuildTaskUrl(normalized);
-      return Object.assign({ index: idx + 1, ok: true, error: '', url: url }, normalized);
+      return Object.assign({ index: idx + 1, ok: true, errorField: '', error: '', url: url }, normalized);
     } catch(e) {
-      return { index: idx + 1, ok: false, todo: item.todo || '', error: e.message, url: '' };
+      return {
+        index: idx + 1, sourceRow: sourceRow, ok: false,
+        todo: item && (item.todo || item.content || item.name) || '',
+        errorField: e.field || 'record', error: e.message, url: ''
+      };
     }
   });
   cloudRenderBatch();
@@ -5661,22 +7217,24 @@ async function cloudPreviewBatch() {
     body: JSON.stringify(cloudPayload({ urls: urls }))
   });
   if (previewVersion !== cloudBatchPreviewVersion) return;
-  cloudBatchPreviewToken = preview.preview_token;
+    cloudBatchPreviewToken = preview.preview_token;
   cloudBatchIdempotencyKey = cloudNewIdempotencyKey('batch');
   var btn = document.getElementById('cloudExecuteBatchBtn');
   if (btn) btn.disabled = false;
   document.getElementById('cloudStatus').textContent = '批量预览完成：' + valid + ' 条可执行。10 分钟内可确认一次。';
+  cloudLoadOperations();
 }
 
 function cloudRenderBatch() {
   var box = document.getElementById('cloudBatchTable');
   if (!cloudBatchRows.length) { box.textContent = '还没有批量导入预览。'; return; }
   var body = cloudBatchRows.map(function(r) {
-    return '<tr><td>' + r.index + '</td><td>' + (r.ok ? '可执行' : '有错误') + '</td><td>' + escHtml(r.todo || '') +
+    var status = r.executionStatus || (r.ok ? '可执行' : '有错误');
+    return '<tr><td>' + r.index + '</td><td>' + escHtml(r.sourceRow || r.index) + '</td><td>' + escHtml(status) + '</td><td>' + escHtml(r.errorField || '') + '</td><td>' + escHtml(r.todo || '') +
       '</td><td>' + escHtml(r.coin || '') + '</td><td>' + escHtml(r.exp || '') + '</td><td>' + escHtml(r.error || r.result || '') +
       '</td><td>' + escHtml(r.url || '') + '</td></tr>';
   }).join('');
-  box.innerHTML = '<div style="overflow:auto"><table class="data-table"><thead><tr><th>#</th><th>状态</th><th>任务</th><th>金币</th><th>经验</th><th>结果/错误</th><th>URL 预览</th></tr></thead><tbody>' + body + '</tbody></table></div>';
+  box.innerHTML = '<div style="overflow:auto"><table class="data-table"><thead><tr><th>#</th><th>来源行/项</th><th>状态</th><th>字段</th><th>任务</th><th>金币</th><th>经验</th><th>结果/错误</th><th>URL 预览</th></tr></thead><tbody>' + body + '</tbody></table></div>';
 }
 
 async function cloudExecuteBatch() {
@@ -5700,15 +7258,59 @@ async function cloudExecuteBatch() {
     cloudBatchPreviewToken = '';
     cloudBatchIdempotencyKey = '';
     cloudBatchRows = cloudBatchRows.map(function(row, idx) {
-      row.result = r.results && r.results[idx] ? JSON.stringify(r.results[idx]) : '已发送';
+      var result = r.results && r.results[idx];
+      row.executionStatus = result && result.status || 'unknown';
+      row.result = result ? result.message : '手机未返回此条的明确结果，请刷新任务确认';
       return row;
     });
     cloudRenderBatch();
-    document.getElementById('cloudStatus').textContent = '批量新增请求已发送：' + r.count + ' 条。请在手机端确认。';
+    document.getElementById('cloudStatus').textContent =
+      '批量执行报告：成功 ' + ((r.summary || {}).success || 0) +
+      '，失败 ' + ((r.summary || {}).failed || 0) +
+      '，待确认 ' + ((r.summary || {}).unknown || 0) + '。';
+    cloudLoadOperations();
     cloudLoadData('tasks');
   } finally {
     cloudBatchExecuting = false;
     if (btn) btn.disabled = !cloudBatchPreviewToken;
+  }
+}
+
+function cloudRenderOperations(operations) {
+  var box = document.getElementById('cloudOperationLog');
+  if (!box) return;
+  if (!operations || !operations.length) {
+    box.innerHTML = '<div class="empty">还没有云端预览或新增记录。Token 从不写入此记录。</div>';
+    return;
+  }
+  box.innerHTML = operations.map(function(record) {
+    var typeLabel = record.type === 'execute' ? '新增执行' : '预览';
+    var summary = record.summary || {};
+    var summaryText = record.type === 'execute'
+      ? '成功 ' + (summary.success || 0) + ' · 失败 ' + (summary.failed || 0) + ' · 待确认 ' + (summary.unknown || 0)
+      : '待确认 ' + (record.count || 0) + ' 条';
+    var items = (record.items || []).map(function(item) {
+      return '<li>第 ' + escHtml(item.row) + ' 条 · ' + escHtml(item.title || '未命名任务') +
+        (item.status ? ' · ' + escHtml(item.status) + ' · ' + escHtml(item.message || '') : '') + '</li>';
+    }).join('');
+    return '<div class="cloud-operation-card"><div><strong>' + typeLabel + '</strong> · ' +
+      escHtml(record.created_at || '') + ' · ' + escHtml(summaryText) + '</div>' +
+      (record.idempotency_digest ? '<div style="font-size:11px;color:var(--text2);margin-top:4px">幂等键摘要：' + escHtml(record.idempotency_digest) + '</div>' : '') +
+      '<details style="margin-top:6px"><summary>查看逐条报告</summary><ol>' + items + '</ol></details></div>';
+  }).join('');
+}
+
+async function cloudLoadOperations() {
+  var box = document.getElementById('cloudOperationLog');
+  if (!box) return [];
+  try {
+    var result = await api('/api/cloud/operations');
+    cloudRenderOperations(result.operations || []);
+    return result.operations || [];
+  } catch (error) {
+    box.innerHTML = cloudErrorHtml(error,
+      '<div style="margin-top:8px"><button class="btn btn-danger btn-sm" onclick="cloudLoadOperations()">重试读取操作记录</button></div>');
+    return [];
   }
 }
 
@@ -5978,8 +7580,9 @@ function buildBarChart(data, title, color) {
   return '<div class="chart-container"><h4>' + title + '</h4><div class="bar-chart">' + bars + '</div></div>';
 }
 
-function buildHeatmap(data, title, labels) {
-  if (!data || data.length === 0) return '<div class="chart-container"><h4>' + title + '</h4><div class="empty">暂无数据</div></div>';
+function buildHeatmap(data, title, labels, unit) {
+  unit = unit || '个';
+  if (!data || data.length === 0) return '<div class="chart-container"><h4>' + escHtml(title) + '</h4><div class="empty">暂无数据</div></div>';
   var cells = data.map(function(d) {
     var level = 0;
     if (d.value >= 4) level = 4;
@@ -5989,10 +7592,10 @@ function buildHeatmap(data, title, labels) {
     if (d.value < 0) level = -1;
     var colors = ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'];
     if (level === -1) return '<div class="heatmap-cell" style="background:transparent"></div>';
-    return '<div class="heatmap-cell" style="background:' + colors[level] + '" title="' + d.date + ': ' + d.value + '个">' + d.label + '</div>';
+    return '<div class="heatmap-cell" style="background:' + colors[level] + '" title="' + escAttr(d.date) + ': ' + escAttr(String(d.value)) + escAttr(unit) + '">' + escHtml(d.label) + '</div>';
   }).join('');
-  return '<div class="chart-container"><h4>' + title + '</h4><div style="display:flex;gap:4px">' +
-    '<div style="display:flex;flex-direction:column;gap:2px;font-size:9px;color:var(--text2);padding-top:2px">' + (labels||['一','二','三','四','五','六','日']).map(function(l){return '<span>'+l+'</span>';}).join('') + '</div>' +
+  return '<div class="chart-container"><h4>' + escHtml(title) + '</h4><div style="display:flex;gap:4px">' +
+    '<div style="display:flex;flex-direction:column;gap:2px;font-size:9px;color:var(--text2);padding-top:2px">' + (labels||['一','二','三','四','五','六','日']).map(function(l){return '<span>'+escHtml(l)+'</span>';}).join('') + '</div>' +
     '<div class="heatmap">' + cells + '</div>' +
     '</div><div style="display:flex;gap:2px;align-items:center;margin-top:6px;font-size:10px;color:var(--text2)"><span>少</span>' +
     ['#1a2332','#1b4332','#2d6a4f','#40916c','#4caf50'].map(function(c){return '<span style="width:12px;height:12px;border-radius:2px;background:'+c+'"></span>';}).join('') +

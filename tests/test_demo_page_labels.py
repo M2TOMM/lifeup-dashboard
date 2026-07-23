@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DemoPageLabelTests(unittest.TestCase):
-    def test_goals_and_review_are_clearly_labeled_as_demo_data(self):
+    def test_review_and_goals_no_longer_render_demo_data(self):
         node = (
             os.environ.get("NODE_BINARY")
             or shutil.which("node")
@@ -32,10 +32,23 @@ const document = {
   createElement: () => ({ classList, style: {}, addEventListener: noop })
 };
 const localStorage = { getItem: () => 'local', setItem: noop, removeItem: noop };
+const unavailable = (label) => ({ label, available: false, value: null, previous_value: null, current_records: [], previous_records: [], missing_reason: '暂无真实流水' });
 const sandbox = {
   console, document, localStorage, window: { addEventListener: noop },
   setTimeout: noop, clearTimeout: noop, URLSearchParams, AbortController,
-  fetch: noop, confirm: () => false, alert: noop, Blob, URL
+  fetch: async (url) => ({ ok: true, json: async () => url.startsWith('/api/review') ? ({
+    meta: { source: 'local', source_label: '本地备份数据' },
+    window: { label: '本周', comparison_label: '上周', start: '2026-07-13', end: '2026-07-19', previous_start: '2026-07-06', previous_end: '2026-07-12' },
+    metrics: {
+      focus_minutes: unavailable('番茄专注时长'), tasks_completed: unavailable('完成任务数'),
+      coin_change: unavailable('金币净变化'), exp_change: unavailable('经验净变化'),
+      achievements_completed: unavailable('完成成就数')
+    }, series: [], insights: [], gaps: ['暂无真实流水']
+  }) : ({
+    meta: { source: 'local', config_source: 'lifeup_goal_mappings.json' },
+    configured: false, config: { version: 1, goals: [] }, config_error: '',
+    category_options: { tasks: [], achievements: [] }, goals: []
+  }) }), confirm: () => false, alert: noop, Blob, URL
 };
 sandbox.window.window = sandbox.window;
 sandbox.window.document = document;
@@ -43,11 +56,19 @@ sandbox.window.localStorage = localStorage;
 vm.createContext(sandbox);
 vm.runInContext(source, sandbox);
 (async () => {
-  for (const loader of [sandbox.loadGoals, sandbox.loadReview]) {
-    await loader();
-    if (!content.innerHTML.includes('演示数据') || !content.innerHTML.includes('不会写入')) {
-      throw new Error('mock page lacks a clear demo-data warning');
-    }
+  await sandbox.loadReview();
+  if (!content.innerHTML.includes('本地备份数据') || !content.innerHTML.includes('暂无真实流水')) {
+    throw new Error('review page lacks real-source and data-gap labels');
+  }
+  if (content.innerHTML.includes('演示数据')) {
+    throw new Error('review page still renders demo data');
+  }
+  await sandbox.loadGoals();
+  if (!content.innerHTML.includes('尚未配置真实宏愿') || !content.innerHTML.includes('不会生成随机数字')) {
+    throw new Error('goals page lacks the real-data empty-state guide');
+  }
+  if (content.innerHTML.includes('演示数据')) {
+    throw new Error('goals page still renders demo data');
   }
 })().catch((error) => {
   console.error(error);

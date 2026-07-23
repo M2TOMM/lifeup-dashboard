@@ -1,4 +1,6 @@
 import unittest
+from pathlib import Path
+import tempfile
 from unittest.mock import patch
 
 import server
@@ -8,6 +10,13 @@ class CloudPreviewExecutionTests(unittest.TestCase):
     def setUp(self):
         getattr(server, "CLOUD_PREVIEWS", {}).clear()
         getattr(server, "CLOUD_EXECUTIONS", {}).clear()
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.log_patch = patch.object(
+            server,
+            "CLOUD_OPERATION_LOG_PATH",
+            str(Path(self.tempdir.name) / "cloud-operation-log.jsonl"),
+        )
+        self.log_patch.start()
         self.client = server.app.test_client()
         self.connection = {
             "host": "127.0.0.1",
@@ -17,6 +26,8 @@ class CloudPreviewExecutionTests(unittest.TestCase):
         self.url = "lifeup://api/add_task?todo=Previewed"
 
     def tearDown(self):
+        self.log_patch.stop()
+        self.tempdir.cleanup()
         getattr(server, "CLOUD_PREVIEWS", {}).clear()
         getattr(server, "CLOUD_EXECUTIONS", {}).clear()
 
@@ -26,7 +37,9 @@ class CloudPreviewExecutionTests(unittest.TestCase):
             json={**self.connection, "urls": [self.url]},
         )
         self.assertEqual(response.status_code, 200, response.get_json())
-        return response.get_json()["preview_token"]
+        payload = response.get_json()
+        self.assertEqual(payload["items"][0]["title"], "Previewed")
+        return payload["preview_token"]
 
     def test_execute_rejects_unpreviewed_urls(self):
         with patch.object(server, "cloud_post_json") as cloud_post:

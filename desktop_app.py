@@ -15,6 +15,14 @@ if getattr(sys, 'frozen', False):
 else:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# 桌面包每次启动都会解压到临时目录；用户数据必须放到稳定的本机目录。
+USER_DATA_DIR = os.path.join(
+    os.environ.get('LOCALAPPDATA') or os.path.expanduser('~'),
+    'LifeUpDashboard',
+)
+os.makedirs(USER_DATA_DIR, exist_ok=True)
+os.environ.setdefault('LIFEUP_DASHBOARD_DATA_DIR', USER_DATA_DIR)
+
 import webview
 
 # 切换工作目录到资源目录，确保 Flask 能找到 index.html
@@ -25,13 +33,16 @@ app = server_module.app
 STATE = server_module.STATE
 
 # ─── 配置持久化 ────────────────────────────────────────────
-CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.lifeup_dashboard_config.json')
+CONFIG_FILE = os.path.join(USER_DATA_DIR, 'desktop-config.json')
 HISTORY_MAX = 10
 
 def load_config():
     if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-            cfg = json.load(f)
+        try:
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                cfg = json.load(f)
+        except (OSError, ValueError, TypeError):
+            cfg = {}
         # 确保必要字段存在
         cfg.setdefault('last_backup_path', '')
         cfg.setdefault('last_dir', '')
@@ -121,7 +132,7 @@ class Api:
         return True
 
     def get_version(self):
-        return '1.1.0'
+        return '1.2.0'
 
 
 def start_flask():
